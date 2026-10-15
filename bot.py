@@ -693,8 +693,9 @@ async def toggle_site(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 # Flask Thread
 # ==========================================
 def run_flask():
-    print("🌐 Flask on http://0.0.0.0:5000")
-    app_web.run(host="0.0.0.0", port=5000, debug=False, use_reloader=False)
+    port = int(os.environ.get("PORT", 5000))
+    print(f"🌐 Flask on http://0.0.0.0:{port}")
+    app_web.run(host="0.0.0.0", port=port, debug=False, use_reloader=False)
 
 
 # ==========================================
