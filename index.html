@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>CheatCP - ثبت‌نام</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--c:#00e5ff;--p:#9b5cff;--bg:#080b12;--panel:#111827;--muted:#9ba9bd;--good:#39f2a3;--bad:#ff718b}
+body{background:radial-gradient(ellipse at top,#17264a,transparent 55%),var(--bg);color:#f4f7ff;font-family:Tahoma,Arial,sans-serif;min-height:100vh;padding:16px}
+.app{max-width:520px;margin:auto}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:45px;height:45px;border-radius:14px;background:linear-gradient(135deg,var(--c),var(--p));display:grid;place-items:center;color:#071019;font-weight:900;box-shadow:0 0 25px #00e5ff44;font-size:16px}
+h1{font-size:19px}
+small{color:var(--muted);font-size:11px}
+.version{color:var(--c);border:1px solid #00e5ff44;padding:7px 10px;border-radius:20px;font-size:11px}
+.panel{background:linear-gradient(145deg,#141e30,#0c111c);border:1px solid #26374d;border-radius:20px;padding:22px;margin-bottom:15px}
+.panel h2{font-size:20px;margin-bottom:8px;text-align:center}
+.panel p{font-size:12px;color:var(--muted);text-align:center;line-height:2;margin-bottom:15px}
+.field{margin:14px 0}
+label{font-size:12px;display:block;margin-bottom:6px;color:#c9d5e8}
+input,textarea{width:100%;background:#080d15;border:1px solid #2b3a4f;border-radius:11px;padding:13px;color:white;outline:none;font-family:inherit;font-size:13px}
+input:focus,textarea:focus{border-color:var(--c)}
+textarea{resize:vertical;min-height:70px}
+.sp-options{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.sp-btn{background:#0d1524;border:1px solid #2b3a4f;border-radius:11px;padding:11px 8px;color:#c9d5e8;font-size:12px;cursor:pointer;transition:all .2s}
+.sp-btn:hover{border-color:var(--c);background:#0e2233}
+.sp-btn.active{border-color:var(--c);background:#0e2233;color:var(--c);box-shadow:0 0 15px #00e5ff22}
+.sp-btn:disabled{opacity:.4;cursor:not-allowed}
+.btn{display:block;width:100%;border:0;border-radius:12px;padding:14px;font-weight:bold;background:linear-gradient(100deg,var(--c),#a18aff);color:#071019;cursor:pointer;font-size:14px;margin-top:18px;transition:transform .1s}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.warning{background:#2a1a0d;border:1px solid #e8b65a60;border-radius:11px;padding:12px;color:#e8d5a5;font-size:11px;line-height:2;margin-top:10px;display:none}
+.warning.show{display:block}
+.status{text-align:center;font-size:12px;margin-top:12px;min-height:18px}
+.good{color:var(--good)}
+.bad{color:var(--bad)}
+.success{display:none;text-align:center;padding:30px 18px}
+.success.show{display:block}
+.success-icon{font-size:55px;color:var(--good);margin-bottom:15px}
+.code-box{background:#0b211b;border:1px dashed #39f2a380;border-radius:12px;padding:14px;margin:15px 0;font-family:monospace;font-size:15px;color:var(--good);direction:ltr;letter-spacing:1px;word-break:break-all}
+.footer{text-align:center;color:#66758b;font-size:10px;line-height:2;margin:28px 0}
+.spinner{width:34px;height:34px;border:3px solid #ffffff25;border-top-color:var(--c);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading{display:none;text-align:center;padding:20px}
+.loading.show{display:block}
+</style>
+</head>
+<body>
+<div class="app">
+
+<header>
+ <div class="brand">
+  <div class="logo">CP</div>
+  <div><h1>CheatCP</h1><small>GAMING STORE</small></div>
+ </div>
+ <span class="version">REGISTER</span>
+</header>
+
+<!-- فرم ثبت‌نام -->
+<div class="panel" id="formPanel">
+ <h2>ثبت‌نام در CheatCP</h2>
+ <p>اطلاعات خودت رو وارد کن تا ثبت بشی 🎮</p>
+
+ <div class="field">
+  <label>📧 جیمیل</label>
+  <input type="email" id="email" placeholder="example@gmail.com" dir="ltr" required>
+ </div>
+
+ <div class="field">
+  <label>🔑 رمز عبور</label>
+  <input type="text" id="password" placeholder="رمز دلخواه" dir="ltr" required>
+ </div>
+
+ <div class="field">
+  <label>💬 آیدی روبیکا</label>
+  <input type="text" id="rubika" placeholder="@username" dir="ltr" required>
+ </div>
+
+ <div class="field">
+  <label>📝 توضیحات (اختیاری)</label>
+  <textarea id="desc" placeholder="هر توضیحی که می‌خوای..."></textarea>
+ </div>
+
+ <div class="field">
+  <label>💎 مقدار SP</label>
+  <input type="number" id="spInput" placeholder="مثلاً 20000" dir="ltr" required>
+  <div class="sp-options">
+   <button type="button" class="sp-btn" onclick="setSP(10000)">10,000</button>
+   <button type="button" class="sp-btn" onclick="setSP(20000)">20,000</button>
+   <button type="button" class="sp-btn" onclick="setSP(50000)">50,000</button>
+   <button type="button" class="sp-btn" onclick="setSP(80000)">80,000</button>
+   <button type="button" class="sp-btn" onclick="setSP(100000)">100,000</button>
+  </div>
+  <div class="warning" id="spWarning">
+   ⚠️ نمی‌تونی بیشتر از <strong>100,000</strong> SP بذاری!<br>
+   وگرنه اکانتت <strong>بن</strong> می‌شه و مسئولیتش گردن خودته! 🚫
+  </div>
+ </div>
+
+ <button class="btn" id="submitBtn" onclick="submitForm()">✅ ثبت‌نام</button>
+ <div class="status" id="status"></div>
+</div>
+
+<!-- لودینگ -->
+<div class="loading" id="loading">
+ <div class="spinner"></div>
+ <p>در حال ثبت اطلاعات...</p>
+</div>
+
+<!-- موفقیت -->
+<div class="panel success" id="successPanel">
+ <div class="success-icon">✓</div>
+ <h2>ثبت‌نام موفق! 🎉</h2>
+ <p>اطلاعاتت با موفقیت ثبت شد.</p>
+ <p>کد اختصاصی تو:</p>
+ <div class="code-box" id="userCode">-</div>
+ <p style="margin-top:15px">این کد رو <strong>ذخیره کن</strong> — برای پیگیری لازمه!</p>
+ <p style="margin-top:10px">🎧 پشتیبانی: <strong>@My_HINATA</strong></p>
+</div>
+
+<footer class="footer">CheatCP · GAMING STORE<br>© 2025 All Rights Reserved</footer>
+
+</div>
+
+<script>
+const MAX_SP = 100000;
+let selectedSP = 0;
+
+function setSP(value) {
+    document.getElementById('spInput').value = value;
+    document.querySelectorAll('.sp-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    checkSP();
+}
+
+function checkSP() {
+    const input = document.getElementById('spInput');
+    const warning = document.getElementById('spWarning');
+    const submitBtn = document.getElementById('submitBtn');
+    const val = parseInt(input.value) || 0;
+
+    if (val > MAX_SP) {
+        warning.classList.add('show');
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.5';
+    } else {
+        warning.classList.remove('show');
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+    }
+}
+
+document.getElementById('spInput').addEventListener('input', checkSP);
+
+async function submitForm() {
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const rubika = document.getElementById('rubika').value.trim();
+    const desc = document.getElementById('desc').value.trim();
+    const sp = parseInt(document.getElementById('spInput').value) || 0;
+
+    const status = document.getElementById('status');
+
+    if (!email || !password || !rubika || !sp) {
+        status.textContent = '❌ همه فیلدهای اجباری رو پر کن!';
+        status.className = 'status bad';
+        return;
+    }
+
+    if (sp > MAX_SP) {
+        status.textContent = '🚫 SP بیشتر از حد مجاز!';
+        status.className = 'status bad';
+        return;
+    }
+
+    document.getElementById('formPanel').style.display = 'none';
+    document.getElementById('loading').classList.add('show');
+
+    try {
+        const response = await fetch('/register', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email, password, rubika, desc, sp})
+        });
+
+        const data = await response.json();
+        document.getElementById('loading').classList.remove('show');
+
+        if (data.success) {
+            document.getElementById('userCode').textContent = data.code;
+            document.getElementById('successPanel').classList.add('show');
+        } else {
+            document.getElementById('formPanel').style.display = 'block';
+            status.textContent = '❌ ' + (data.message || 'خطا در ثبت');
+            status.className = 'status bad';
+        }
+    } catch (err) {
+        document.getElementById('loading').classList.remove('show');
+        document.getElementById('formPanel').style.display = 'block';
+        status.textContent = '❌ خطا در اتصال به سرور!';
+        status.className = 'status bad';
+    }
+}
+</script>
+</body>
+</html>

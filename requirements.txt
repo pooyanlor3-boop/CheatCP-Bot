@@ -1,0 +1,4 @@
+python-telegram-bot==20.7
+pysocks
+requests
+gunicorn==21.2.0
