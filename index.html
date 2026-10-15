@@ -3,206 +3,1115 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>CheatCP - ثبت‌نام</title>
+<meta name="theme-color" content="#0a0a0a">
+<title>PhoenixCheat | چیت کالاف دیوتی</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-:root{--c:#00e5ff;--p:#9b5cff;--bg:#080b12;--panel:#111827;--muted:#9ba9bd;--good:#39f2a3;--bad:#ff718b}
-body{background:radial-gradient(ellipse at top,#17264a,transparent 55%),var(--bg);color:#f4f7ff;font-family:Tahoma,Arial,sans-serif;min-height:100vh;padding:16px}
-.app{max-width:520px;margin:auto}
-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
-.brand{display:flex;align-items:center;gap:10px}
-.logo{width:45px;height:45px;border-radius:14px;background:linear-gradient(135deg,var(--c),var(--p));display:grid;place-items:center;color:#071019;font-weight:900;box-shadow:0 0 25px #00e5ff44;font-size:16px}
-h1{font-size:19px}
-small{color:var(--muted);font-size:11px}
-.version{color:var(--c);border:1px solid #00e5ff44;padding:7px 10px;border-radius:20px;font-size:11px}
-.panel{background:linear-gradient(145deg,#141e30,#0c111c);border:1px solid #26374d;border-radius:20px;padding:22px;margin-bottom:15px}
-.panel h2{font-size:20px;margin-bottom:8px;text-align:center}
-.panel p{font-size:12px;color:var(--muted);text-align:center;line-height:2;margin-bottom:15px}
-.field{margin:14px 0}
-label{font-size:12px;display:block;margin-bottom:6px;color:#c9d5e8}
-input,textarea{width:100%;background:#080d15;border:1px solid #2b3a4f;border-radius:11px;padding:13px;color:white;outline:none;font-family:inherit;font-size:13px}
-input:focus,textarea:focus{border-color:var(--c)}
-textarea{resize:vertical;min-height:70px}
-.sp-options{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
-.sp-btn{background:#0d1524;border:1px solid #2b3a4f;border-radius:11px;padding:11px 8px;color:#c9d5e8;font-size:12px;cursor:pointer;transition:all .2s}
-.sp-btn:hover{border-color:var(--c);background:#0e2233}
-.sp-btn.active{border-color:var(--c);background:#0e2233;color:var(--c);box-shadow:0 0 15px #00e5ff22}
-.sp-btn:disabled{opacity:.4;cursor:not-allowed}
-.btn{display:block;width:100%;border:0;border-radius:12px;padding:14px;font-weight:bold;background:linear-gradient(100deg,var(--c),#a18aff);color:#071019;cursor:pointer;font-size:14px;margin-top:18px;transition:transform .1s}
-.btn:active{transform:scale(.98)}
-.btn:disabled{opacity:.5;cursor:not-allowed}
-.warning{background:#2a1a0d;border:1px solid #e8b65a60;border-radius:11px;padding:12px;color:#e8d5a5;font-size:11px;line-height:2;margin-top:10px;display:none}
-.warning.show{display:block}
-.status{text-align:center;font-size:12px;margin-top:12px;min-height:18px}
-.good{color:var(--good)}
-.bad{color:var(--bad)}
-.success{display:none;text-align:center;padding:30px 18px}
-.success.show{display:block}
-.success-icon{font-size:55px;color:var(--good);margin-bottom:15px}
-.code-box{background:#0b211b;border:1px dashed #39f2a380;border-radius:12px;padding:14px;margin:15px 0;font-family:monospace;font-size:15px;color:var(--good);direction:ltr;letter-spacing:1px;word-break:break-all}
-.footer{text-align:center;color:#66758b;font-size:10px;line-height:2;margin:28px 0}
-.spinner{width:34px;height:34px;border:3px solid #ffffff25;border-top-color:var(--c);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --orange:#ff6b00;
+  --orange-2:#ff9500;
+  --red:#e60000;
+  --red-2:#ff2d2d;
+  --black:#0a0a0a;
+  --black-2:#141414;
+  --panel:#1a1a1a;
+  --white:#f5f5f5;
+  --gray:#a0a0a0;
+  --green:#00c853;
+  --blue:#00a8ff;
+  --gold:#ffaa00;
+}
+html,body{min-height:100%}
+body{
+  background:var(--black);
+  background-image:
+    radial-gradient(ellipse at top, rgba(255,107,0,0.15), transparent 50%),
+    radial-gradient(ellipse at bottom, rgba(230,0,0,0.1), transparent 50%);
+  color:var(--white);
+  font-family:'Vazirmatn',Tahoma,sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+  position:relative;
+}
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:
+    radial-gradient(2px 2px at 20% 30%, rgba(255,107,0,0.4), transparent),
+    radial-gradient(2px 2px at 60% 70%, rgba(255,150,0,0.3), transparent),
+    radial-gradient(1px 1px at 50% 50%, rgba(230,0,0,0.4), transparent),
+    radial-gradient(1px 1px at 80% 10%, rgba(255,107,0,0.3), transparent),
+    radial-gradient(2px 2px at 10% 80%, rgba(255,170,0,0.3), transparent);
+  background-size:200% 200%;
+  animation:floatParticles 20s ease-in-out infinite;
+  pointer-events:none;z-index:0;
+}
+@keyframes floatParticles{
+  0%,100%{background-position:0% 0%}
+  50%{background-position:100% 100%}
+}
+.app{max-width:520px;margin:0 auto;padding:16px;position:relative;z-index:1}
+
+/* لودینگ اولیه */
+#preloader{
+  position:fixed;inset:0;
+  background:var(--black);
+  display:grid;place-items:center;
+  z-index:9999;
+  transition:opacity 0.5s;
+}
+#preloader.hide{opacity:0;pointer-events:none}
+.pre-spinner{
+  width:60px;height:60px;
+  border:4px solid rgba(255,107,0,0.2);
+  border-top-color:var(--orange);
+  border-right-color:var(--red);
+  border-radius:50%;
+  animation:spin 0.8s linear infinite;
+}
 @keyframes spin{to{transform:rotate(360deg)}}
-.loading{display:none;text-align:center;padding:20px}
+
+/* صفحه بسته */
+.closed-page{
+  display:none;
+  text-align:center;
+  padding:60px 20px;
+}
+.closed-page.show{display:block}
+.closed-icon{font-size:80px;margin-bottom:20px}
+.closed-text{
+  font-size:16px;line-height:2.2;color:#c9c9c9;
+  background:rgba(255,107,0,0.1);
+  border:1px solid rgba(255,107,0,0.3);
+  border-radius:16px;padding:20px;
+}
+
+/* هدر */
+header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:14px 0;margin-bottom:18px;
+  border-bottom:1px solid rgba(255,107,0,0.2);
+  position:relative;
+}
+header::after{
+  content:'';position:absolute;bottom:-1px;right:0;left:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--orange),var(--red),transparent);
+  opacity:0.7;
+}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{
+  width:48px;height:48px;border-radius:14px;
+  background:linear-gradient(135deg,var(--orange),var(--red));
+  display:grid;place-items:center;
+  color:#0a0a0a;font-weight:900;font-size:22px;
+  box-shadow:0 0 25px rgba(255,107,0,0.5),0 0 50px rgba(230,0,0,0.2);
+  animation:pulseLogo 3s ease-in-out infinite;
+  position:relative;
+}
+.logo::before{
+  content:'';position:absolute;inset:-3px;border-radius:17px;
+  background:linear-gradient(135deg,var(--orange),var(--red),var(--orange));
+  z-index:-1;filter:blur(8px);opacity:0.6;
+  animation:pulseLogo 3s ease-in-out infinite;
+}
+@keyframes pulseLogo{
+  0%,100%{box-shadow:0 0 20px rgba(255,107,0,0.4)}
+  50%{box-shadow:0 0 35px rgba(255,107,0,0.7),0 0 60px rgba(230,0,0,0.3)}
+}
+.brand-text h1{
+  font-size:17px;font-weight:900;
+  background:linear-gradient(90deg,var(--orange),var(--red-2),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.brand-text small{
+  font-size:10px;color:var(--gray);letter-spacing:2px;
+  display:block;margin-top:2px;
+}
+.version{
+  font-size:10px;color:var(--orange);
+  border:1px solid rgba(255,107,0,0.4);
+  padding:6px 10px;border-radius:20px;
+  background:rgba(255,107,0,0.08);
+  font-weight:700;
+}
+
+/* پیام همگانی */
+.broadcast{
+  display:none;
+  background:linear-gradient(135deg,rgba(255,107,0,0.15),rgba(230,0,0,0.1));
+  border:1px solid rgba(255,107,0,0.5);
+  border-radius:14px;
+  padding:14px 16px;
+  margin-bottom:18px;
+  position:relative;
+  animation:pulseBroadcast 2s ease-in-out infinite;
+}
+.broadcast.show{display:block}
+@keyframes pulseBroadcast{
+  0%,100%{box-shadow:0 0 15px rgba(255,107,0,0.2)}
+  50%{box-shadow:0 0 25px rgba(255,107,0,0.5)}
+}
+.broadcast-text{
+  font-size:12px;line-height:2;color:#ffcc80;
+  padding-left:25px;
+}
+.broadcast-close{
+  position:absolute;top:8px;left:8px;
+  background:rgba(230,0,0,0.3);
+  border:0;color:var(--white);
+  width:24px;height:24px;border-radius:50%;
+  cursor:pointer;font-size:12px;
+  display:grid;place-items:center;
+}
+
+/* منوی بالا */
+.top-menu{
+  display:flex;gap:8px;margin-bottom:18px;
+  overflow-x:auto;padding-bottom:4px;
+  scrollbar-width:none;
+}
+.top-menu::-webkit-scrollbar{display:none}
+.menu-btn{
+  background:rgba(26,26,26,0.8);
+  border:1px solid rgba(255,107,0,0.3);
+  border-radius:12px;padding:10px 14px;
+  color:var(--white);font-size:11px;font-weight:700;
+  cursor:pointer;white-space:nowrap;
+  font-family:inherit;transition:all 0.3s;
+  display:flex;align-items:center;gap:6px;
+}
+.menu-btn:hover{
+  border-color:var(--orange);
+  background:rgba(255,107,0,0.15);
+  box-shadow:0 0 15px rgba(255,107,0,0.3);
+  transform:translateY(-2px);
+}
+
+.view{display:none}
+.view.active{display:block;animation:fadeIn 0.4s ease-out}
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(15px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+.hero{
+  background:linear-gradient(145deg,rgba(26,26,26,0.95),rgba(10,10,10,0.95));
+  border:1px solid rgba(255,107,0,0.3);
+  border-radius:22px;padding:30px 22px;margin-bottom:18px;
+  box-shadow:0 10px 40px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.05);
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;top:-50%;right:-50%;
+  width:200%;height:200%;
+  background:conic-gradient(from 0deg,transparent,rgba(255,107,0,0.1),transparent 30%);
+  animation:rotateHero 15s linear infinite;
+  pointer-events:none;
+}
+@keyframes rotateHero{to{transform:rotate(360deg)}}
+.hero-content{position:relative;z-index:1}
+.hero .badge{
+  display:inline-block;
+  background:linear-gradient(90deg,var(--orange),var(--red));
+  color:#0a0a0a;padding:6px 14px;border-radius:20px;
+  font-size:10px;font-weight:900;letter-spacing:1px;
+  margin-bottom:14px;
+  box-shadow:0 0 20px rgba(255,107,0,0.4);
+}
+.hero h2{
+  font-size:26px;font-weight:900;line-height:1.6;margin-bottom:14px;
+}
+.hero h2 .neon{
+  color:var(--orange);
+  text-shadow:0 0 15px rgba(255,107,0,0.6),0 0 30px rgba(255,107,0,0.3);
+}
+.hero p{font-size:13px;line-height:2.2;color:#c9c9c9;margin-bottom:16px}
+.hero ul{list-style:none;margin:16px 0}
+.hero ul li{
+  font-size:13px;padding:8px 0;color:#e0e0e0;
+  display:flex;align-items:center;gap:8px;
+}
+.hero ul li .check{color:var(--green);font-weight:900;font-size:16px}
+.hero ul li .fire{color:var(--orange);font-weight:900}
+
+.btn-main{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  width:100%;
+  background:linear-gradient(100deg,var(--orange),var(--red));
+  color:#0a0a0a;font-weight:900;font-size:15px;
+  border:0;border-radius:14px;padding:16px;margin-top:10px;
+  cursor:pointer;font-family:inherit;
+  box-shadow:0 0 25px rgba(255,107,0,0.5),0 5px 20px rgba(0,0,0,0.5);
+  transition:all 0.3s;position:relative;overflow:hidden;
+}
+.btn-main::before{
+  content:'';position:absolute;top:0;left:-100%;
+  width:100%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);
+  transition:left 0.5s;
+}
+.btn-main:hover::before{left:100%}
+.btn-main:hover{
+  box-shadow:0 0 40px rgba(255,107,0,0.7),0 8px 25px rgba(0,0,0,0.6);
+  transform:translateY(-2px);
+}
+
+.form-group{margin-bottom:16px}
+.form-group label{
+  display:block;font-size:12px;font-weight:700;
+  color:#e0e0e0;margin-bottom:8px;
+}
+.form-group input,
+.form-group textarea{
+  width:100%;background:rgba(10,10,10,0.8);
+  border:1px solid rgba(255,107,0,0.2);
+  border-radius:12px;padding:14px 16px;
+  color:var(--white);font-size:13px;
+  font-family:inherit;outline:none;
+  transition:all 0.3s;
+}
+.form-group input:focus,
+.form-group textarea:focus{
+  border-color:var(--orange);
+  box-shadow:0 0 20px rgba(255,107,0,0.3);
+  background:rgba(10,10,10,1);
+}
+.form-group textarea{resize:vertical;min-height:80px}
+.form-group input::placeholder,
+.form-group textarea::placeholder{color:#555}
+
+.form-group input.error,
+.form-group textarea.error{
+  border-color:var(--red);
+  box-shadow:0 0 15px rgba(230,0,0,0.4);
+}
+.form-group input.success,
+.form-group textarea.success{
+  border-color:var(--green);
+  box-shadow:0 0 15px rgba(0,200,83,0.3);
+}
+.error-text{
+  display:block;font-size:11px;color:var(--red-2);
+  margin-top:6px;min-height:14px;font-weight:700;
+}
+.char-counter{
+  display:block;text-align:left;
+  font-size:10px;color:var(--gray);
+  margin-top:6px;direction:ltr;
+}
+.char-counter.warn{color:var(--orange)}
+.char-counter.max{color:var(--red-2)}
+
+.sp-buttons{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:8px;margin-top:10px;
+}
+.sp-btn{
+  background:rgba(10,10,10,0.8);
+  border:1px solid rgba(255,107,0,0.25);
+  border-radius:12px;padding:12px 8px;
+  color:#c9c9c9;font-size:12px;font-weight:700;
+  cursor:pointer;font-family:inherit;transition:all 0.3s;
+}
+.sp-btn:hover{
+  border-color:var(--orange);
+  background:rgba(255,107,0,0.15);
+  color:var(--orange);transform:translateY(-2px);
+}
+.sp-btn.active{
+  border-color:var(--orange);
+  background:linear-gradient(135deg,rgba(255,107,0,0.25),rgba(230,0,0,0.15));
+  color:var(--orange);
+  box-shadow:0 0 20px rgba(255,107,0,0.4);
+}
+
+.warning{
+  display:none;
+  background:rgba(230,0,0,0.1);
+  border:1px solid rgba(230,0,0,0.4);
+  border-radius:12px;padding:14px;margin-top:12px;
+  color:#ff9999;font-size:12px;line-height:2;
+}
+.warning.show{display:block}
+.warning strong{color:var(--red-2)}
+
+.warn-register{
+  background:linear-gradient(135deg,rgba(255,170,0,0.08),rgba(230,0,0,0.05));
+  border:1px solid rgba(255,170,0,0.4);
+  border-radius:14px;padding:14px 16px;
+  margin-bottom:18px;
+  display:flex;gap:12px;align-items:flex-start;
+}
+.warn-register .wr-icon{font-size:22px;flex-shrink:0;margin-top:2px}
+.warn-register .wr-text{
+  font-size:11.5px;line-height:2;color:#ffcc80;text-align:right;
+}
+.warn-register .wr-text strong{color:var(--gold);font-weight:900}
+
+.btn-submit{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  width:100%;
+  background:linear-gradient(100deg,var(--green),#00a844);
+  color:#0a0a0a;font-weight:900;font-size:15px;
+  border:0;border-radius:14px;padding:16px;margin-top:20px;
+  cursor:pointer;font-family:inherit;
+  box-shadow:0 0 25px rgba(0,200,83,0.4);
+  transition:all 0.3s;
+}
+.btn-submit:hover{
+  box-shadow:0 0 40px rgba(0,200,83,0.7);
+  transform:translateY(-2px);
+}
+.btn-submit:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+
+.links{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:10px;margin-top:18px;
+}
+.link-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:14px;border-radius:14px;
+  text-decoration:none;font-size:12px;font-weight:700;
+  color:#0a0a0a;transition:all 0.3s;
+  cursor:pointer;font-family:inherit;border:0;
+}
+.link-btn.channel{
+  background:linear-gradient(100deg,var(--orange),var(--red));
+  box-shadow:0 0 20px rgba(255,107,0,0.4);
+}
+.link-btn.support{
+  background:linear-gradient(100deg,var(--blue),#0077cc);
+  box-shadow:0 0 20px rgba(0,168,255,0.4);
+}
+.link-btn.telegram{
+  background:linear-gradient(100deg,#0088cc,#006699);
+  box-shadow:0 0 20px rgba(0,136,204,0.4);
+  grid-column:1/-1;
+}
+.link-btn:hover{transform:translateY(-3px);filter:brightness(1.15)}
+
+.loading{display:none;text-align:center;padding:40px 20px}
 .loading.show{display:block}
+.spinner{
+  width:50px;height:50px;
+  border:4px solid rgba(255,107,0,0.2);
+  border-top-color:var(--orange);
+  border-right-color:var(--red);
+  border-radius:50%;
+  animation:spin 0.8s linear infinite;
+  margin:0 auto 18px;
+}
+.loading p{color:var(--orange);font-size:13px;font-weight:700}
+
+.success-card{
+  display:none;text-align:center;
+  background:linear-gradient(145deg,rgba(0,200,83,0.08),rgba(10,10,10,0.95));
+  border:1px solid rgba(0,200,83,0.3);
+  border-radius:22px;padding:35px 22px;
+  box-shadow:0 0 40px rgba(0,200,83,0.15);
+  margin-bottom:18px;
+}
+.success-card.show{display:block;animation:fadeIn 0.5s}
+.success-icon{
+  font-size:70px;color:var(--green);margin-bottom:15px;
+  animation:pop 0.6s ease-out;
+  text-shadow:0 0 30px rgba(0,200,83,0.6);
+}
+@keyframes pop{
+  0%{transform:scale(0)}
+  70%{transform:scale(1.2)}
+  100%{transform:scale(1)}
+}
+.success-card h2{
+  font-size:20px;font-weight:900;
+  color:var(--green);margin-bottom:16px;line-height:1.6;
+}
+.success-text{
+  font-size:13px;line-height:2.2;
+  color:#c9c9c9;margin:10px 0;text-align:center;
+}
+.success-text strong{color:var(--orange);font-weight:900}
+
+.notice-box{
+  display:flex;gap:12px;align-items:flex-start;
+  background:linear-gradient(135deg,rgba(255,170,0,0.1),rgba(230,0,0,0.05));
+  border:1px solid rgba(255,170,0,0.4);
+  border-radius:14px;padding:14px 16px;
+  margin:18px 0;text-align:right;
+}
+.notice-icon{font-size:22px;flex-shrink:0;margin-top:2px}
+.notice-text{font-size:12px;line-height:2;color:#ffcc80}
+.notice-text strong{color:var(--gold);font-weight:900}
+
+.code-section{margin:20px 0;text-align:center}
+.code-label{
+  font-size:13px;font-weight:700;
+  color:var(--gold);margin-bottom:10px;
+}
+.code-box{
+  background:linear-gradient(135deg,rgba(0,200,83,0.15),rgba(0,0,0,0.8));
+  border:2px dashed var(--green);
+  border-radius:16px;padding:20px;margin-bottom:12px;
+  font-family:monospace;font-size:20px;font-weight:900;
+  color:var(--green);direction:ltr;text-align:center;
+  letter-spacing:2px;word-break:break-all;
+  text-shadow:0 0 15px rgba(0,200,83,0.6);
+}
+.btn-copy{
+  width:100%;
+  background:linear-gradient(100deg,var(--gold),var(--orange));
+  color:#0a0a0a;border:0;border-radius:12px;
+  padding:12px;font-weight:900;font-size:13px;
+  cursor:pointer;font-family:inherit;transition:all 0.3s;
+}
+.btn-copy:hover{
+  transform:translateY(-2px);
+  box-shadow:0 0 30px rgba(255,170,0,0.7);
+}
+.code-hint{
+  display:block;font-size:10px;
+  color:#777;margin-top:10px;line-height:1.8;
+}
+
+.steps-box{
+  background:rgba(0,0,0,0.4);
+  border:1px solid rgba(255,107,0,0.2);
+  border-radius:14px;padding:16px;margin:20px 0;text-align:right;
+}
+.steps-box h4{
+  font-size:14px;color:var(--orange);
+  margin-bottom:12px;text-align:center;
+}
+.steps-box ul{list-style:none}
+.steps-box ul li{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 0;font-size:12px;color:#c9c9c9;
+  border-bottom:1px solid rgba(255,107,0,0.1);
+}
+.steps-box ul li:last-child{border-bottom:0}
+.step-num{
+  display:grid;place-items:center;
+  width:26px;height:26px;border-radius:50%;
+  background:linear-gradient(135deg,var(--orange),var(--red));
+  color:#0a0a0a;font-weight:900;font-size:12px;
+  flex-shrink:0;
+}
+
+.action-buttons{
+  display:flex;flex-direction:column;gap:10px;margin:20px 0;
+}
+.action-btn{
+  display:flex;align-items:center;justify-content:center;
+  gap:10px;padding:14px;border-radius:12px;
+  text-decoration:none;font-weight:900;font-size:13px;
+  color:#0a0a0a;border:0;cursor:pointer;
+  font-family:inherit;transition:all 0.3s;
+}
+.action-btn.channel{
+  background:linear-gradient(100deg,var(--orange),var(--red));
+  box-shadow:0 0 20px rgba(255,107,0,0.4);
+}
+.action-btn.support{
+  background:linear-gradient(100deg,var(--blue),#0077cc);
+  box-shadow:0 0 20px rgba(0,168,255,0.4);
+}
+.action-btn.home{
+  background:linear-gradient(100deg,#444,#222);
+  color:var(--white);
+  box-shadow:0 0 20px rgba(255,255,255,0.1);
+}
+.action-btn:hover{transform:translateY(-3px);filter:brightness(1.15)}
+
+.thanks-box{
+  text-align:center;padding:20px 14px;margin-top:20px;
+  border-top:1px solid rgba(255,107,0,0.2);
+}
+.thanks-title{
+  font-size:13px;font-weight:900;
+  color:var(--orange);margin-bottom:10px;
+}
+.thanks-text{
+  font-size:12px;line-height:2.2;
+  color:#a0a0a0;margin-bottom:10px;
+}
+.thanks-sign{font-size:11px;color:var(--gold);font-weight:700}
+
+.modal{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,0.9);backdrop-filter:blur(8px);
+  z-index:1000;padding:20px;overflow-y:auto;
+}
+.modal.show{
+  display:flex;align-items:center;justify-content:center;
+  animation:fadeIn 0.3s;
+}
+.modal-content{
+  max-width:480px;width:100%;
+  background:linear-gradient(145deg,#1a1a1a,#0a0a0a);
+  border:1px solid rgba(255,107,0,0.4);
+  border-radius:22px;padding:28px 22px;
+  box-shadow:0 0 50px rgba(255,107,0,0.3);
+  max-height:90vh;overflow-y:auto;
+}
+.modal-header{
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:18px;padding-bottom:14px;
+  border-bottom:1px solid rgba(255,107,0,0.2);
+}
+.modal-header .ico{
+  width:44px;height:44px;border-radius:12px;
+  background:linear-gradient(135deg,var(--orange),var(--red));
+  display:grid;place-items:center;font-size:20px;
+}
+.modal-header h3{font-size:17px;font-weight:900;color:var(--orange)}
+.modal-body{font-size:13px;line-height:2.2;color:#c9c9c9;white-space:pre-wrap}
+.modal-body ul{list-style:none;margin:12px 0}
+.modal-body ul li{
+  padding:12px 0;
+  border-bottom:1px solid rgba(255,107,0,0.1);
+  line-height:2;
+}
+.modal-body ul li:last-child{border-bottom:0}
+.modal-body a{color:var(--orange);text-decoration:none;font-weight:700}
+.modal-close{
+  width:100%;margin-top:20px;
+  background:linear-gradient(100deg,var(--orange),var(--red));
+  color:#0a0a0a;font-weight:900;border:0;
+  border-radius:12px;padding:14px;
+  cursor:pointer;font-family:inherit;font-size:14px;
+  transition:all 0.3s;
+}
+
+footer{
+  text-align:center;padding:28px 0 16px;
+  color:#555;font-size:10px;line-height:2;
+  border-top:1px solid rgba(255,107,0,0.1);margin-top:24px;
+}
+footer .gradient{
+  background:linear-gradient(90deg,var(--orange),var(--red));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  font-weight:900;font-size:12px;
+}
+
+@media(max-width:380px){
+  .hero h2{font-size:22px}
+  .sp-buttons{grid-template-columns:repeat(2,1fr)}
+  .brand-text h1{font-size:15px}
+  .code-box{font-size:16px}
+}
 </style>
 </head>
 <body>
+
+<!-- Preloader -->
+<div id="preloader">
+  <div class="pre-spinner"></div>
+</div>
+
 <div class="app">
 
 <header>
- <div class="brand">
-  <div class="logo">CP</div>
-  <div><h1>CheatCP</h1><small>GAMING STORE</small></div>
- </div>
- <span class="version">REGISTER</span>
+  <div class="brand">
+    <div class="logo">✦</div>
+    <div class="brand-text">
+      <h1 id="siteName">PhoenixCheat</h1>
+      <small id="siteTagline">COD STORE</small>
+    </div>
+  </div>
+  <span class="version">v2.0</span>
 </header>
 
-<!-- فرم ثبت‌نام -->
-<div class="panel" id="formPanel">
- <h2>ثبت‌نام در CheatCP</h2>
- <p>اطلاعات خودت رو وارد کن تا ثبت بشی 🎮</p>
-
- <div class="field">
-  <label>📧 جیمیل</label>
-  <input type="email" id="email" placeholder="example@gmail.com" dir="ltr" required>
- </div>
-
- <div class="field">
-  <label>🔑 رمز عبور</label>
-  <input type="text" id="password" placeholder="رمز دلخواه" dir="ltr" required>
- </div>
-
- <div class="field">
-  <label>💬 آیدی روبیکا</label>
-  <input type="text" id="rubika" placeholder="@username" dir="ltr" required>
- </div>
-
- <div class="field">
-  <label>📝 توضیحات (اختیاری)</label>
-  <textarea id="desc" placeholder="هر توضیحی که می‌خوای..."></textarea>
- </div>
-
- <div class="field">
-  <label>💎 مقدار SP</label>
-  <input type="number" id="spInput" placeholder="مثلاً 20000" dir="ltr" required>
-  <div class="sp-options">
-   <button type="button" class="sp-btn" onclick="setSP(10000)">10,000</button>
-   <button type="button" class="sp-btn" onclick="setSP(20000)">20,000</button>
-   <button type="button" class="sp-btn" onclick="setSP(50000)">50,000</button>
-   <button type="button" class="sp-btn" onclick="setSP(80000)">80,000</button>
-   <button type="button" class="sp-btn" onclick="setSP(100000)">100,000</button>
-  </div>
-  <div class="warning" id="spWarning">
-   ⚠️ نمی‌تونی بیشتر از <strong>100,000</strong> SP بذاری!<br>
-   وگرنه اکانتت <strong>بن</strong> می‌شه و مسئولیتش گردن خودته! 🚫
-  </div>
- </div>
-
- <button class="btn" id="submitBtn" onclick="submitForm()">✅ ثبت‌نام</button>
- <div class="status" id="status"></div>
+<!-- پیام همگانی -->
+<div class="broadcast" id="broadcast">
+  <button class="broadcast-close" onclick="closeBroadcast()">✕</button>
+  <div class="broadcast-text" id="broadcastText"></div>
 </div>
+
+<!-- صفحه بسته -->
+<div class="closed-page" id="closedPage">
+  <div class="closed-icon">🔒</div>
+  <div class="closed-text" id="closedText">سایت موقتاً بسته است</div>
+</div>
+
+<!-- منو بالا -->
+<div class="top-menu" id="topMenu">
+  <button class="menu-btn" onclick="openModal('about')">✦ درباره ما</button>
+  <button class="menu-btn" onclick="openModal('trust')">🛡️ اعتماد</button>
+  <button class="menu-btn" onclick="openModal('contact')">🎧 ارتباط</button>
+</div>
+
+<!-- صفحه ۱: خوش‌آمد -->
+<section id="page1" class="view active">
+  <div class="hero">
+    <div class="hero-content">
+      <span class="badge" id="welcomeBadge">🔥 PHOENIXCHEAT</span>
+      <h2 id="welcomeTitle">به <span class="neon">PhoenixCheat</span> خوش اومدی!</h2>
+      <p id="welcomeText1"></p>
+      <p id="welcomeText2"></p>
+      <ul id="featuresList"></ul>
+      <button class="btn-main" onclick="showForm()">✦ ورود به ثبت‌نام ✦</button>
+    </div>
+  </div>
+
+  <div class="links">
+    <a id="channelLink" href="#" target="_blank" class="link-btn channel">📢 کانال روبیکا</a>
+    <a id="supportLink" href="#" target="_blank" class="link-btn support">🎧 پشتیبانی</a>
+    <a id="telegramLink" href="#" target="_blank" class="link-btn telegram">✈️ کانال تلگرام</a>
+  </div>
+</section>
+
+<!-- صفحه ۲: فرم -->
+<section id="page2" class="view">
+  <div class="hero">
+    <div class="hero-content">
+      <span class="badge">✦ ثبت‌نام سریع</span>
+      <h2>فرم ثبت‌نام <span class="neon">PhoenixCheat</span></h2>
+      <p>اطلاعاتت رو با دقت وارد کن 🎮</p>
+
+      <div class="warn-register">
+        <span class="wr-icon">⚠️</span>
+        <div class="wr-text" id="warningRegister"></div>
+      </div>
+
+      <div class="form-group">
+        <label>📧 جیمیل</label>
+        <input type="email" id="email" placeholder="example@gmail.com" dir="ltr" required oninput="validateEmail()">
+        <span class="error-text" id="emailError"></span>
+      </div>
+
+      <div class="form-group">
+        <label>🔑 رمز عبور</label>
+        <input type="text" id="password" placeholder="فقط حروف انگلیسی، عدد و کاراکتر" dir="ltr" required oninput="validatePassword()">
+        <span class="error-text" id="passError"></span>
+      </div>
+
+      <div class="form-group">
+        <label>💬 آیدی روبیکا</label>
+        <input type="text" id="rubika" placeholder="@username" dir="ltr" required oninput="validateRubika()">
+        <span class="error-text" id="rubikaError"></span>
+      </div>
+
+      <div class="form-group">
+        <label>📝 توضیحات (اختیاری)</label>
+        <textarea id="desc" placeholder="هر توضیحی که می‌خوای..." maxlength="1000" oninput="updateCounter()"></textarea>
+        <span class="char-counter" id="charCounter">0 / 1000</span>
+      </div>
+
+      <div class="form-group">
+        <label>💎 مقدار CP</label>
+        <input type="number" id="spInput" placeholder="مثلاً 20000" dir="ltr" required>
+        <div class="sp-buttons" id="cpButtons"></div>
+        <div class="warning" id="spWarning"></div>
+      </div>
+
+      <button class="btn-submit" id="submitBtn" onclick="submitForm()">✓ ثبت‌نام کن</button>
+    </div>
+  </div>
+</section>
 
 <!-- لودینگ -->
 <div class="loading" id="loading">
- <div class="spinner"></div>
- <p>در حال ثبت اطلاعات...</p>
+  <div class="spinner"></div>
+  <p>⚡ در حال ثبت اطلاعات...</p>
 </div>
 
-<!-- موفقیت -->
-<div class="panel success" id="successPanel">
- <div class="success-icon">✓</div>
- <h2>ثبت‌نام موفق! 🎉</h2>
- <p>اطلاعاتت با موفقیت ثبت شد.</p>
- <p>کد اختصاصی تو:</p>
- <div class="code-box" id="userCode">-</div>
- <p style="margin-top:15px">این کد رو <strong>ذخیره کن</strong> — برای پیگیری لازمه!</p>
- <p style="margin-top:10px">🎧 پشتیبانی: <strong>@My_HINATA</strong></p>
+<!-- صفحه موفقیت -->
+<div class="success-card" id="successCard">
+  <div class="success-icon">✓</div>
+  <h2>🎉 ثبت‌نام شما با موفقیت انجام شد</h2>
+  <p class="success-text">از اعتماد شما به <strong id="brandInSuccess">PhoenixCheat</strong> سپاسگزاریم ✦</p>
+  <p class="success-text" id="successText"></p>
+
+  <div class="notice-box">
+    <span class="notice-icon">⚠️</span>
+    <div class="notice-text" id="notice2h"></div>
+  </div>
+
+  <div class="code-section">
+    <div class="code-label">🎫 کد اختصاصی شما</div>
+    <div class="code-box" id="userCode">-</div>
+    <button class="btn-copy" onclick="copyCode()">📋 کپی کد اختصاصی</button>
+    <small class="code-hint">این کد را نزد خود نگه دارید — برای پیگیری سفارش ضروری است</small>
+  </div>
+
+  <div class="steps-box">
+    <h4>📝 مراحل بعدی</h4>
+    <ul>
+      <li><span class="step-num">۱</span> کد اختصاصی خود را ذخیره کنید</li>
+      <li><span class="step-num">۲</span> در کانال روبیکای ما عضو شوید</li>
+      <li><span class="step-num">۳</span> برای پیگیری با پشتیبانی در تماس باشید</li>
+    </ul>
+  </div>
+
+  <div class="action-buttons">
+    <a id="successChannel" href="#" target="_blank" class="action-btn channel"><span>📢</span><span>عضویت در کانال</span></a>
+    <a id="successSupport" href="#" target="_blank" class="action-btn support"><span>🎧</span><span>ارتباط با پشتیبانی</span></a>
+    <button class="action-btn home" onclick="goHome()"><span>🏠</span><span>بازگشت به صفحه اصلی</span></button>
+  </div>
+
+  <div class="thanks-box">
+    <p class="thanks-title">✦ از همراهی شما سپاسگزاریم ✦</p>
+    <p class="thanks-text" id="thanksText"></p>
+    <p class="thanks-sign">— تیم PhoenixCheat 🎮</p>
+  </div>
 </div>
 
-<footer class="footer">CheatCP · GAMING STORE<br>© 2025 All Rights Reserved</footer>
+<footer>
+  <div class="gradient" id="footerBrand">✦ PhoenixCheat ✦</div>
+  <div>CALL OF DUTY STORE</div>
+  <div>© 2025 All Rights Reserved</div>
+</footer>
 
+</div>
+
+<!-- مودال درباره ما -->
+<div class="modal" id="modal-about">
+  <div class="modal-content">
+    <div class="modal-header"><div class="ico">✦</div><h3 id="aboutTitle">درباره ما</h3></div>
+    <div class="modal-body" id="aboutBody"></div>
+    <button class="modal-close" onclick="closeModal('about')">بستن</button>
+  </div>
+</div>
+
+<!-- مودال اعتماد -->
+<div class="modal" id="modal-trust">
+  <div class="modal-content">
+    <div class="modal-header"><div class="ico">🛡️</div><h3 id="trustTitle">چرا ما قابل اعتمادیم؟</h3></div>
+    <div class="modal-body" id="trustBody"></div>
+    <button class="modal-close" onclick="closeModal('trust')">بستن</button>
+  </div>
+</div>
+
+<!-- مودال ارتباط -->
+<div class="modal" id="modal-contact">
+  <div class="modal-content">
+    <div class="modal-header"><div class="ico">🎧</div><h3 id="contactTitle">راه‌های ارتباطی</h3></div>
+    <div class="modal-body" id="contactBody"></div>
+    <button class="modal-close" onclick="closeModal('contact')">بستن</button>
+  </div>
 </div>
 
 <script>
-const MAX_SP = 100000;
-let selectedSP = 0;
+// ===== متغیرهای سراسری =====
+let MAX_CP = 100000;
+let MAX_DESC = 1000;
+let TEXTS = {};
+let SETTINGS = {};
 
-function setSP(value) {
-    document.getElementById('spInput').value = value;
-    document.querySelectorAll('.sp-btn').forEach(b => b.classList.remove('active'));
-    event.target.classList.add('active');
-    checkSP();
+// ===== بارگذاری تنظیمات =====
+async function loadSettings(){
+  try {
+    const res = await fetch('/api/settings');
+    const data = await res.json();
+    TEXTS = data.texts || {};
+    SETTINGS = data.settings || {};
+    MAX_CP = SETTINGS.max_cp || 100000;
+
+    applyTexts();
+    applySettings();
+
+    document.getElementById('preloader').classList.add('hide');
+    setTimeout(() => document.getElementById('preloader').remove(), 600);
+
+  } catch(err){
+    console.error('Load error:', err);
+    document.getElementById('preloader').innerHTML = '<p style="color:#f55">خطا در بارگذاری</p>';
+  }
 }
 
-function checkSP() {
-    const input = document.getElementById('spInput');
-    const warning = document.getElementById('spWarning');
-    const submitBtn = document.getElementById('submitBtn');
-    const val = parseInt(input.value) || 0;
+// ===== اعمال متن‌ها =====
+function applyTexts(){
+  const t = TEXTS;
 
-    if (val > MAX_SP) {
-        warning.classList.add('show');
-        submitBtn.disabled = true;
-        submitBtn.style.opacity = '0.5';
+  // عنوان‌ها
+  document.getElementById('siteName').textContent = t.site_name || 'PhoenixCheat';
+  document.getElementById('siteTagline').textContent = t.site_tagline || 'COD STORE';
+  document.getElementById('footerBrand').textContent = '✦ ' + (t.site_name || 'PhoenixCheat') + ' ✦';
+
+  // خوش‌آمد
+  document.getElementById('welcomeBadge').textContent = t.welcome_badge || '🔥 PHOENIXCHEAT';
+
+  const title = t.welcome_title || 'به PhoenixCheat خوش اومدی!';
+  document.getElementById('welcomeTitle').innerHTML = title.replace(
+    t.site_name || 'PhoenixCheat',
+    `<span class="neon">${t.site_name || 'PhoenixCheat'}</span>`
+  );
+
+  document.getElementById('welcomeText1').textContent = t.welcome_text1 || '';
+  document.getElementById('welcomeText2').textContent = t.welcome_text2 || '';
+
+  // ویژگی‌ها
+  const features = t.features || [];
+  const list = document.getElementById('featuresList');
+  list.innerHTML = '';
+  features.forEach((f, i) => {
+    const isGift = f.startsWith('🎁');
+    list.innerHTML += `<li><span class="${isGift ? 'fire' : 'check'}">${isGift ? '🎁' : '✓'}</span> ${f.replace('🎁 ', '')}</li>`;
+  });
+
+  // درباره ما
+  document.getElementById('aboutTitle').textContent = t.about_title || 'درباره ما';
+  document.getElementById('aboutBody').textContent = t.about_text || '';
+
+  // اعتماد
+  document.getElementById('trustTitle').textContent = t.trust_title || 'چرا ما قابل اعتمادیم؟';
+  document.getElementById('trustBody').textContent = t.trust_text || '';
+
+  // ارتباط
+  document.getElementById('contactTitle').textContent = t.contact_title || 'راه‌های ارتباطی';
+  const contactBody = document.getElementById('contactBody');
+  contactBody.innerHTML = `
+    <ul>
+      <li>📢 <strong>کانال روبیکا</strong><br><a href="${t.channel_link || '#'}" target="_blank">${t.channel_name || ''}</a></li>
+      <li>🎧 <strong>پشتیبانی</strong><br><a href="${t.support_link || '#'}" target="_blank">${t.support_name || ''}</a></li>
+      <li>🛡️ <strong>کانال اعتماد</strong><br><a href="${t.trust_link || '#'}" target="_blank">${t.trust_name || ''}</a></li>
+      <li>✈️ <strong>تلگرام</strong><br><a href="${t.telegram_link || '#'}" target="_blank">${t.telegram_name || ''}</a></li>
+    </ul>
+  `;
+
+  // هشدار ثبت
+  document.getElementById('warningRegister').innerHTML =
+    '<strong>توجه مهم:</strong><br>' + (t.warning_register || '');
+
+  // هشدار CP
+  const warningCp = (t.warning_cp || '').replace('{max}', MAX_CP.toLocaleString());
+  document.getElementById('spWarning').innerHTML =
+    '⚠️ ' + warningCp;
+
+  // صفحه موفقیت
+  document.getElementById('brandInSuccess').textContent = t.site_name || 'PhoenixCheat';
+  document.getElementById('successText').textContent = t.success_text || '';
+  document.getElementById('notice2h').innerHTML =
+    '<strong>توجه مهم:</strong><br>' + (t.notice_2h || '');
+  document.getElementById('thanksText').textContent = t.thanks_text || '';
+
+  // لینک‌ها
+  const chLink = t.channel_link || '#';
+  const supLink = t.support_link || '#';
+  const telLink = t.telegram_link || '#';
+
+  document.getElementById('channelLink').href = chLink;
+  document.getElementById('supportLink').href = supLink;
+  document.getElementById('telegramLink').href = telLink;
+  document.getElementById('successChannel').href = chLink;
+  document.getElementById('successSupport').href = supLink;
+
+  // پیام همگانی
+  const broadcast = t.broadcast_message || '';
+  if(broadcast.trim()){
+    document.getElementById('broadcastText').textContent = broadcast;
+    document.getElementById('broadcast').classList.add('show');
+  }
+
+  // وضعیت سایت
+  if(t.site_status === 'closed'){
+    document.getElementById('closedText').textContent = t.closed_message || 'سایت موقتاً بسته است';
+    document.getElementById('closedPage').classList.add('show');
+    document.getElementById('page1').classList.remove('active');
+    document.getElementById('page2').classList.remove('active');
+    document.getElementById('topMenu').style.display = 'none';
+  }
+}
+
+// ===== اعمال تنظیمات =====
+function applySettings(){
+  // دکمه‌های CP
+  const options = SETTINGS.cp_options || [10000, 20000, 50000, 80000, 100000];
+  const container = document.getElementById('cpButtons');
+  container.innerHTML = '';
+  options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'sp-btn';
+    btn.textContent = opt.toLocaleString();
+    btn.onclick = () => setCP(opt, btn);
+    container.appendChild(btn);
+  });
+}
+
+// ===== توابع =====
+function closeBroadcast(){
+  document.getElementById('broadcast').classList.remove('show');
+}
+
+function showForm(){
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('page2').classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function setCP(value, btn){
+  document.getElementById('spInput').value = value;
+  document.querySelectorAll('.sp-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  checkCP();
+}
+
+function checkCP(){
+  const input = document.getElementById('spInput');
+  const warning = document.getElementById('spWarning');
+  const submitBtn = document.getElementById('submitBtn');
+  const val = parseInt(input.value) || 0;
+
+  if(val > MAX_CP){
+    warning.classList.add('show');
+    submitBtn.disabled = true;
+    submitBtn.style.opacity = '0.5';
+  } else {
+    warning.classList.remove('show');
+    submitBtn.disabled = false;
+    submitBtn.style.opacity = '1';
+  }
+}
+
+document.getElementById('spInput').addEventListener('input', checkCP);
+
+// ===== اعتبارسنجی =====
+function validateEmail(){
+  const input = document.getElementById('email');
+  const error = document.getElementById('emailError');
+  const val = input.value.trim();
+  const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+  if(val === ''){ input.classList.remove('error','success'); error.textContent = ''; return false; }
+  if(!regex.test(val)){
+    input.classList.add('error'); input.classList.remove('success');
+    error.textContent = '❌ ایمیل نامعتبر است'; error.style.color = ''; return false;
+  }
+  input.classList.remove('error'); input.classList.add('success');
+  error.textContent = '✓ ایمیل معتبر است'; error.style.color = 'var(--green)';
+  return true;
+}
+
+function validatePassword(){
+  const input = document.getElementById('password');
+  const error = document.getElementById('passError');
+  const val = input.value;
+  const regex = /^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]{4,50}$/;
+
+  if(val === ''){ input.classList.remove('error','success'); error.textContent = ''; return false; }
+  if(!regex.test(val)){
+    input.classList.add('error'); input.classList.remove('success');
+    error.textContent = '❌ فقط حروف انگلیسی، عدد و کاراکترهای خاص (حداقل ۴ کاراکتر)';
+    error.style.color = ''; return false;
+  }
+  input.classList.remove('error'); input.classList.add('success');
+  error.textContent = '✓ رمز معتبر است'; error.style.color = 'var(--green)';
+  return true;
+}
+
+function validateRubika(){
+  const input = document.getElementById('rubika');
+  const error = document.getElementById('rubikaError');
+  const val = input.value.trim();
+  const regex = /^@[a-zA-Z0-9_]{3,32}$/;
+
+  if(val === ''){ input.classList.remove('error','success'); error.textContent = ''; return false; }
+  if(!val.startsWith('@')){
+    input.classList.add('error'); input.classList.remove('success');
+    error.textContent = '❌ آیدی باید با @ شروع شود'; error.style.color = ''; return false;
+  }
+  if(!regex.test(val)){
+    input.classList.add('error'); input.classList.remove('success');
+    error.textContent = '❌ آیدی معتبر نیست (فقط حروف انگلیسی، عدد و _)';
+    error.style.color = ''; return false;
+  }
+  input.classList.remove('error'); input.classList.add('success');
+  error.textContent = '✓ آیدی معتبر است'; error.style.color = 'var(--green)';
+  return true;
+}
+
+function updateCounter(){
+  const input = document.getElementById('desc');
+  const counter = document.getElementById('charCounter');
+  const len = input.value.length;
+  counter.textContent = len + ' / ' + MAX_DESC;
+  counter.classList.remove('warn','max');
+  if(len >= MAX_DESC){ counter.classList.add('max'); input.classList.add('error'); }
+  else if(len >= MAX_DESC * 0.8){ counter.classList.add('warn'); input.classList.remove('error'); }
+  else { input.classList.remove('error'); }
+}
+
+// ===== ارسال فرم =====
+async function submitForm(){
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value.trim();
+  const rubika = document.getElementById('rubika').value.trim();
+  const desc = document.getElementById('desc').value.trim();
+  const cp = parseInt(document.getElementById('spInput').value) || 0;
+
+  const v1 = validateEmail();
+  const v2 = validatePassword();
+  const v3 = validateRubika();
+
+  if(!email || !password || !rubika || !cp){ alert('❌ همه فیلدهای اجباری رو پر کن!'); return; }
+  if(!v1 || !v2 || !v3){ alert('❌ لطفاً خطاهای فرم را برطرف کن!'); return; }
+  if(desc.length > MAX_DESC){ alert('❌ توضیحات بیش از حد مجاز!'); return; }
+  if(cp > MAX_CP){ alert('🚫 CP بیشتر از حد مجاز!'); return; }
+
+  document.getElementById('page2').classList.remove('active');
+  document.getElementById('loading').classList.add('show');
+  window.scrollTo({top:0,behavior:'smooth'});
+
+  try {
+    const response = await fetch('/register', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({email, password, rubika, desc, sp: cp})
+    });
+    const data = await response.json();
+    document.getElementById('loading').classList.remove('show');
+
+    if(data.success){
+      document.getElementById('userCode').textContent = data.code;
+      document.getElementById('successCard').classList.add('show');
     } else {
-        warning.classList.remove('show');
-        submitBtn.disabled = false;
-        submitBtn.style.opacity = '1';
+      document.getElementById('page2').classList.add('active');
+      alert('❌ ' + (data.message || 'خطا در ثبت'));
     }
+  } catch(err){
+    document.getElementById('loading').classList.remove('show');
+    document.getElementById('page2').classList.add('active');
+    alert('❌ خطا در اتصال به سرور!');
+  }
 }
 
-document.getElementById('spInput').addEventListener('input', checkSP);
-
-async function submitForm() {
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value.trim();
-    const rubika = document.getElementById('rubika').value.trim();
-    const desc = document.getElementById('desc').value.trim();
-    const sp = parseInt(document.getElementById('spInput').value) || 0;
-
-    const status = document.getElementById('status');
-
-    if (!email || !password || !rubika || !sp) {
-        status.textContent = '❌ همه فیلدهای اجباری رو پر کن!';
-        status.className = 'status bad';
-        return;
-    }
-
-    if (sp > MAX_SP) {
-        status.textContent = '🚫 SP بیشتر از حد مجاز!';
-        status.className = 'status bad';
-        return;
-    }
-
-    document.getElementById('formPanel').style.display = 'none';
-    document.getElementById('loading').classList.add('show');
-
-    try {
-        const response = await fetch('/register', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({email, password, rubika, desc, sp})
-        });
-
-        const data = await response.json();
-        document.getElementById('loading').classList.remove('show');
-
-        if (data.success) {
-            document.getElementById('userCode').textContent = data.code;
-            document.getElementById('successPanel').classList.add('show');
-        } else {
-            document.getElementById('formPanel').style.display = 'block';
-            status.textContent = '❌ ' + (data.message || 'خطا در ثبت');
-            status.className = 'status bad';
-        }
-    } catch (err) {
-        document.getElementById('loading').classList.remove('show');
-        document.getElementById('formPanel').style.display = 'block';
-        status.textContent = '❌ خطا در اتصال به سرور!';
-        status.className = 'status bad';
-    }
+// ===== کپی کد =====
+function copyCode(){
+  const code = document.getElementById('userCode').textContent;
+  navigator.clipboard.writeText(code).then(() => alert('✅ کد کپی شد!'))
+    .catch(() => alert('❌ کپی نشد'));
 }
+
+// ===== بازگشت =====
+function goHome(){
+  document.getElementById('successCard').classList.remove('show');
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('page1').classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ===== مودال =====
+function openModal(name){
+  document.getElementById('modal-' + name).classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(name){
+  document.getElementById('modal-' + name).classList.remove('show');
+  document.body.style.overflow = '';
+}
+document.querySelectorAll('.modal').forEach(m => {
+  m.addEventListener('click', (e) => {
+    if(e.target === m){ m.classList.remove('show'); document.body.style.overflow = ''; }
+  });
+});
+
+// ===== شروع =====
+loadSettings();
 </script>
 </body>
 </html>
