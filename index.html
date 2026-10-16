@@ -12,11 +12,8 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
   --orange:#ff6b00;
-  --orange-2:#ff9500;
   --red:#e60000;
-  --red-2:#ff2d2d;
   --black:#0a0a0a;
-  --black-2:#141414;
   --panel:#1a1a1a;
   --white:#f5f5f5;
   --gray:#a0a0a0;
@@ -37,8 +34,7 @@ body{
   position:relative;
 }
 body::before{
-  content:'';
-  position:fixed;inset:0;
+  content:'';position:fixed;inset:0;
   background-image:
     radial-gradient(2px 2px at 20% 30%, rgba(255,107,0,0.4), transparent),
     radial-gradient(2px 2px at 60% 70%, rgba(255,150,0,0.3), transparent),
@@ -55,7 +51,6 @@ body::before{
 }
 .app{max-width:520px;margin:0 auto;padding:16px;position:relative;z-index:1}
 
-/* لودینگ اولیه */
 #preloader{
   position:fixed;inset:0;
   background:var(--black);
@@ -74,12 +69,7 @@ body::before{
 }
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* صفحه بسته */
-.closed-page{
-  display:none;
-  text-align:center;
-  padding:60px 20px;
-}
+.closed-page{display:none;text-align:center;padding:60px 20px}
 .closed-page.show{display:block}
 .closed-icon{font-size:80px;margin-bottom:20px}
 .closed-text{
@@ -89,7 +79,6 @@ body::before{
   border-radius:16px;padding:20px;
 }
 
-/* هدر */
 header{
   display:flex;justify-content:space-between;align-items:center;
   padding:14px 0;margin-bottom:18px;
@@ -107,7 +96,7 @@ header::after{
   background:linear-gradient(135deg,var(--orange),var(--red));
   display:grid;place-items:center;
   color:#0a0a0a;font-weight:900;font-size:22px;
-  box-shadow:0 0 25px rgba(255,107,0,0.5),0 0 50px rgba(230,0,0,0.2);
+  box-shadow:0 0 25px rgba(255,107,0,0.5);
   animation:pulseLogo 3s ease-in-out infinite;
   position:relative;
 }
@@ -123,7 +112,7 @@ header::after{
 }
 .brand-text h1{
   font-size:17px;font-weight:900;
-  background:linear-gradient(90deg,var(--orange),var(--red-2),var(--gold));
+  background:linear-gradient(90deg,var(--orange),var(--red),var(--gold));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
   background-clip:text;
 }
@@ -139,7 +128,6 @@ header::after{
   font-weight:700;
 }
 
-/* پیام همگانی */
 .broadcast{
   display:none;
   background:linear-gradient(135deg,rgba(255,107,0,0.15),rgba(230,0,0,0.1));
@@ -168,11 +156,9 @@ header::after{
   display:grid;place-items:center;
 }
 
-/* منوی بالا */
 .top-menu{
   display:flex;gap:8px;margin-bottom:18px;
-  overflow-x:auto;padding-bottom:4px;
-  scrollbar-width:none;
+  overflow-x:auto;padding-bottom:4px;scrollbar-width:none;
 }
 .top-menu::-webkit-scrollbar{display:none}
 .menu-btn{
@@ -202,7 +188,7 @@ header::after{
   background:linear-gradient(145deg,rgba(26,26,26,0.95),rgba(10,10,10,0.95));
   border:1px solid rgba(255,107,0,0.3);
   border-radius:22px;padding:30px 22px;margin-bottom:18px;
-  box-shadow:0 10px 40px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.05);
+  box-shadow:0 10px 40px rgba(0,0,0,0.6);
   position:relative;overflow:hidden;
 }
 .hero::before{
@@ -245,18 +231,11 @@ header::after{
   color:#0a0a0a;font-weight:900;font-size:15px;
   border:0;border-radius:14px;padding:16px;margin-top:10px;
   cursor:pointer;font-family:inherit;
-  box-shadow:0 0 25px rgba(255,107,0,0.5),0 5px 20px rgba(0,0,0,0.5);
+  box-shadow:0 0 25px rgba(255,107,0,0.5);
   transition:all 0.3s;position:relative;overflow:hidden;
 }
-.btn-main::before{
-  content:'';position:absolute;top:0;left:-100%;
-  width:100%;height:100%;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);
-  transition:left 0.5s;
-}
-.btn-main:hover::before{left:100%}
 .btn-main:hover{
-  box-shadow:0 0 40px rgba(255,107,0,0.7),0 8px 25px rgba(0,0,0,0.6);
+  box-shadow:0 0 40px rgba(255,107,0,0.7);
   transform:translateY(-2px);
 }
 
@@ -278,7 +257,6 @@ header::after{
 .form-group textarea:focus{
   border-color:var(--orange);
   box-shadow:0 0 20px rgba(255,107,0,0.3);
-  background:rgba(10,10,10,1);
 }
 .form-group textarea{resize:vertical;min-height:80px}
 .form-group input::placeholder,
@@ -295,7 +273,7 @@ header::after{
   box-shadow:0 0 15px rgba(0,200,83,0.3);
 }
 .error-text{
-  display:block;font-size:11px;color:var(--red-2);
+  display:block;font-size:11px;color:var(--red);
   margin-top:6px;min-height:14px;font-weight:700;
 }
 .char-counter{
@@ -304,7 +282,7 @@ header::after{
   margin-top:6px;direction:ltr;
 }
 .char-counter.warn{color:var(--orange)}
-.char-counter.max{color:var(--red-2)}
+.char-counter.max{color:var(--red)}
 
 .sp-buttons{
   display:grid;grid-template-columns:repeat(3,1fr);
@@ -337,7 +315,7 @@ header::after{
   color:#ff9999;font-size:12px;line-height:2;
 }
 .warning.show{display:block}
-.warning strong{color:var(--red-2)}
+.warning strong{color:var(--red)}
 
 .warn-register{
   background:linear-gradient(135deg,rgba(255,170,0,0.08),rgba(230,0,0,0.05));
@@ -351,6 +329,65 @@ header::after{
   font-size:11.5px;line-height:2;color:#ffcc80;text-align:right;
 }
 .warn-register .wr-text strong{color:var(--gold);font-weight:900}
+
+/* ====== کد تخفیف ====== */
+.coupon-section{
+  background:linear-gradient(135deg,rgba(255,170,0,0.08),rgba(255,107,0,0.05));
+  border:1px dashed rgba(255,170,0,0.5);
+  border-radius:14px;
+  padding:16px;
+  margin:16px 0;
+}
+.coupon-section label{
+  display:block;font-size:12px;font-weight:700;
+  color:var(--gold);margin-bottom:10px;
+}
+.coupon-row{
+  display:flex;gap:8px;
+}
+.coupon-row input{
+  flex:1;background:rgba(10,10,10,0.8);
+  border:1px solid rgba(255,170,0,0.3);
+  border-radius:12px;padding:12px 14px;
+  color:var(--white);font-size:13px;
+  font-family:inherit;outline:none;
+  direction:ltr;text-transform:uppercase;
+}
+.coupon-row input:focus{border-color:var(--gold)}
+.coupon-row input.error{border-color:var(--red)}
+.coupon-row input.success{border-color:var(--green)}
+.btn-coupon{
+  background:linear-gradient(100deg,var(--gold),var(--orange));
+  color:#0a0a0a;font-weight:900;
+  border:0;border-radius:12px;
+  padding:12px 20px;cursor:pointer;
+  font-family:inherit;font-size:13px;
+  transition:all 0.3s;
+}
+.btn-coupon:hover{transform:translateY(-2px);box-shadow:0 0 20px rgba(255,170,0,0.5)}
+.coupon-status{
+  display:block;font-size:11px;margin-top:8px;
+  min-height:16px;font-weight:700;
+}
+.coupon-status.good{color:var(--green)}
+.coupon-status.bad{color:var(--red)}
+.coupon-discount{
+  display:none;
+  background:linear-gradient(135deg,rgba(0,200,83,0.15),rgba(0,0,0,0.5));
+  border:1px solid var(--green);
+  border-radius:12px;
+  padding:12px;
+  margin-top:10px;
+  text-align:center;
+}
+.coupon-discount.show{display:block}
+.coupon-discount .discount-percent{
+  font-size:24px;font-weight:900;color:var(--green);
+  text-shadow:0 0 15px rgba(0,200,83,0.6);
+}
+.coupon-discount .discount-text{
+  font-size:11px;color:#c9c9c9;margin-top:4px;
+}
 
 .btn-submit{
   display:flex;align-items:center;justify-content:center;gap:10px;
@@ -412,7 +449,6 @@ header::after{
   background:linear-gradient(145deg,rgba(0,200,83,0.08),rgba(10,10,10,0.95));
   border:1px solid rgba(0,200,83,0.3);
   border-radius:22px;padding:35px 22px;
-  box-shadow:0 0 40px rgba(0,200,83,0.15);
   margin-bottom:18px;
 }
 .success-card.show{display:block;animation:fadeIn 0.5s}
@@ -468,10 +504,7 @@ header::after{
   padding:12px;font-weight:900;font-size:13px;
   cursor:pointer;font-family:inherit;transition:all 0.3s;
 }
-.btn-copy:hover{
-  transform:translateY(-2px);
-  box-shadow:0 0 30px rgba(255,170,0,0.7);
-}
+.btn-copy:hover{transform:translateY(-2px);box-shadow:0 0 30px rgba(255,170,0,0.7)}
 .code-hint{
   display:block;font-size:10px;
   color:#777;margin-top:10px;line-height:1.8;
@@ -501,9 +534,7 @@ header::after{
   flex-shrink:0;
 }
 
-.action-buttons{
-  display:flex;flex-direction:column;gap:10px;margin:20px 0;
-}
+.action-buttons{display:flex;flex-direction:column;gap:10px;margin:20px 0}
 .action-btn{
   display:flex;align-items:center;justify-content:center;
   gap:10px;padding:14px;border-radius:12px;
@@ -513,16 +544,13 @@ header::after{
 }
 .action-btn.channel{
   background:linear-gradient(100deg,var(--orange),var(--red));
-  box-shadow:0 0 20px rgba(255,107,0,0.4);
 }
 .action-btn.support{
   background:linear-gradient(100deg,var(--blue),#0077cc);
-  box-shadow:0 0 20px rgba(0,168,255,0.4);
 }
 .action-btn.home{
   background:linear-gradient(100deg,#444,#222);
   color:var(--white);
-  box-shadow:0 0 20px rgba(255,255,255,0.1);
 }
 .action-btn:hover{transform:translateY(-3px);filter:brightness(1.15)}
 
@@ -554,7 +582,6 @@ header::after{
   background:linear-gradient(145deg,#1a1a1a,#0a0a0a);
   border:1px solid rgba(255,107,0,0.4);
   border-radius:22px;padding:28px 22px;
-  box-shadow:0 0 50px rgba(255,107,0,0.3);
   max-height:90vh;overflow-y:auto;
 }
 .modal-header{
@@ -583,7 +610,6 @@ header::after{
   color:#0a0a0a;font-weight:900;border:0;
   border-radius:12px;padding:14px;
   cursor:pointer;font-family:inherit;font-size:14px;
-  transition:all 0.3s;
 }
 
 footer{
@@ -607,10 +633,7 @@ footer .gradient{
 </head>
 <body>
 
-<!-- Preloader -->
-<div id="preloader">
-  <div class="pre-spinner"></div>
-</div>
+<div id="preloader"><div class="pre-spinner"></div></div>
 
 <div class="app">
 
@@ -622,34 +645,30 @@ footer .gradient{
       <small id="siteTagline">COD STORE</small>
     </div>
   </div>
-  <span class="version">v2.0</span>
+  <span class="version">v3.0</span>
 </header>
 
-<!-- پیام همگانی -->
 <div class="broadcast" id="broadcast">
   <button class="broadcast-close" onclick="closeBroadcast()">✕</button>
   <div class="broadcast-text" id="broadcastText"></div>
 </div>
 
-<!-- صفحه بسته -->
 <div class="closed-page" id="closedPage">
   <div class="closed-icon">🔒</div>
   <div class="closed-text" id="closedText">سایت موقتاً بسته است</div>
 </div>
 
-<!-- منو بالا -->
 <div class="top-menu" id="topMenu">
   <button class="menu-btn" onclick="openModal('about')">✦ درباره ما</button>
   <button class="menu-btn" onclick="openModal('trust')">🛡️ اعتماد</button>
   <button class="menu-btn" onclick="openModal('contact')">🎧 ارتباط</button>
 </div>
 
-<!-- صفحه ۱: خوش‌آمد -->
 <section id="page1" class="view active">
   <div class="hero">
     <div class="hero-content">
       <span class="badge" id="welcomeBadge">🔥 PHOENIXCHEAT</span>
-      <h2 id="welcomeTitle">به <span class="neon">PhoenixCheat</span> خوش اومدی!</h2>
+      <h2 id="welcomeTitle">به PhoenixCheat خوش اومدی!</h2>
       <p id="welcomeText1"></p>
       <p id="welcomeText2"></p>
       <ul id="featuresList"></ul>
@@ -664,7 +683,6 @@ footer .gradient{
   </div>
 </section>
 
-<!-- صفحه ۲: فرم -->
 <section id="page2" class="view">
   <div class="hero">
     <div class="hero-content">
@@ -708,18 +726,30 @@ footer .gradient{
         <div class="warning" id="spWarning"></div>
       </div>
 
+      <!-- ====== کد تخفیف ====== -->
+      <div class="coupon-section">
+        <label>🎟️ کد تخفیف (اختیاری)</label>
+        <div class="coupon-row">
+          <input type="text" id="couponInput" placeholder="CHEAT10" dir="ltr" oninput="checkCoupon()">
+          <button type="button" class="btn-coupon" onclick="applyCoupon()">بررسی</button>
+        </div>
+        <span class="coupon-status" id="couponStatus"></span>
+        <div class="coupon-discount" id="couponDiscount">
+          <div class="discount-percent" id="discountPercent">0%</div>
+          <div class="discount-text">تخفیف اعمال شد! ✦</div>
+        </div>
+      </div>
+
       <button class="btn-submit" id="submitBtn" onclick="submitForm()">✓ ثبت‌نام کن</button>
     </div>
   </div>
 </section>
 
-<!-- لودینگ -->
 <div class="loading" id="loading">
   <div class="spinner"></div>
   <p>⚡ در حال ثبت اطلاعات...</p>
 </div>
 
-<!-- صفحه موفقیت -->
 <div class="success-card" id="successCard">
   <div class="success-icon">✓</div>
   <h2>🎉 ثبت‌نام شما با موفقیت انجام شد</h2>
@@ -768,7 +798,6 @@ footer .gradient{
 
 </div>
 
-<!-- مودال درباره ما -->
 <div class="modal" id="modal-about">
   <div class="modal-content">
     <div class="modal-header"><div class="ico">✦</div><h3 id="aboutTitle">درباره ما</h3></div>
@@ -777,7 +806,6 @@ footer .gradient{
   </div>
 </div>
 
-<!-- مودال اعتماد -->
 <div class="modal" id="modal-trust">
   <div class="modal-content">
     <div class="modal-header"><div class="ico">🛡️</div><h3 id="trustTitle">چرا ما قابل اعتمادیم؟</h3></div>
@@ -786,7 +814,6 @@ footer .gradient{
   </div>
 </div>
 
-<!-- مودال ارتباط -->
 <div class="modal" id="modal-contact">
   <div class="modal-content">
     <div class="modal-header"><div class="ico">🎧</div><h3 id="contactTitle">راه‌های ارتباطی</h3></div>
@@ -796,13 +823,13 @@ footer .gradient{
 </div>
 
 <script>
-// ===== متغیرهای سراسری =====
 let MAX_CP = 100000;
 let MAX_DESC = 1000;
 let TEXTS = {};
 let SETTINGS = {};
+let APPLIED_COUPON = null;
+let APPLIED_DISCOUNT = 0;
 
-// ===== بارگذاری تنظیمات =====
 async function loadSettings(){
   try {
     const res = await fetch('/api/settings');
@@ -816,23 +843,17 @@ async function loadSettings(){
 
     document.getElementById('preloader').classList.add('hide');
     setTimeout(() => document.getElementById('preloader').remove(), 600);
-
   } catch(err){
     console.error('Load error:', err);
     document.getElementById('preloader').innerHTML = '<p style="color:#f55">خطا در بارگذاری</p>';
   }
 }
 
-// ===== اعمال متن‌ها =====
 function applyTexts(){
   const t = TEXTS;
-
-  // عنوان‌ها
   document.getElementById('siteName').textContent = t.site_name || 'PhoenixCheat';
   document.getElementById('siteTagline').textContent = t.site_tagline || 'COD STORE';
   document.getElementById('footerBrand').textContent = '✦ ' + (t.site_name || 'PhoenixCheat') + ' ✦';
-
-  // خوش‌آمد
   document.getElementById('welcomeBadge').textContent = t.welcome_badge || '🔥 PHOENIXCHEAT';
 
   const title = t.welcome_title || 'به PhoenixCheat خوش اومدی!';
@@ -844,27 +865,22 @@ function applyTexts(){
   document.getElementById('welcomeText1').textContent = t.welcome_text1 || '';
   document.getElementById('welcomeText2').textContent = t.welcome_text2 || '';
 
-  // ویژگی‌ها
   const features = t.features || [];
   const list = document.getElementById('featuresList');
   list.innerHTML = '';
-  features.forEach((f, i) => {
+  features.forEach((f) => {
     const isGift = f.startsWith('🎁');
     list.innerHTML += `<li><span class="${isGift ? 'fire' : 'check'}">${isGift ? '🎁' : '✓'}</span> ${f.replace('🎁 ', '')}</li>`;
   });
 
-  // درباره ما
   document.getElementById('aboutTitle').textContent = t.about_title || 'درباره ما';
   document.getElementById('aboutBody').textContent = t.about_text || '';
 
-  // اعتماد
   document.getElementById('trustTitle').textContent = t.trust_title || 'چرا ما قابل اعتمادیم؟';
   document.getElementById('trustBody').textContent = t.trust_text || '';
 
-  // ارتباط
   document.getElementById('contactTitle').textContent = t.contact_title || 'راه‌های ارتباطی';
-  const contactBody = document.getElementById('contactBody');
-  contactBody.innerHTML = `
+  document.getElementById('contactBody').innerHTML = `
     <ul>
       <li>📢 <strong>کانال روبیکا</strong><br><a href="${t.channel_link || '#'}" target="_blank">${t.channel_name || ''}</a></li>
       <li>🎧 <strong>پشتیبانی</strong><br><a href="${t.support_link || '#'}" target="_blank">${t.support_name || ''}</a></li>
@@ -873,23 +889,16 @@ function applyTexts(){
     </ul>
   `;
 
-  // هشدار ثبت
-  document.getElementById('warningRegister').innerHTML =
-    '<strong>توجه مهم:</strong><br>' + (t.warning_register || '');
+  document.getElementById('warningRegister').innerHTML = '<strong>توجه مهم:</strong><br>' + (t.warning_register || '');
 
-  // هشدار CP
   const warningCp = (t.warning_cp || '').replace('{max}', MAX_CP.toLocaleString());
-  document.getElementById('spWarning').innerHTML =
-    '⚠️ ' + warningCp;
+  document.getElementById('spWarning').innerHTML = '⚠️ ' + warningCp;
 
-  // صفحه موفقیت
   document.getElementById('brandInSuccess').textContent = t.site_name || 'PhoenixCheat';
   document.getElementById('successText').textContent = t.success_text || '';
-  document.getElementById('notice2h').innerHTML =
-    '<strong>توجه مهم:</strong><br>' + (t.notice_2h || '');
+  document.getElementById('notice2h').innerHTML = '<strong>توجه مهم:</strong><br>' + (t.notice_2h || '');
   document.getElementById('thanksText').textContent = t.thanks_text || '';
 
-  // لینک‌ها
   const chLink = t.channel_link || '#';
   const supLink = t.support_link || '#';
   const telLink = t.telegram_link || '#';
@@ -900,14 +909,12 @@ function applyTexts(){
   document.getElementById('successChannel').href = chLink;
   document.getElementById('successSupport').href = supLink;
 
-  // پیام همگانی
   const broadcast = t.broadcast_message || '';
   if(broadcast.trim()){
     document.getElementById('broadcastText').textContent = broadcast;
     document.getElementById('broadcast').classList.add('show');
   }
 
-  // وضعیت سایت
   if(t.site_status === 'closed'){
     document.getElementById('closedText').textContent = t.closed_message || 'سایت موقتاً بسته است';
     document.getElementById('closedPage').classList.add('show');
@@ -917,9 +924,7 @@ function applyTexts(){
   }
 }
 
-// ===== اعمال تنظیمات =====
 function applySettings(){
-  // دکمه‌های CP
   const options = SETTINGS.cp_options || [10000, 20000, 50000, 80000, 100000];
   const container = document.getElementById('cpButtons');
   container.innerHTML = '';
@@ -933,12 +938,16 @@ function applySettings(){
   });
 }
 
-// ===== توابع =====
 function closeBroadcast(){
   document.getElementById('broadcast').classList.remove('show');
 }
 
 function showForm(){
+  // اگه ثبت‌نام بسته‌ست
+  if(SETTINGS.registration_open === false){
+    alert('🔴 ثبت‌نام موقتاً بسته است!');
+    return;
+  }
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('page2').classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
@@ -956,7 +965,6 @@ function checkCP(){
   const warning = document.getElementById('spWarning');
   const submitBtn = document.getElementById('submitBtn');
   const val = parseInt(input.value) || 0;
-
   if(val > MAX_CP){
     warning.classList.add('show');
     submitBtn.disabled = true;
@@ -970,20 +978,17 @@ function checkCP(){
 
 document.getElementById('spInput').addEventListener('input', checkCP);
 
-// ===== اعتبارسنجی =====
+/* ====== اعتبارسنجی ====== */
 function validateEmail(){
   const input = document.getElementById('email');
   const error = document.getElementById('emailError');
   const val = input.value.trim();
   const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
   if(val === ''){ input.classList.remove('error','success'); error.textContent = ''; return false; }
-  if(!regex.test(val)){
-    input.classList.add('error'); input.classList.remove('success');
-    error.textContent = '❌ ایمیل نامعتبر است'; error.style.color = ''; return false;
-  }
+  if(!regex.test(val)){ input.classList.add('error'); input.classList.remove('success'); error.textContent = '❌ ایمیل نامعتبر است'; return false; }
   input.classList.remove('error'); input.classList.add('success');
-  error.textContent = '✓ ایمیل معتبر است'; error.style.color = 'var(--green)';
+  error.textContent = '✓ ایمیل معتبر است';
+  error.style.color = 'var(--green)';
   return true;
 }
 
@@ -992,15 +997,16 @@ function validatePassword(){
   const error = document.getElementById('passError');
   const val = input.value;
   const regex = /^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]{4,50}$/;
-
   if(val === ''){ input.classList.remove('error','success'); error.textContent = ''; return false; }
   if(!regex.test(val)){
     input.classList.add('error'); input.classList.remove('success');
     error.textContent = '❌ فقط حروف انگلیسی، عدد و کاراکترهای خاص (حداقل ۴ کاراکتر)';
-    error.style.color = ''; return false;
+    error.style.color = 'var(--red)';
+    return false;
   }
   input.classList.remove('error'); input.classList.add('success');
-  error.textContent = '✓ رمز معتبر است'; error.style.color = 'var(--green)';
+  error.textContent = '✓ رمز معتبر است';
+  error.style.color = 'var(--green)';
   return true;
 }
 
@@ -1009,19 +1015,22 @@ function validateRubika(){
   const error = document.getElementById('rubikaError');
   const val = input.value.trim();
   const regex = /^@[a-zA-Z0-9_]{3,32}$/;
-
   if(val === ''){ input.classList.remove('error','success'); error.textContent = ''; return false; }
   if(!val.startsWith('@')){
     input.classList.add('error'); input.classList.remove('success');
-    error.textContent = '❌ آیدی باید با @ شروع شود'; error.style.color = ''; return false;
+    error.textContent = '❌ آیدی باید با @ شروع شود';
+    error.style.color = 'var(--red)';
+    return false;
   }
   if(!regex.test(val)){
     input.classList.add('error'); input.classList.remove('success');
-    error.textContent = '❌ آیدی معتبر نیست (فقط حروف انگلیسی، عدد و _)';
-    error.style.color = ''; return false;
+    error.textContent = '❌ آیدی معتبر نیست';
+    error.style.color = 'var(--red)';
+    return false;
   }
   input.classList.remove('error'); input.classList.add('success');
-  error.textContent = '✓ آیدی معتبر است'; error.style.color = 'var(--green)';
+  error.textContent = '✓ آیدی معتبر است';
+  error.style.color = 'var(--green)';
   return true;
 }
 
@@ -1036,7 +1045,55 @@ function updateCounter(){
   else { input.classList.remove('error'); }
 }
 
-// ===== ارسال فرم =====
+/* ====== کد تخفیف ====== */
+async function checkCoupon(){
+  const input = document.getElementById('couponInput');
+  const status = document.getElementById('couponStatus');
+  const discountBox = document.getElementById('couponDiscount');
+  const code = input.value.trim().toUpperCase();
+
+  // ریست
+  APPLIED_COUPON = null;
+  APPLIED_DISCOUNT = 0;
+  discountBox.classList.remove('show');
+  input.classList.remove('error','success');
+  status.textContent = '';
+  status.className = 'coupon-status';
+
+  if(!code) return;
+
+  try {
+    const res = await fetch('/api/check_coupon', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({code})
+    });
+    const data = await res.json();
+
+    if(data.success){
+      APPLIED_COUPON = code;
+      APPLIED_DISCOUNT = data.discount;
+      input.classList.add('success');
+      status.textContent = '✓ کد معتبر است';
+      status.className = 'coupon-status good';
+      document.getElementById('discountPercent').textContent = data.discount + '%';
+      discountBox.classList.add('show');
+    } else {
+      input.classList.add('error');
+      status.textContent = '❌ ' + data.message;
+      status.className = 'coupon-status bad';
+    }
+  } catch(err){
+    status.textContent = '❌ خطا در بررسی کد';
+    status.className = 'coupon-status bad';
+  }
+}
+
+function applyCoupon(){
+  checkCoupon();
+}
+
+/* ====== ارسال فرم ====== */
 async function submitForm(){
   const email = document.getElementById('email').value.trim();
   const password = document.getElementById('password').value.trim();
@@ -1061,7 +1118,10 @@ async function submitForm(){
     const response = await fetch('/register', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({email, password, rubika, desc, sp: cp})
+      body: JSON.stringify({
+        email, password, rubika, desc, sp: cp,
+        coupon: APPLIED_COUPON || ''
+      })
     });
     const data = await response.json();
     document.getElementById('loading').classList.remove('show');
@@ -1080,14 +1140,12 @@ async function submitForm(){
   }
 }
 
-// ===== کپی کد =====
 function copyCode(){
   const code = document.getElementById('userCode').textContent;
   navigator.clipboard.writeText(code).then(() => alert('✅ کد کپی شد!'))
     .catch(() => alert('❌ کپی نشد'));
 }
 
-// ===== بازگشت =====
 function goHome(){
   document.getElementById('successCard').classList.remove('show');
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -1095,7 +1153,6 @@ function goHome(){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-// ===== مودال =====
 function openModal(name){
   document.getElementById('modal-' + name).classList.add('show');
   document.body.style.overflow = 'hidden';
@@ -1110,7 +1167,6 @@ document.querySelectorAll('.modal').forEach(m => {
   });
 });
 
-// ===== شروع =====
 loadSettings();
 </script>
 </body>

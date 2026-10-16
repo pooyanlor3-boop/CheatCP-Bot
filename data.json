@@ -1,36 +1,19 @@
 {
-  "users": [
-    {
-      "id": 1,
-      "email": "pooyanlor3@gmail.com",
-      "password": "wrtuiksasfgjkl",
-      "rubika": "@dfgjklkjgf",
-      "desc": "",
-      "sp": 100000,
-      "code": "1-CP-KPJ063QA",
-      "note": "خودمم یتژعیایذنیمستژلژذیدپینیدیی ززتنیتیتیتیتبتبت",
-      "display_name": "نینی",
-      "date": "2026-10-15 21:46"
-    }
-  ],
-  "next_user_id": 2,
+  "users": [],
+  "next_user_id": 1,
   "stats": {
-    "total_users": 1,
-    "total_visits": 1
+    "total_users": 0,
+    "total_visits": 0
   },
   "settings": {
     "group_id": -1004335107809,
     "report_interval": 360,
     "report_enabled": true,
     "max_cp": 100000,
-    "cp_options": [
-      10000,
-      20000,
-      50000,
-      80000,
-      100000
-    ]
+    "cp_options": [10000, 20000, 50000, 80000, 100000],
+    "registration_open": true
   },
+  "coupons": [],
   "texts": {
     "site_name": "PhoenixCheat",
     "site_tagline": "COD STORE",
