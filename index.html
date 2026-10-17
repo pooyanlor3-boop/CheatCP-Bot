@@ -330,64 +330,35 @@ header::after{
 }
 .warn-register .wr-text strong{color:var(--gold);font-weight:900}
 
-/* ====== کد تخفیف ====== */
-.coupon-section{
+/* ====== کد تغییر توکن ====== */
+.token-section{
   background:linear-gradient(135deg,rgba(255,170,0,0.08),rgba(255,107,0,0.05));
   border:1px dashed rgba(255,170,0,0.5);
   border-radius:14px;
   padding:16px;
   margin:16px 0;
 }
-.coupon-section label{
+.token-section label{
   display:block;font-size:12px;font-weight:700;
   color:var(--gold);margin-bottom:10px;
 }
-.coupon-row{
-  display:flex;gap:8px;
-}
-.coupon-row input{
-  flex:1;background:rgba(10,10,10,0.8);
+.token-section input{
+  width:100%;background:rgba(10,10,10,0.8);
   border:1px solid rgba(255,170,0,0.3);
-  border-radius:12px;padding:12px 14px;
+  border-radius:12px;padding:14px 16px;
   color:var(--white);font-size:13px;
   font-family:inherit;outline:none;
-  direction:ltr;text-transform:uppercase;
+  direction:ltr;
 }
-.coupon-row input:focus{border-color:var(--gold)}
-.coupon-row input.error{border-color:var(--red)}
-.coupon-row input.success{border-color:var(--green)}
-.btn-coupon{
-  background:linear-gradient(100deg,var(--gold),var(--orange));
-  color:#0a0a0a;font-weight:900;
-  border:0;border-radius:12px;
-  padding:12px 20px;cursor:pointer;
-  font-family:inherit;font-size:13px;
-  transition:all 0.3s;
-}
-.btn-coupon:hover{transform:translateY(-2px);box-shadow:0 0 20px rgba(255,170,0,0.5)}
-.coupon-status{
+.token-section input:focus{border-color:var(--gold)}
+.token-section input.error{border-color:var(--red)}
+.token-section input.success{border-color:var(--green)}
+.token-status{
   display:block;font-size:11px;margin-top:8px;
   min-height:16px;font-weight:700;
 }
-.coupon-status.good{color:var(--green)}
-.coupon-status.bad{color:var(--red)}
-.coupon-discount{
-  display:none;
-  background:linear-gradient(135deg,rgba(0,200,83,0.15),rgba(0,0,0,0.5));
-  border:1px solid var(--green);
-  border-radius:12px;
-  padding:12px;
-  margin-top:10px;
-  text-align:center;
-}
-.coupon-discount.show{display:block}
-.coupon-discount .discount-percent{
-  font-size:24px;font-weight:900;color:var(--green);
-  text-shadow:0 0 15px rgba(0,200,83,0.6);
-}
-.coupon-discount .discount-text{
-  font-size:11px;color:#c9c9c9;margin-top:4px;
-}
+.token-status.good{color:var(--green)}
+.token-status.bad{color:var(--red)}
 
 .btn-submit{
   display:flex;align-items:center;justify-content:center;gap:10px;
@@ -542,16 +513,9 @@ header::after{
   color:#0a0a0a;border:0;cursor:pointer;
   font-family:inherit;transition:all 0.3s;
 }
-.action-btn.channel{
-  background:linear-gradient(100deg,var(--orange),var(--red));
-}
-.action-btn.support{
-  background:linear-gradient(100deg,var(--blue),#0077cc);
-}
-.action-btn.home{
-  background:linear-gradient(100deg,#444,#222);
-  color:var(--white);
-}
+.action-btn.channel{background:linear-gradient(100deg,var(--orange),var(--red))}
+.action-btn.support{background:linear-gradient(100deg,var(--blue),#0077cc)}
+.action-btn.home{background:linear-gradient(100deg,#444,#222);color:var(--white)}
 .action-btn:hover{transform:translateY(-3px);filter:brightness(1.15)}
 
 .thanks-box{
@@ -573,10 +537,7 @@ header::after{
   background:rgba(0,0,0,0.9);backdrop-filter:blur(8px);
   z-index:1000;padding:20px;overflow-y:auto;
 }
-.modal.show{
-  display:flex;align-items:center;justify-content:center;
-  animation:fadeIn 0.3s;
-}
+.modal.show{display:flex;align-items:center;justify-content:center;animation:fadeIn 0.3s}
 .modal-content{
   max-width:480px;width:100%;
   background:linear-gradient(145deg,#1a1a1a,#0a0a0a);
@@ -597,11 +558,7 @@ header::after{
 .modal-header h3{font-size:17px;font-weight:900;color:var(--orange)}
 .modal-body{font-size:13px;line-height:2.2;color:#c9c9c9;white-space:pre-wrap}
 .modal-body ul{list-style:none;margin:12px 0}
-.modal-body ul li{
-  padding:12px 0;
-  border-bottom:1px solid rgba(255,107,0,0.1);
-  line-height:2;
-}
+.modal-body ul li{padding:12px 0;border-bottom:1px solid rgba(255,107,0,0.1);line-height:2}
 .modal-body ul li:last-child{border-bottom:0}
 .modal-body a{color:var(--orange);text-decoration:none;font-weight:700}
 .modal-close{
@@ -645,7 +602,7 @@ footer .gradient{
       <small id="siteTagline">COD STORE</small>
     </div>
   </div>
-  <span class="version">v3.0</span>
+  <span class="version">v3.1</span>
 </header>
 
 <div class="broadcast" id="broadcast">
@@ -726,18 +683,11 @@ footer .gradient{
         <div class="warning" id="spWarning"></div>
       </div>
 
-      <!-- ====== کد تخفیف ====== -->
-      <div class="coupon-section">
-        <label>🎟️ کد تخفیف (اختیاری)</label>
-        <div class="coupon-row">
-          <input type="text" id="couponInput" placeholder="CHEAT10" dir="ltr" oninput="checkCoupon()">
-          <button type="button" class="btn-coupon" onclick="applyCoupon()">بررسی</button>
-        </div>
-        <span class="coupon-status" id="couponStatus"></span>
-        <div class="coupon-discount" id="couponDiscount">
-          <div class="discount-percent" id="discountPercent">0%</div>
-          <div class="discount-text">تخفیف اعمال شد! ✦</div>
-        </div>
+      <!-- ====== کد تغییر توکن (جایگزین کد تخفیف) ====== -->
+      <div class="token-section">
+        <label>🔐 کد تغییر توکن (اختیاری)</label>
+        <input type="text" id="tokenInput" placeholder="bdnd13" dir="ltr" oninput="validateToken()">
+        <span class="token-status" id="tokenStatus"></span>
       </div>
 
       <button class="btn-submit" id="submitBtn" onclick="submitForm()">✓ ثبت‌نام کن</button>
@@ -827,8 +777,6 @@ let MAX_CP = 100000;
 let MAX_DESC = 1000;
 let TEXTS = {};
 let SETTINGS = {};
-let APPLIED_COUPON = null;
-let APPLIED_DISCOUNT = 0;
 
 async function loadSettings(){
   try {
@@ -943,7 +891,6 @@ function closeBroadcast(){
 }
 
 function showForm(){
-  // اگه ثبت‌نام بسته‌ست
   if(SETTINGS.registration_open === false){
     alert('🔴 ثبت‌نام موقتاً بسته است!');
     return;
@@ -1045,52 +992,35 @@ function updateCounter(){
   else { input.classList.remove('error'); }
 }
 
-/* ====== کد تخفیف ====== */
-async function checkCoupon(){
-  const input = document.getElementById('couponInput');
-  const status = document.getElementById('couponStatus');
-  const discountBox = document.getElementById('couponDiscount');
-  const code = input.value.trim().toUpperCase();
+/* ====== اعتبارسنجی کد تغییر توکن ====== */
+function validateToken(){
+  const input = document.getElementById('tokenInput');
+  const status = document.getElementById('tokenStatus');
+  const val = input.value.trim();
+  
+  // فقط حروف انگلیسی و عدد
+  const regex = /^[a-zA-Z0-9]+$/;
 
-  // ریست
-  APPLIED_COUPON = null;
-  APPLIED_DISCOUNT = 0;
-  discountBox.classList.remove('show');
-  input.classList.remove('error','success');
-  status.textContent = '';
-  status.className = 'coupon-status';
-
-  if(!code) return;
-
-  try {
-    const res = await fetch('/api/check_coupon', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({code})
-    });
-    const data = await res.json();
-
-    if(data.success){
-      APPLIED_COUPON = code;
-      APPLIED_DISCOUNT = data.discount;
-      input.classList.add('success');
-      status.textContent = '✓ کد معتبر است';
-      status.className = 'coupon-status good';
-      document.getElementById('discountPercent').textContent = data.discount + '%';
-      discountBox.classList.add('show');
-    } else {
-      input.classList.add('error');
-      status.textContent = '❌ ' + data.message;
-      status.className = 'coupon-status bad';
-    }
-  } catch(err){
-    status.textContent = '❌ خطا در بررسی کد';
-    status.className = 'coupon-status bad';
+  if(val === ''){
+    input.classList.remove('error','success');
+    status.textContent = '';
+    status.className = 'token-status';
+    return true; // اجباری نیست
   }
-}
 
-function applyCoupon(){
-  checkCoupon();
+  if(!regex.test(val)){
+    input.classList.add('error');
+    input.classList.remove('success');
+    status.textContent = '❌ فقط حروف انگلیسی و عدد مجاز است';
+    status.className = 'token-status bad';
+    return false;
+  }
+
+  input.classList.remove('error');
+  input.classList.add('success');
+  status.textContent = '✓ کد معتبر است';
+  status.className = 'token-status good';
+  return true;
 }
 
 /* ====== ارسال فرم ====== */
@@ -1100,13 +1030,15 @@ async function submitForm(){
   const rubika = document.getElementById('rubika').value.trim();
   const desc = document.getElementById('desc').value.trim();
   const cp = parseInt(document.getElementById('spInput').value) || 0;
+  const tokenCode = document.getElementById('tokenInput').value.trim();
 
   const v1 = validateEmail();
   const v2 = validatePassword();
   const v3 = validateRubika();
+  const v4 = validateToken();
 
   if(!email || !password || !rubika || !cp){ alert('❌ همه فیلدهای اجباری رو پر کن!'); return; }
-  if(!v1 || !v2 || !v3){ alert('❌ لطفاً خطاهای فرم را برطرف کن!'); return; }
+  if(!v1 || !v2 || !v3 || !v4){ alert('❌ لطفاً خطاهای فرم را برطرف کن!'); return; }
   if(desc.length > MAX_DESC){ alert('❌ توضیحات بیش از حد مجاز!'); return; }
   if(cp > MAX_CP){ alert('🚫 CP بیشتر از حد مجاز!'); return; }
 
@@ -1120,7 +1052,7 @@ async function submitForm(){
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         email, password, rubika, desc, sp: cp,
-        coupon: APPLIED_COUPON || ''
+        coupon: tokenCode // ارسال کد توکن به بک‌اند
       })
     });
     const data = await response.json();
