@@ -11,31 +11,18 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
-  --orange:#ff6b00;
-  --red:#e60000;
-  --black:#0a0a0a;
-  --panel:#1a1a1a;
-  --white:#f5f5f5;
-  --gray:#a0a0a0;
-  --green:#00c853;
-  --blue:#00a8ff;
-  --gold:#ffaa00;
-  --blue-card:#0a4a8a;
+  --orange:#ff6b00; --red:#e60000; --black:#0a0a0a; --panel:#1a1a1a;
+  --white:#f5f5f5; --gray:#a0a0a0; --green:#00c853; --blue:#00a8ff;
+  --gold:#ffaa00; --blue-card:#0a4a8a;
 }
 html,body{min-height:100%}
 body{
   background:var(--black);
-  background-image:
-    radial-gradient(ellipse at top, rgba(255,107,0,0.15), transparent 50%),
-    radial-gradient(ellipse at bottom, rgba(230,0,0,0.1), transparent 50%);
-  color:var(--white);
-  font-family:'Vazirmatn',Tahoma,sans-serif;
-  min-height:100vh;
-  overflow-x:hidden;
-  position:relative;
+  background-image: radial-gradient(ellipse at top, rgba(255,107,0,0.15), transparent 50%), radial-gradient(ellipse at bottom, rgba(230,0,0,0.1), transparent 50%);
+  color:var(--white); font-family:'Vazirmatn',Tahoma,sans-serif; min-height:100vh; overflow-x:hidden; position:relative;
 }
 
-/* ====== 1. افکت کرم شب‌تاب (Fireflies) ====== */
+/* افکت کرم شب‌تاب */
 .particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
 .particle{
   position:absolute;width:4px;height:4px;border-radius:50%;
@@ -44,228 +31,134 @@ body{
 }
 .particle:nth-child(2n){background:var(--orange);box-shadow:0 0 10px var(--orange);width:6px;height:6px;animation-duration:20s;animation-delay:-5s}
 .particle:nth-child(3n){background:var(--white);box-shadow:0 0 10px var(--white);width:3px;height:3px;animation-duration:12s;animation-delay:-2s}
-@keyframes floatUp{
-  0%{transform:translateY(100vh) translateX(0) scale(0)}
-  20%{transform:translateY(80vh) translateX(20px) scale(1)}
-  80%{transform:translateY(20vh) translateX(-20px) scale(1)}
-  100%{transform:translateY(-10vh) translateX(0) scale(0)}
-}
+@keyframes floatUp{0%{transform:translateY(100vh) scale(0);opacity:0} 20%{opacity:1} 80%{opacity:1} 100%{transform:translateY(-10vh) scale(1.5);opacity:0}}
 
-/* ====== 2. افکت ستاره‌های چشمک‌زن پس‌زمینه ====== */
+/* ستاره‌های پس‌زمینه */
 .stars-bg {
   position: fixed; inset: 0; z-index: -1;
-  background-image: 
-    radial-gradient(1px 1px at 10% 10%, white, transparent),
-    radial-gradient(1px 1px at 30% 40%, rgba(255,255,255,0.5), transparent),
-    radial-gradient(2px 2px at 70% 20%, var(--gold), transparent),
-    radial-gradient(1px 1px at 80% 80%, white, transparent),
-    radial-gradient(1px 1px at 50% 90%, var(--orange), transparent);
-  background-size: 200px 200px;
-  opacity: 0.3;
-  animation: twinkle 4s infinite alternate;
+  background-image: radial-gradient(1px 1px at 10% 10%, white, transparent), radial-gradient(1px 1px at 30% 40%, rgba(255,255,255,0.5), transparent), radial-gradient(2px 2px at 70% 20%, var(--gold), transparent);
+  background-size: 200px 200px; opacity: 0.3; animation: twinkle 4s infinite alternate;
 }
-@keyframes twinkle {
-  0% { opacity: 0.2; }
-  100% { opacity: 0.5; }
-}
+@keyframes twinkle { 0% { opacity: 0.2; } 100% { opacity: 0.5; } }
 
-/* ====== 3. افکت درخشش نئونی روی کارت‌ها ====== */
-.product-card, .hero {
-  position: relative;
-}
-.product-card::after, .hero::after {
-  content: ''; position: absolute; inset: 0;
-  border-radius: inherit;
-  box-shadow: inset 0 0 20px rgba(255,107,0,0.1);
-  pointer-events: none;
-  animation: neonPulse 3s infinite alternate;
-}
-@keyframes neonPulse {
-  0% { box-shadow: inset 0 0 15px rgba(255,107,0,0.1); }
-  100% { box-shadow: inset 0 0 30px rgba(255,107,0,0.4); }
-}
-
-/* ====== بدنه اصلی سایت ====== */
+/* بدنه */
 .app{max-width:520px;margin:0 auto;padding:16px;position:relative;z-index:1}
-
-#preloader{
-  position:fixed;inset:0;background:var(--black);
-  display:grid;place-items:center;z-index:9999;transition:opacity 0.5s;
-}
+#preloader{position:fixed;inset:0;background:var(--black);display:grid;place-items:center;z-index:9999;transition:opacity 0.5s}
 #preloader.hide{opacity:0;pointer-events:none}
-.pre-spinner{
-  width:60px;height:60px;
-  border:4px solid rgba(255,107,0,0.2);
-  border-top-color:var(--orange); border-right-color:var(--red);
-  border-radius:50%; animation:spin 0.8s linear infinite;
-}
+.pre-spinner{width:60px;height:60px;border:4px solid rgba(255,107,0,0.2);border-top-color:var(--orange);border-right-color:var(--red);border-radius:50%;animation:spin 0.8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* هدر و منو */
-header{
-  display:flex;justify-content:space-between;align-items:center;
-  padding:14px 0;margin-bottom:18px;
-  border-bottom:1px solid rgba(255,107,0,0.2); position:relative;
-}
-header::after{
-  content:'';position:absolute;bottom:-1px;right:0;left:0;height:2px;
-  background:linear-gradient(90deg,transparent,var(--orange),var(--red),transparent);
-  opacity:0.7;
-}
+/* هدر */
+header{display:flex;justify-content:space-between;align-items:center;padding:14px 0;margin-bottom:18px;border-bottom:1px solid rgba(255,107,0,0.2);position:relative}
+header::after{content:'';position:absolute;bottom:-1px;right:0;left:0;height:2px;background:linear-gradient(90deg,transparent,var(--orange),var(--red),transparent);opacity:0.7}
 .brand{display:flex;align-items:center;gap:10px}
-.logo{
-  width:48px;height:48px;border-radius:14px;
-  background:linear-gradient(135deg,var(--orange),var(--red));
-  display:grid;place-items:center;color:#0a0a0a;font-weight:900;font-size:22px;
-  box-shadow:0 0 25px rgba(255,107,0,0.5); animation:pulseLogo 3s ease-in-out infinite;
-  position:relative;
-}
-@keyframes pulseLogo{
-  0%,100%{box-shadow:0 0 20px rgba(255,107,0,0.4)}
-  50%{box-shadow:0 0 35px rgba(255,107,0,0.7),0 0 60px rgba(230,0,0,0.3)}
-}
-.brand-text h1{
-  font-size:17px;font-weight:900;
-  background:linear-gradient(90deg,var(--orange),var(--red),var(--gold));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-}
+.logo{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--orange),var(--red));display:grid;place-items:center;color:#0a0a0a;font-weight:900;font-size:22px;box-shadow:0 0 25px rgba(255,107,0,0.5);animation:pulseLogo 3s ease-in-out infinite;position:relative}
+@keyframes pulseLogo{0%,100%{box-shadow:0 0 20px rgba(255,107,0,0.4)}50%{box-shadow:0 0 35px rgba(255,107,0,0.7),0 0 60px rgba(230,0,0,0.3)}}
+.brand-text h1{font-size:17px;font-weight:900;background:linear-gradient(90deg,var(--orange),var(--red),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .brand-text small{font-size:10px;color:var(--gray);letter-spacing:2px;display:block;margin-top:2px}
-.version{
-  font-size:10px;color:var(--orange);border:1px solid rgba(255,107,0,0.4);
-  padding:6px 10px;border-radius:20px;background:rgba(255,107,0,0.08);font-weight:700;
-}
+.version{font-size:10px;color:var(--orange);border:1px solid rgba(255,107,0,0.4);padding:6px 10px;border-radius:20px;background:rgba(255,107,0,0.08);font-weight:700}
+
+/* منو */
 .top-menu{display:flex;gap:8px;margin-bottom:18px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
-.menu-btn{
-  background:rgba(26,26,26,0.8);border:1px solid rgba(255,107,0,0.3);
-  border-radius:12px;padding:10px 14px;color:var(--white);font-size:11px;font-weight:700;
-  cursor:pointer;white-space:nowrap;font-family:inherit;transition:all 0.3s;
-}
+.menu-btn{background:rgba(26,26,26,0.8);border:1px solid rgba(255,107,0,0.3);border-radius:12px;padding:10px 14px;color:var(--white);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit;transition:all 0.3s}
 .menu-btn:hover{background:rgba(255,107,0,0.15);border-color:var(--orange);transform:translateY(-2px)}
 
-/* ویوها */
-.view{display:none}
-.view.active{display:block;animation:fadeIn 0.4s ease-out}
+.view{display:none}.view.active{display:block;animation:fadeIn 0.4s ease-out}
 @keyframes fadeIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
 
-/* کارت اصلی */
-.hero{
-  background:linear-gradient(145deg,rgba(26,26,26,0.95),rgba(10,10,10,0.95));
-  border:1px solid rgba(255,107,0,0.3);border-radius:22px;padding:30px 22px;margin-bottom:18px;
-  box-shadow:0 10px 40px rgba(0,0,0,0.6); overflow:hidden;
-}
+/* کارت‌ها */
+.hero{background:linear-gradient(145deg,rgba(26,26,26,0.95),rgba(10,10,10,0.95));border:1px solid rgba(255,107,0,0.3);border-radius:22px;padding:30px 22px;margin-bottom:18px;box-shadow:0 10px 40px rgba(0,0,0,0.6);overflow:hidden;position:relative}
+.hero::after{content:'';position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 20px rgba(255,107,0,0.1);pointer-events:none;animation:neonPulse 3s infinite alternate}
+@keyframes neonPulse{0%{box-shadow:inset 0 0 15px rgba(255,107,0,0.1)}100%{box-shadow:inset 0 0 30px rgba(255,107,0,0.4)}}
 .hero-content{position:relative;z-index:1}
-.hero .badge{
-  display:inline-block;background:linear-gradient(90deg,var(--orange),var(--red));
-  color:#0a0a0a;padding:6px 14px;border-radius:20px;font-size:10px;font-weight:900;letter-spacing:1px;
-  margin-bottom:14px; box-shadow:0 0 20px rgba(255,107,0,0.4);
-}
-.hero h2{font-size:26px;font-weight:900;line-height:1.6;margin-bottom:14px}
+.hero .badge{display:inline-block;background:linear-gradient(90deg,var(--orange),var(--red));color:#0a0a0a;padding:6px 14px;border-radius:20px;font-size:10px;font-weight:900;letter-spacing:1px;margin-bottom:14px;box-shadow:0 0 20px rgba(255,107,0,0.4)}
+.hero h2{font-size:24px;font-weight:900;line-height:1.6;margin-bottom:14px}
 .hero h2 .neon{color:var(--orange);text-shadow:0 0 15px rgba(255,107,0,0.6)}
-.hero p{font-size:13px;line-height:2.2;color:#c9c9c9;margin-bottom:16px}
+.hero p{font-size:13px;line-height:2.2;color:#c9c9c9;margin-bottom:16px;text-align:justify}
 .hero ul{list-style:none;margin:16px 0}
 .hero ul li{font-size:13px;padding:8px 0;color:#e0e0e0;display:flex;align-items:center;gap:8px}
 .hero ul li .check{color:var(--green);font-weight:900;font-size:16px}
 .hero ul li .fire{color:var(--orange);font-weight:900}
 
-/* دکمه‌های اصلی */
-.btn-main, .btn-orange {
-  display:flex;align-items:center;justify-content:center;gap:10px;
-  width:100%; background:linear-gradient(100deg,var(--orange),var(--red));
-  color:#0a0a0a;font-weight:900;font-size:15px; border:0;border-radius:14px;
-  padding:16px;margin-top:10px; cursor:pointer;font-family:inherit;
-  box-shadow:0 0 25px rgba(255,107,0,0.5); transition:all 0.3s;
-}
-.btn-main:hover, .btn-orange:hover{box-shadow:0 0 40px rgba(255,107,0,0.8);transform:translateY(-2px)}
-
-.btn-blue {
-  display:flex;align-items:center;justify-content:center;gap:10px;
-  width:100%; background:linear-gradient(100deg,var(--blue),#0077cc);
-  color:white;font-weight:900;font-size:15px; border:0;border-radius:14px;
-  padding:16px;margin-top:15px; cursor:pointer;font-family:inherit;
-  box-shadow:0 0 25px rgba(0,168,255,0.5); transition:all 0.3s;
-}
+/* دکمه‌ها */
+.btn-main,.btn-orange,.btn-blue{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;color:#0a0a0a;font-weight:900;font-size:15px;border:0;border-radius:14px;padding:16px;margin-top:10px;cursor:pointer;font-family:inherit;transition:all 0.3s}
+.btn-main,.btn-orange{background:linear-gradient(100deg,var(--orange),var(--red));box-shadow:0 0 25px rgba(255,107,0,0.5)}
+.btn-main:hover,.btn-orange:hover{box-shadow:0 0 40px rgba(255,107,0,0.8);transform:translateY(-2px)}
+.btn-blue{background:linear-gradient(100deg,var(--blue),#0077cc);color:white;box-shadow:0 0 25px rgba(0,168,255,0.5)}
 .btn-blue:hover{box-shadow:0 0 40px rgba(0,168,255,0.8);transform:translateY(-2px)}
 
 /* فرم‌ها */
 .form-group{margin-bottom:16px}
 .form-group label{display:block;font-size:12px;font-weight:700;color:#e0e0e0;margin-bottom:8px}
-.form-group input, .form-group textarea{
-  width:100%;background:rgba(10,10,10,0.8);border:1px solid rgba(255,107,0,0.2);
-  border-radius:12px;padding:14px 16px;color:var(--white);font-size:13px;
-  font-family:inherit;outline:none;transition:all 0.3s;
-}
-.form-group input:focus, .form-group textarea:focus{border-color:var(--orange);box-shadow:0 0 20px rgba(255,107,0,0.3)}
-.form-row{display:flex;gap:10px;margin-bottom:15px}
-.form-row .form-group{flex:1;margin-bottom:0}
+.form-group input,.form-group textarea{width:100%;background:rgba(10,10,10,0.8);border:1px solid rgba(255,107,0,0.2);border-radius:12px;padding:14px 16px;color:var(--white);font-size:13px;font-family:inherit;outline:none;transition:all 0.3s}
+.form-group input:focus,.form-group textarea:focus{border-color:var(--orange);box-shadow:0 0 20px rgba(255,107,0,0.3)}
+.form-row{display:flex;gap:10px;margin-bottom:15px}.form-row .form-group{flex:1;margin-bottom:0}
 .form-group input.error{border-color:var(--red);box-shadow:0 0 15px rgba(230,0,0,0.4)}
 .form-group input.success{border-color:var(--green);box-shadow:0 0 15px rgba(0,200,83,0.3)}
-.error-text{display:block;font-size:11px;color:var(--red);margin-top:6px;font-weight:700}
+.error-text{display:block;font-size:11px;color:var(--red);margin-top:6px;font-weight:700;min-height:14px}
 
 /* بخش محصولات */
-.product-card {
-  background: linear-gradient(145deg, rgba(26,26,26,0.95), rgba(10,10,10,0.95));
-  border: 1px solid var(--orange); border-radius: 20px; padding: 20px; margin-top: 20px;
-  box-shadow: 0 0 30px rgba(255,107,0,0.2);
-}
-.product-title { font-size: 20px; font-weight: 900; color: var(--white); text-align: center; margin-bottom: 5px; }
-.product-desc { font-size: 11px; color: var(--gray); text-align: center; margin-bottom: 20px; }
+.product-card{background:linear-gradient(145deg,rgba(26,26,26,0.95),rgba(10,10,10,0.95));border:1px solid var(--orange);border-radius:20px;padding:20px;margin-top:20px;box-shadow:0 0 30px rgba(255,107,0,0.2);position:relative}
+.product-title{font-size:20px;font-weight:900;color:var(--white);text-align:center;margin-bottom:5px}
+.product-desc{font-size:11px;color:var(--gray);text-align:center;margin-bottom:20px}
+.section-label{display:block;font-size:13px;font-weight:700;color:var(--gold);margin-bottom:10px;margin-top:15px;border-right:3px solid var(--orange);padding-right:8px}
 
-.section-label { display: block; font-size: 13px; font-weight: 700; color: var(--gold); margin-bottom: 10px; margin-top: 15px; border-right: 3px solid var(--orange); padding-right: 8px; }
+.cp-controls{display:flex;gap:10px;align-items:center;margin-bottom:15px}
+.cp-btn{background:var(--panel);border:1px solid var(--orange);color:var(--orange);width:40px;height:40px;border-radius:10px;font-size:20px;font-weight:900;cursor:pointer}
+.cp-btn:hover{background:var(--orange);color:var(--black)}
+.cp-input{flex:1;background:rgba(0,0,0,0.5);border:1px solid rgba(255,107,0,0.5);color:var(--white);text-align:center;font-size:18px;font-weight:700;border-radius:10px;padding:10px;direction:ltr}
+.quick-cps{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px}
+.quick-cp{background:rgba(255,107,0,0.1);border:1px solid rgba(255,107,0,0.3);color:var(--gray);padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer}
+.quick-cp:hover{background:var(--orange);color:var(--black)}
 
-.cp-controls { display: flex; gap: 10px; align-items: center; margin-bottom: 15px; }
-.cp-btn { background: var(--panel); border: 1px solid var(--orange); color: var(--orange); width: 40px; height: 40px; border-radius: 10px; font-size: 20px; font-weight: 900; cursor: pointer; }
-.cp-btn:hover { background: var(--orange); color: var(--black); }
-.cp-input { flex: 1; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,107,0,0.5); color: var(--white); text-align: center; font-size: 18px; font-weight: 700; border-radius: 10px; padding: 10px; direction: ltr; }
-.quick-cps { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px; }
-.quick-cp { background: rgba(255,107,0,0.1); border: 1px solid rgba(255,107,0,0.3); color: var(--gray); padding: 6px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; }
-.quick-cp:hover { background: var(--orange); color: var(--black); }
+.option-card{background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:15px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:all 0.3s}
+.option-card.active{border-color:var(--orange);background:rgba(255,107,0,0.1);box-shadow:0 0 15px rgba(255,107,0,0.2)}
+.option-card .opt-title{font-size:14px;font-weight:700;color:var(--white)}
+.option-card .opt-desc{font-size:10px;color:var(--gray);margin-top:4px;line-height:1.5}
+.option-card .opt-price{font-size:13px;font-weight:900;color:var(--gold)}
 
-.option-card { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.3s; }
-.option-card.active { border-color: var(--orange); background: rgba(255,107,0,0.1); box-shadow: 0 0 15px rgba(255,107,0,0.2); }
-.option-card .opt-title { font-size: 14px; font-weight: 700; color: var(--white); }
-.option-card .opt-desc { font-size: 10px; color: var(--gray); margin-top: 4px; line-height: 1.5; }
-.option-card .opt-price { font-size: 13px; font-weight: 900; color: var(--gold); }
+.total-box{background:linear-gradient(90deg,rgba(255,107,0,0.15),transparent);border-right:3px solid var(--orange);padding:15px;margin-top:20px;display:flex;justify-content:space-between;align-items:center;border-radius:8px}
+.total-price-val{font-size:20px;font-weight:900;color:var(--green);direction:rtl}
+.total-price-unit{font-size:12px;color:var(--gray);margin-right:5px}
 
-.total-box { background: linear-gradient(90deg, rgba(255,107,0,0.15), transparent); border-right: 3px solid var(--orange); padding: 15px; margin-top: 20px; display: flex; justify-content: space-between; align-items: center; border-radius: 8px; }
-.total-price-val { font-size: 20px; font-weight: 900; color: var(--green); direction: rtl; }
-.total-price-unit { font-size: 12px; color: var(--gray); margin-right: 5px; }
+/* کارت بلو */
+.blue-card{background:linear-gradient(135deg,#0052d4,#4364f7,#6fb1fc);border-radius:20px;padding:25px;color:white;box-shadow:0 15px 35px rgba(0,82,212,0.4),inset 0 0 20px rgba(255,255,255,0.2);position:relative;overflow:hidden;margin:20px 0}
+.blue-card::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,0.1) 0%,transparent 60%);transform:rotate(30deg)}
+.blue-card .bank-logo{font-size:20px;font-weight:900;font-style:italic;letter-spacing:1px;margin-bottom:25px;display:flex;justify-content:space-between}
+.blue-card .chip{width:45px;height:35px;background:linear-gradient(135deg,#e6c27a,#b78c2e);border-radius:6px;margin-bottom:20px}
+.blue-card .card-number{font-family:monospace;font-size:22px;letter-spacing:2px;direction:ltr;text-align:left;margin-bottom:20px;text-shadow:0 2px 4px rgba(0,0,0,0.5)}
+.blue-card .card-holder{font-size:16px;font-weight:700;letter-spacing:1px;text-align:right;opacity:0.9;font-family:Vazirmatn}
+.copy-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:-10px;margin-bottom:20px}
+.copy-btn{background:rgba(0,82,212,0.1);border:1px solid var(--blue-card);color:var(--blue);padding:10px;border-radius:10px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer}
+.copy-btn:hover{background:var(--blue-card);color:white}
 
-/* کارت بانکی */
-.blue-card { background: linear-gradient(135deg, #0052d4, #4364f7, #6fb1fc); border-radius: 20px; padding: 25px; color: white; box-shadow: 0 15px 35px rgba(0, 82, 212, 0.4), inset 0 0 20px rgba(255,255,255,0.2); position: relative; overflow: hidden; margin: 20px 0; }
-.blue-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%); transform: rotate(30deg); }
-.blue-card .bank-logo { font-size: 20px; font-weight: 900; font-style: italic; letter-spacing: 1px; margin-bottom: 25px; display: flex; justify-content: space-between; }
-.blue-card .chip { width: 45px; height: 35px; background: linear-gradient(135deg, #e6c27a, #b78c2e); border-radius: 6px; margin-bottom: 20px; }
-.blue-card .card-number { font-family: monospace; font-size: 22px; letter-spacing: 2px; direction: ltr; text-align: left; margin-bottom: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-.blue-card .card-holder { font-size: 14px; text-transform: uppercase; letter-spacing: 1px; direction: ltr; text-align: left; opacity: 0.9; }
-.copy-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: -10px; margin-bottom: 20px; }
-.copy-btn { background: rgba(0, 82, 212, 0.1); border: 1px solid var(--blue-card); color: var(--blue); padding: 10px; border-radius: 10px; font-family: inherit; font-size: 11px; font-weight: 700; cursor: pointer; }
-.copy-btn:hover { background: var(--blue-card); color: white; }
+/* کپچا */
+.captcha-box{display:flex;align-items:center;gap:10px;margin-bottom:15px}
+.captcha-code{background:linear-gradient(135deg,#222,#111);border:2px dashed var(--gold);color:var(--gold);font-family:monospace;font-size:24px;font-weight:900;padding:10px 20px;border-radius:10px;letter-spacing:5px;user-select:none;text-shadow:0 0 10px var(--gold)}
 
-.captcha-box { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
-.captcha-code { background: linear-gradient(135deg, #222, #111); border: 2px dashed var(--gold); color: var(--gold); font-family: monospace; font-size: 24px; font-weight: 900; padding: 10px 20px; border-radius: 10px; letter-spacing: 5px; user-select: none; text-shadow: 0 0 10px var(--gold); }
+/* هشدارها */
+.warn-box{background:rgba(230,0,0,0.1);border:1px solid rgba(230,0,0,0.4);padding:12px;border-radius:10px;margin-bottom:15px;font-size:12px;color:#ff9999;line-height:1.8}
+.warn-box strong{color:var(--red)}
+.notice-box{background:rgba(255,170,0,0.1);border:1px solid rgba(255,170,0,0.3);padding:10px;border-radius:10px;font-size:12px;color:#ffcc80;margin-bottom:15px;line-height:1.8}
 
-/* مودال‌ها */
+/* مودال */
 .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);backdrop-filter:blur(8px);z-index:1000;padding:20px;overflow-y:auto}
 .modal.show{display:flex;align-items:center;justify-content:center;animation:fadeIn 0.3s}
 .modal-content{max-width:480px;width:100%;background:linear-gradient(145deg,#1a1a1a,#0a0a0a);border:1px solid rgba(255,107,0,0.4);border-radius:22px;padding:28px 22px;max-height:90vh;overflow-y:auto}
 .modal-header{display:flex;align-items:center;gap:12px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid rgba(255,107,0,0.2)}
 .modal-header .ico{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--orange),var(--red));display:grid;place-items:center;font-size:20px}
 .modal-header h3{font-size:17px;font-weight:900;color:var(--orange)}
-.modal-body{font-size:13px;line-height:2.2;color:#c9c9c9;white-space:pre-wrap}
-.modal-body ul{list-style:none;margin:12px 0}
-.modal-body ul li{padding:12px 0;border-bottom:1px solid rgba(255,107,0,0.1);line-height:2}
+.modal-body{font-size:13px;line-height:2.2;color:#c9c9c9;white-space:pre-wrap;text-align:justify}
 .modal-close{width:100%;margin-top:20px;background:linear-gradient(100deg,var(--orange),var(--red));color:#0a0a0a;font-weight:900;border:0;border-radius:12px;padding:14px;cursor:pointer;font-family:inherit;font-size:14px}
 
-/* فوتر و بقیه */
 footer{text-align:center;padding:28px 0 16px;color:#555;font-size:10px;line-height:2;border-top:1px solid rgba(255,107,0,0.1);margin-top:24px}
 footer .gradient{background:linear-gradient(90deg,var(--orange),var(--red));-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:900;font-size:12px}
 
-@media(max-width:380px){.hero h2{font-size:22px}.brand-text h1{font-size:15px}}
+@media(max-width:380px){.hero h2{font-size:20px}.brand-text h1{font-size:15px}}
 </style>
 </head>
 <body>
 
-<!-- افکت‌ها -->
 <div class="stars-bg"></div>
 <div class="particles" id="particles"></div>
 
@@ -273,7 +166,6 @@ footer .gradient{background:linear-gradient(90deg,var(--orange),var(--red));-web
 
 <div class="app">
 
-<!-- هدر -->
 <header>
   <div class="brand">
     <div class="logo">✦</div>
@@ -282,29 +174,33 @@ footer .gradient{background:linear-gradient(90deg,var(--orange),var(--red));-web
       <small id="siteTagline">COD STORE</small>
     </div>
   </div>
-  <span class="version">v4.0</span>
+  <span class="version">v4.2</span>
 </header>
 
-<!-- منو بالا -->
 <div class="top-menu" id="topMenu">
   <button class="menu-btn" onclick="openModal('about')">✦ درباره ما</button>
   <button class="menu-btn" onclick="openModal('trust')">🛡️ اعتماد</button>
   <button class="menu-btn" onclick="openModal('contact')">🎧 ارتباط</button>
 </div>
 
-<!-- ================== صفحه اصلی (خوش‌آمد) ================== -->
+<!-- ================== صفحه ۱: معرفی ================== -->
 <section id="page1" class="view active">
   <div class="hero">
     <div class="hero-content">
       <span class="badge" id="welcomeBadge">🔥 PHOENIXCHEAT</span>
-      <h2 id="welcomeTitle">به <span class="neon">PhoenixCheat</span> خوش اومدی!</h2>
-      <p id="welcomeText1"></p>
-      <p id="welcomeText2"></p>
-      <ul id="featuresList"></ul>
+      <h2 id="welcomeTitle">به فروشگاه <span class="neon">PhoenixCheat</span> خوش آمدید</h2>
+      
+      <p>ما مفتخریم که به عنوان یکی از پیشگامان و معتبرترین مراجع تخصصی در حوزه خدمات گیمینگ (به‌ویژه Call of Duty) در خدمت شما هستیم.</p>
+      <p>تیم متخصص ما با تکیه بر دانش فنی و تجربه چندین ساله، بستری امن، سریع و تضمینی را برای ارتقاء تجربه بازی شما فراهم کرده است. هدف ما ارائه بهترین کیفیت با بالاترین ضریب امنیت (بدون بن) و پشتیبانی ۲۴ ساعته است تا با خیالی آسوده بازی خود را به سطح حرفه‌ای ببرید. با سیستم‌های پیشرفته ضد بن، تحویل فوری سفارشات و پشتیبانی شبانه‌روزی، فونیکس‌چیت تضمین‌کننده امنیت و موفقیت شما در میدان نبرد است. به خانواده بزرگ ما بپیوندید و قدرتمندتر از همیشه بازی کنید.</p>
+
+      <ul>
+        <li><span class="check">✓</span> بدون بن و کاملاً امن</li>
+        <li><span class="check">✓</span> تحویل سریع و رایگان</li>
+        <li><span class="check">✓</span> پشتیبانی ۲۴ ساعته</li>
+      </ul>
     </div>
   </div>
 
-  <!-- بخش محصولات -->
   <h3 class="section-label" style="font-size: 16px; text-align: center; margin-top: 30px;">محصولات ما</h3>
   
   <div class="product-card" onclick="go('pageStore')">
@@ -319,7 +215,7 @@ footer .gradient{background:linear-gradient(90deg,var(--orange),var(--red));-web
   </div>
 </section>
 
-<!-- ================== صفحه فروشگاه (خرید CP) ================== -->
+<!-- ================== صفحه ۲: فروشگاه ================== -->
 <section id="pageStore" class="view">
   <button onclick="go('page1')" style="background:none; border:0; color:var(--gray); font-size:14px; margin-bottom:10px; cursor:pointer;">→ بازگشت</button>
   
@@ -327,7 +223,6 @@ footer .gradient{background:linear-gradient(90deg,var(--orange),var(--red));-web
     <div class="product-title" style="color: var(--orange);">خرید سی‌پی هکی</div>
     <div class="product-desc">لطفاً تعداد سی‌پی و تنظیمات مورد نظر خود را انتخاب کنید.</div>
 
-    <!-- انتخاب تعداد CP -->
     <label class="section-label">۱. تعداد سی‌پی (CP)</label>
     <div class="cp-controls">
       <button class="cp-btn" onclick="changeCP(-1000)">-</button>
@@ -340,53 +235,36 @@ footer .gradient{background:linear-gradient(90deg,var(--orange),var(--red));-web
       <button class="quick-cp" onclick="setCP(50000)">50,000</button>
       <button class="quick-cp" onclick="setCP(100000)">100,000</button>
     </div>
-    <div style="font-size: 10px; color: var(--gold); text-align: left; margin-bottom: 15px;">
-      * حداقل خرید: ۱۰,۰۰۰ سی‌پی — هر ۱۰۰۰ سی‌پی = ۲۵,۰۰۰ تومان
-    </div>
+    <div style="font-size: 10px; color: var(--gold); text-align: left; margin-bottom: 15px;">* حداقل خرید: ۱۰,۰۰۰ سی‌پی — هر ۱۰۰۰ سی‌پی = ۲۵,۰۰۰ تومان</div>
 
-    <!-- انتی بن -->
     <label class="section-label">۲. سیستم ضد بن (Anti-Ban)</label>
     <div class="option-card" id="optAntiBan" onclick="toggleOption('antiban')">
-      <div>
-        <div class="opt-title">خریداری سیستم ضد بن</div>
-        <div class="opt-desc">با فعال‌سازی این گزینه، اکانت شما در برابر مسدود شدن محافظت می‌شود.</div>
-      </div>
+      <div><div class="opt-title">خریداری سیستم ضد بن</div><div class="opt-desc">با فعال‌سازی این گزینه، اکانت شما در برابر مسدود شدن محافظت می‌شود.</div></div>
       <div class="opt-price">۵۰,۰۰۰ تومان</div>
     </div>
 
-    <!-- سرعت تحویل -->
     <label class="section-label">۳. سرعت تحویل</label>
     <div style="display: flex; gap: 10px;">
       <div class="option-card active" id="optNormal" onclick="toggleSpeed('normal')" style="flex: 1;">
-        <div>
-          <div class="opt-title">زمان‌بر (عادی)</div>
-          <div class="opt-desc">تحویل طی ۵ ساعت آینده</div>
-        </div>
+        <div><div class="opt-title">زمان‌بر (عادی)</div><div class="opt-desc">تحویل طی ۵ ساعت</div></div>
         <div class="opt-price" style="color: var(--green);">رایگان</div>
       </div>
       <div class="option-card" id="optFast" onclick="toggleSpeed('fast')" style="flex: 1;">
-        <div>
-          <div class="opt-title">فوری</div>
-          <div class="opt-desc">تحویل طی ۱۰ دقیقه</div>
-        </div>
+        <div><div class="opt-title">فوری</div><div class="opt-desc">تحویل طی ۱۰ دقیقه</div></div>
         <div class="opt-price" style="color: var(--orange);">+۲۰,۰۰۰</div>
       </div>
     </div>
 
-    <!-- قیمت نهایی -->
     <div class="total-box">
       <div>مبلغ قابل پرداخت:</div>
-      <div>
-        <span class="total-price-val" id="totalPriceDisplay">۰</span>
-        <span class="total-price-unit">تومان</span>
-      </div>
+      <div><span class="total-price-val" id="totalPriceDisplay">۰</span> <span class="total-price-unit">تومان</span></div>
     </div>
 
     <button class="btn-orange" onclick="goToPayment()">تایید و پرداخت</button>
   </div>
 </section>
 
-<!-- ================== صفحه پرداخت ================== -->
+<!-- ================== صفحه ۳: پرداخت ================== -->
 <section id="pagePayment" class="view">
   <button onclick="go('pageStore')" style="background:none; border:0; color:var(--gray); font-size:14px; margin-bottom:10px; cursor:pointer;">→ بازگشت</button>
   
@@ -394,43 +272,43 @@ footer .gradient{background:linear-gradient(90deg,var(--orange),var(--red));-web
     <div class="product-title">پرداخت سفارش</div>
     <div class="product-desc">لطفاً مبلغ <strong id="payAmountText" style="color:var(--green)"></strong> تومان را به کارت زیر واریز کنید.</div>
 
-    <!-- کارت بلو -->
     <div class="blue-card">
       <div class="bank-logo">blubank <span>💠</span></div>
       <div class="chip"></div>
       <div class="card-number" id="cardNumDisplay">6219 8614 5272 4577</div>
-      <div class="card-holder">YOUSEF MOUSAVI</div>
+      <div class="card-holder">یوسف موسوی</div>
     </div>
 
-    <!-- دکمه‌های کپی -->
     <div class="copy-actions">
       <button class="copy-btn" onclick="copyText('6219861452724577', 'شماره کارت')">📋 کپی شماره کارت</button>
       <button class="copy-btn" onclick="copyPrice()">💰 کپی مبلغ (ریال)</button>
     </div>
 
-    <div class="notice-box" style="margin: 10px 0; background:rgba(255,170,0,0.1); border:1px solid rgba(255,170,0,0.3); padding:10px; border-radius:10px; font-size:12px; color:#ffcc80;">
-      <span class="notice-icon">ℹ️</span> لطفاً <strong>دقیقاً</strong> مبلغ ذکر شده را واریز کنید. پس از واریز، اطلاعات را در فرم زیر ثبت نمایید.
+    <div class="notice-box">
+      ⚠️ <strong>توجه مهم:</strong> لطفاً دقیقاً مبلغ ذکر شده را واریز کنید. در غیر این صورت سفارش شما تایید نمی‌شود.
     </div>
 
-    <!-- فرم اطلاعات واریز -->
     <label class="section-label">اطلاعات واریز شما</label>
     <div class="form-group">
-      <input type="text" id="senderCard" placeholder="شماره کارت مبدا (۱۶ رقم)" dir="ltr" maxlength="16">
+      <input type="text" id="senderCard" placeholder="شماره کارت مبدا (۱۶ رقم)" dir="ltr" maxlength="16" oninput="validatePaymentForm()">
+      <span class="error-text" id="senderCardError"></span>
     </div>
     <div class="form-row">
       <div class="form-group">
-        <input type="number" id="sentAmount" placeholder="مبلغ (تومان)" dir="ltr">
+        <input type="number" id="sentAmount" placeholder="مبلغ (تومان)" dir="ltr" oninput="validatePaymentForm()">
+        <span class="error-text" id="sentAmountError"></span>
       </div>
       <div class="form-group">
-        <input type="text" id="sentTime" placeholder="ساعت واریز (18:30)" dir="ltr">
+        <input type="text" id="sentTime" placeholder="ساعت واریز (18:30)" dir="ltr" oninput="validatePaymentForm()">
+        <span class="error-text" id="sentTimeError"></span>
       </div>
     </div>
 
-    <button class="btn-blue" onclick="goToInfoForm()">ثبت اطلاعات و ادامه</button>
+    <button class="btn-blue" id="btnGoToInfo" onclick="goToInfoForm()" disabled style="opacity:0.5">ثبت اطلاعات و ادامه</button>
   </div>
 </section>
 
-<!-- ================== صفحه اطلاعات کاربر ================== -->
+<!-- ================== صفحه ۴: اطلاعات اکانت ================== -->
 <section id="pageUserInfo" class="view">
   <button onclick="go('pagePayment')" style="background:none; border:0; color:var(--gray); font-size:14px; margin-bottom:10px; cursor:pointer;">→ بازگشت</button>
 
@@ -438,45 +316,48 @@ footer .gradient{background:linear-gradient(90deg,var(--orange),var(--red));-web
     <div class="product-title">تکمیل سفارش</div>
     <div class="product-desc">برای تحویل سی‌پی، اطلاعات اکانت خود را وارد کنید.</div>
 
-    <div class="warn-register" style="margin-bottom: 15px; background:rgba(230,0,0,0.1); border:1px solid rgba(230,0,0,0.4); padding:12px; border-radius:10px;">
-      <span class="wr-icon" style="font-size:20px;">⚠️</span>
-      <div class="wr-text" style="font-size: 12px; color:#ff9999;">
-        <strong>توجه بسیار مهم:</strong><br>
-        اطلاعات ورود (ایمیل و رمز) باید <strong>واقعی و صحیح</strong> باشند. در صورت اشتباه بودن، سفارش شما واریز <strong>نخواهد شد</strong>.
-      </div>
+    <div class="warn-box">
+      <strong>⚠️ توجه بسیار مهم:</strong><br>
+      اطلاعات ورود (ایمیل و رمز) باید <strong>واقعی و صحیح</strong> باشند. در صورت اشتباه بودن، سفارش شما واریز <strong>نخواهد شد</strong>.
     </div>
 
     <div class="form-group">
       <label>📧 ایمیل (جیمیل) اکانت</label>
-      <input type="email" id="accEmail" placeholder="example@gmail.com" dir="ltr">
+      <input type="email" id="accEmail" placeholder="example@gmail.com" dir="ltr" oninput="validateUserForm()">
+      <span class="error-text" id="accEmailError"></span>
     </div>
     <div class="form-group">
       <label>🔑 رمز عبور اکانت</label>
-      <input type="text" id="accPass" placeholder="رمز اکانت" dir="ltr">
+      <input type="text" id="accPass" placeholder="رمز اکانت" dir="ltr" oninput="validateUserForm()">
+      <span class="error-text" id="accPassError"></span>
     </div>
     <div class="form-group">
       <label>💬 آیدی روبیکای شما</label>
-      <input type="text" id="accRubika" placeholder="@username" dir="ltr">
+      <input type="text" id="accRubika" placeholder="@username" dir="ltr" oninput="validateUserForm()">
+      <span class="error-text" id="accRubikaError"></span>
     </div>
     <div class="form-group">
       <label>📝 توضیحات (اختیاری)</label>
-      <textarea id="accDesc" placeholder="در صورت نیاز توضیحی بنویسید..."></textarea>
+      <textarea id="accDesc" placeholder="در صورت نیاز توضیحی بنویسید (حداکثر ۳۰۰ کاراکتر)..." maxlength="300" oninput="validateUserForm()"></textarea>
+      <span class="error-text" id="accDescError"></span>
     </div>
 
-    <!-- کپچا -->
+    <!-- فیلد مخفی برای آی پی -->
+    <input type="hidden" id="userIp" value="">
+
     <label class="section-label">تایید امنیتی</label>
     <div class="captcha-box">
       <div class="captcha-code" id="captchaCode">----</div>
       <div class="form-group" style="flex:1; margin:0;">
-        <input type="number" id="captchaInput" placeholder="کد را وارد کنید" dir="ltr" oninput="checkCaptcha()">
+        <input type="number" id="captchaInput" placeholder="کد را وارد کنید" dir="ltr">
       </div>
     </div>
 
-    <button class="btn-orange" id="finalSubmitBtn" onclick="finalSubmit()" disabled style="opacity:0.5;">✓ ثبت نهایی سفارش</button>
+    <button class="btn-orange" id="finalSubmitBtn" onclick="finalSubmit()">✓ ثبت نهایی سفارش</button>
   </div>
 </section>
 
-<!-- ================== صفحه موفقیت ================== -->
+<!-- ================== صفحه ۵: موفقیت ================== -->
 <section id="pageSuccess" class="view">
   <div class="success-card show" style="margin-top: 20px; border:1px solid var(--green); border-radius:20px; padding:30px; text-align:center; background:rgba(0,200,83,0.05);">
     <div class="success-icon" style="font-size:60px; color:var(--green); margin-bottom:10px;">✓</div>
@@ -486,7 +367,7 @@ footer .gradient{background:linear-gradient(90deg,var(--orange),var(--red));-web
 
     <div class="notice-box" style="text-align:right; background:rgba(255,170,0,0.1); border:1px solid rgba(255,170,0,0.3); padding:15px; border-radius:10px;">
       <span class="notice-icon">⚠️</span>
-      <div class="notice-text" style="font-size:12px; color:#ffcc80;">
+      <div class="notice-text" style="font-size:12px; color:#ffcc80; line-height:1.8;">
         <strong>توجه مهم:</strong><br>
         لطفاً تا زمان تحویل سفارش، وارد اکانت خود نشوید. در صورت ورود، فرآیند واریز لغو خواهد شد.
       </div>
@@ -534,12 +415,9 @@ let FAST_DELIVERY_PRICE = 20000;
 let TEXTS = {};
 
 let order = {
-  cp: 10000,
-  antiban: false,
-  speed: 'normal',
-  totalPrice: 250000,
+  cp: 10000, antiban: false, speed: 'normal', totalPrice: 250000,
   senderCard: '', sentAmount: 0, sentTime: '',
-  email: '', pass: '', rubika: '', desc: ''
+  email: '', pass: '', rubika: '', desc: '', ip: ''
 };
 let currentCaptcha = '';
 
@@ -569,7 +447,6 @@ function go(pageId){
 function calculateTotal(){
   let cpInput = document.getElementById('cpAmount');
   let val = parseInt(cpInput.value) || 0;
-  
   if(val < 10000) val = 10000;
   cpInput.value = val;
   order.cp = val;
@@ -595,7 +472,6 @@ function setCP(val){
   document.getElementById('cpAmount').value = val;
   calculateTotal();
 }
-
 function toggleOption(opt){
   if(opt === 'antiban'){
     order.antiban = !order.antiban;
@@ -603,7 +479,6 @@ function toggleOption(opt){
   }
   calculateTotal();
 }
-
 function toggleSpeed(speed){
   order.speed = speed;
   document.getElementById('optNormal').classList.toggle('active', speed === 'normal');
@@ -615,44 +490,40 @@ toggleSpeed('normal');
 // ================= پرداخت و کپی =================
 function goToPayment(){
   document.getElementById('payAmountText').textContent = order.totalPrice.toLocaleString('fa-IR');
+  document.getElementById('sentAmount').value = order.totalPrice; // پیش‌فرض مبلغ
+  document.getElementById('senderCard').value = '';
+  document.getElementById('sentTime').value = '';
+  validatePaymentForm();
   go('pagePayment');
 }
 
 function copyText(text, label){
-  navigator.clipboard.writeText(text).then(() => alert(`✅ ${label} با موفقیت کپی شد!`))
-  .catch(() => alert(`❌ کپی نشد، دستی کپی کنید.`));
+  navigator.clipboard.writeText(text).then(() => alert(`✅ ${label} با موفقیت کپی شد!`)).catch(() => alert(`❌ کپی نشد.`));
 }
 function copyPrice(){
   let rialPrice = order.totalPrice * 10;
   copyText(rialPrice.toString(), 'مبلغ (ریال)');
 }
 
-// ================= اطلاعات کاربر و کپچا =================
-function goToInfoForm(){
-  order.senderCard = document.getElementById('senderCard').value.trim();
-  order.sentAmount = document.getElementById('sentAmount').value.trim();
-  order.sentTime = document.getElementById('sentTime').value.trim();
+// ================= اعتبارسنجی درگاه پرداخت =================
+function validatePaymentForm(){
+  let card = document.getElementById('senderCard').value.trim();
+  let amount = parseInt(document.getElementById('sentAmount').value) || 0;
+  let time = document.getElementById('sentTime').value.trim();
+  let btn = document.getElementById('btnGoToInfo');
+  
+  let isValid = true;
 
-  if(!order.senderCard || !order.sentAmount || !order.sentTime){
-    alert('❌ لطفاً اطلاعات واریز را کامل پر کنید!');
-    return;
-  }
-  generateCaptcha();
-  go('pageUserInfo');
-}
+  if(!/^\d{16}$/.test(card)) { isValid = false; document.getElementById('senderCardError').textContent = 'شماره کارت باید ۱۶ رقم باشد'; }
+  else document.getElementById('senderCardError').textContent = '';
 
-function generateCaptcha(){
-  currentCaptcha = Math.floor(1000 + Math.random() * 9000).toString();
-  document.getElementById('captchaCode').textContent = currentCaptcha;
-  document.getElementById('captchaInput').value = '';
-  document.getElementById('finalSubmitBtn').disabled = true;
-  document.getElementById('finalSubmitBtn').style.opacity = '0.5';
-}
+  if(amount !== order.totalPrice) { isValid = false; document.getElementById('sentAmountError').textContent = 'مبلغ باید دقیقا برابر مبلغ سفارش باشد'; }
+  else document.getElementById('sentAmountError').textContent = '';
 
-function checkCaptcha(){
-  let val = document.getElementById('captchaInput').value.trim();
-  let btn = document.getElementById('finalSubmitBtn');
-  if(val === currentCaptcha){
+  if(!/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(time)) { isValid = false; document.getElementById('sentTimeError').textContent = 'فرمت ساعت اشتباه است (مثال: 18:30)'; }
+  else document.getElementById('sentTimeError').textContent = '';
+
+  if(isValid){
     btn.disabled = false;
     btn.style.opacity = '1';
   } else {
@@ -661,20 +532,93 @@ function checkCaptcha(){
   }
 }
 
+function goToInfoForm(){
+  order.senderCard = document.getElementById('senderCard').value.trim();
+  order.sentAmount = document.getElementById('sentAmount').value.trim();
+  order.sentTime = document.getElementById('sentTime').value.trim();
+  generateCaptcha();
+  go('pageUserInfo');
+}
+
+// ================= کپچا =================
+function generateCaptcha(){
+  currentCaptcha = Math.floor(1000 + Math.random() * 9000).toString();
+  document.getElementById('captchaCode').textContent = currentCaptcha;
+  document.getElementById('captchaInput').value = '';
+}
+
+// ================= اعتبارسنجی اطلاعات کاربر =================
+function validateUserForm(){
+  let email = document.getElementById('accEmail').value.trim();
+  let pass = document.getElementById('accPass').value.trim();
+  let rubika = document.getElementById('accRubika').value.trim();
+  let desc = document.getElementById('accDesc').value.trim();
+
+  let validEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
+  let validPass = /^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]{4,50}$/.test(pass);
+  let validRubika = /^@[a-zA-Z0-9_]{3,32}$/.test(rubika);
+  
+  // توضیحات اختیاری است، فقط نباید بیشتر از 300 کاراکتر باشد
+  let validDesc = desc.length <= 300;
+
+  // آپدیت UI
+  document.getElementById('accEmail').className = email === '' ? '' : (validEmail ? 'success' : 'error');
+  document.getElementById('accPass').className = pass === '' ? '' : (validPass ? 'success' : 'error');
+  document.getElementById('accRubika').className = rubika === '' ? '' : (validRubika ? 'success' : 'error');
+  document.getElementById('accDesc').className = desc === '' ? '' : (validDesc ? 'success' : 'error');
+
+  if(email !== '' && !validEmail) document.getElementById('accEmailError').textContent = 'ایمیل نامعتبر است';
+  else document.getElementById('accEmailError').textContent = '';
+
+  if(pass !== '' && !validPass) document.getElementById('accPassError').textContent = 'رمز باید شامل حروف لاتین، عدد و کاراکتر باشد';
+  else document.getElementById('accPassError').textContent = '';
+
+  if(rubika !== '' && !validRubika) document.getElementById('accRubikaError').textContent = 'آیدی روبیکا باید با @ شروع شده و فقط شامل حروف لاتین و عدد باشد';
+  else document.getElementById('accRubikaError').textContent = '';
+
+  if(!validDesc) document.getElementById('accDescError').textContent = 'توضیحات نمی‌تواند بیش از ۳۰۰ کاراکتر باشد';
+  else document.getElementById('accDescError').textContent = '';
+
+  return validEmail && validPass && validRubika && validDesc && email !== '' && pass !== '' && rubika !== '';
+}
+
+// ================= دریافت آی پی =================
+async function getUserIp(){
+  try {
+    const res = await fetch('https://api.ipify.org?format=json');
+    const data = await res.json();
+    return data.ip;
+  } catch(e) {
+    return 'Unknown';
+  }
+}
+
 // ================= ثبت نهایی =================
 async function finalSubmit(){
+  if(!validateUserForm()){
+    alert('❌ لطفاً خطاهای فرم را برطرف کنید!');
+    return;
+  }
+
+  let enteredCaptcha = document.getElementById('captchaInput').value.trim();
+  if(enteredCaptcha !== currentCaptcha){
+    alert('❌ کد کپچا اشتباه است! لطفاً دوباره وارد کنید.');
+    generateCaptcha(); // کد جدید
+    document.getElementById('captchaInput').value = '';
+    return;
+  }
+
   order.email = document.getElementById('accEmail').value.trim();
   order.pass = document.getElementById('accPass').value.trim();
   order.rubika = document.getElementById('accRubika').value.trim();
   order.desc = document.getElementById('accDesc').value.trim();
 
-  if(!order.email || !order.pass || !order.rubika){
-    alert('❌ لطفاً اطلاعات اکانت را کامل کنید!');
-    return;
-  }
-
   let btn = document.getElementById('finalSubmitBtn');
-  btn.textContent = 'در حال ارسال...'; btn.disabled = true;
+  btn.textContent = 'در حال دریافت...'; btn.disabled = true;
+
+  // گرفتن آی پی
+  order.ip = await getUserIp();
+  btn.textContent = 'در حال ارسال...';
 
   try {
     const response = await fetch('/register', {
@@ -704,14 +648,12 @@ async function loadSettings(){
     const res = await fetch('/api/settings');
     const data = await res.json();
     TEXTS = data.texts || {};
-    
     if(TEXTS.about_text) document.getElementById('aboutBody').textContent = TEXTS.about_text;
     if(TEXTS.trust_text) document.getElementById('trustBody').textContent = TEXTS.trust_text;
     if(TEXTS.site_name) {
       document.getElementById('siteName').textContent = TEXTS.site_name;
       document.getElementById('footerBrand').textContent = '✦ ' + TEXTS.site_name + ' ✦';
     }
-    
     document.getElementById('preloader').classList.add('hide');
     setTimeout(() => document.getElementById('preloader').remove(), 600);
   } catch(err){
@@ -719,14 +661,8 @@ async function loadSettings(){
   }
 }
 
-function openModal(name){
-  document.getElementById('modal-' + name).classList.add('show');
-  document.body.style.overflow = 'hidden';
-}
-function closeModal(name){
-  document.getElementById('modal-' + name).classList.remove('show');
-  document.body.style.overflow = '';
-}
+function openModal(name){ document.getElementById('modal-' + name).classList.add('show'); document.body.style.overflow = 'hidden'; }
+function closeModal(name){ document.getElementById('modal-' + name).classList.remove('show'); document.body.style.overflow = ''; }
 
 loadSettings();
 calculateTotal();
