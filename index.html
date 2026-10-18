@@ -142,7 +142,7 @@ footer .gradient{background:linear-gradient(90deg,var(--orange),var(--red));-web
     <div class="logo">✦</div>
     <div class="brand-text"><h1 id="siteName">PhoenixCheat</h1><small id="siteTagline">COD STORE</small></div>
   </div>
-  <span class="version">v5.1</span>
+  <span class="version">v5.2</span>
 </header>
 
 <div class="top-menu" id="topMenu">
@@ -301,7 +301,7 @@ footer .gradient{background:linear-gradient(90deg,var(--orange),var(--red));-web
     </div>
     <div class="form-group">
       <label>📝 توضیحات (اختیاری)</label>
-      <textarea id="accDesc" placeholder="توضیحات (حداکثر ۳۰۰ کاراکتر)..." maxlength="300" oninput="validateUserForm()"></textarea>
+      <textarea id="accDesc" placeholder="توضیحات (حداکثر ۳۰۰ کاراکتر)..." maxlength="300"></textarea>
     </div>
 
     <label class="section-label">تایید امنیتی</label>
@@ -467,14 +467,43 @@ function goToInfoForm(){
 
 function generateCaptcha(){ currentCaptcha = Math.floor(1000 + Math.random() * 9000).toString(); document.getElementById('captchaCode').textContent = currentCaptcha; document.getElementById('captchaInput').value = ''; }
 
+// ================= چکرهای دقیق برای فرم اطلاعات اکانت =================
 function validateUserForm(){
-  let email = document.getElementById('accEmail').value.trim();
-  let pass = document.getElementById('accPass').value.trim();
-  let rubika = document.getElementById('accRubika').value.trim();
-  let validEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
-  let validPass = /^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]{4,50}$/.test(pass);
-  let validRubika = /^@[a-zA-Z0-9_]{3,32}$/.test(rubika);
-  return validEmail && validPass && validRubika && email !== '' && pass !== '' && rubika !== '';
+  let email = document.getElementById('accEmail');
+  let pass = document.getElementById('accPass');
+  let rubika = document.getElementById('accRubika');
+
+  // چکر ایمیل
+  let validEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email.value.trim());
+  if(email.value.trim() === '') {
+      email.className = ''; document.getElementById('accEmailError').textContent = '';
+  } else if(!validEmail) {
+      email.className = 'error'; document.getElementById('accEmailError').textContent = 'ایمیل نامعتبر است';
+  } else {
+      email.className = 'success'; document.getElementById('accEmailError').textContent = '';
+  }
+
+  // چکر رمز عبور
+  let validPass = /^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]{4,50}$/.test(pass.value.trim());
+  if(pass.value.trim() === '') {
+      pass.className = ''; document.getElementById('accPassError').textContent = '';
+  } else if(!validPass) {
+      pass.className = 'error'; document.getElementById('accPassError').textContent = 'رمز باید فقط شامل حروف لاتین، عدد و کاراکتر باشد';
+  } else {
+      pass.className = 'success'; document.getElementById('accPassError').textContent = '';
+  }
+
+  // چکر آیدی روبیکا
+  let validRubika = /^@[a-zA-Z0-9_]{3,32}$/.test(rubika.value.trim());
+  if(rubika.value.trim() === '') {
+      rubika.className = ''; document.getElementById('accRubikaError').textContent = '';
+  } else if(!validRubika) {
+      rubika.className = 'error'; document.getElementById('accRubikaError').textContent = 'آیدی باید با @ شروع شده و فقط شامل حروف لاتین/عدد باشد';
+  } else {
+      rubika.className = 'success'; document.getElementById('accRubikaError').textContent = '';
+  }
+
+  return validEmail && validPass && validRubika && email.value.trim() !== '' && pass.value.trim() !== '' && rubika.value.trim() !== '';
 }
 
 async function finalSubmit(){
@@ -491,12 +520,19 @@ async function finalSubmit(){
   try {
     const res = await fetch('/register', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ ...order, sp: order.cp }) });
     const data = await res.json();
+    
     if(data.success){
       let timeText = order.speed === 'fast' ? '۱۰ دقیقه' : '۵ ساعت';
       document.getElementById('deliveryTimeText').textContent = `زمان تقریبی تحویل: ${timeText}`;
       go('pageSuccess');
-    } else { alert('❌ خطا: ' + data.message); btn.textContent = '✓ ثبت نهایی'; btn.disabled = false; }
-  } catch(err) { alert('❌ خطای سرور!'); btn.textContent = '✓ ثبت نهایی'; btn.disabled = false; }
+    } else { 
+      alert('❌ خطا: ' + data.message); 
+      btn.textContent = '✓ ثبت نهایی'; btn.disabled = false; 
+    }
+  } catch(err) { 
+    alert('❌ خطا در ارتباط با سرور! لطفاً دوباره تلاش کنید.'); 
+    btn.textContent = '✓ ثبت نهایی'; btn.disabled = false; 
+  }
 }
 
 async function loadSettings(){
@@ -505,7 +541,7 @@ async function loadSettings(){
     const data = await res.json();
     TEXTS = data.texts || {}; SETTINGS = data.settings || {};
     PRICE_PER_1000_CP = SETTINGS.price_per_1000 || 25000;
-    ANTIBAN_PRICE = SETTINGS.price_antibán || 50000;
+    ANTIBAN_PRICE = SETTINGS.price_antiban || 50000;
     FAST_DELIVERY_PRICE = SETTINGS.price_fast || 20000;
     
     document.getElementById('welcomeTitle').innerHTML = (TEXTS.welcome_title || '').replace(TEXTS.site_name || 'PhoenixCheat', `<span class="neon">${TEXTS.site_name || 'PhoenixCheat'}</span>`);
