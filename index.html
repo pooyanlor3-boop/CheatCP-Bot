@@ -22,7 +22,7 @@ body{
   color:var(--white); font-family:'Vazirmatn',Tahoma,sans-serif; min-height:100vh; overflow-x:hidden; position:relative;
 }
 
-/* ====== 7. افکت ستاره‌ها و ذرات روی همه صفحه‌ها ====== */
+/* ====== 7. افکت ستاره‌ها و ذرات ====== */
 .particles{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden}
 .particle{position:absolute;width:4px;height:4px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px var(--gold);animation:floatUp 15s infinite ease-in-out;opacity:0.6}
 .particle:nth-child(2n){background:var(--red);box-shadow:0 0 10px var(--red);width:6px;height:6px;animation-duration:20s;animation-delay:-5s}
@@ -38,7 +38,7 @@ body{
 .click-logo-effect{position:fixed;pointer-events:none;width:30px;height:30px;background:radial-gradient(circle,var(--fire-orange) 0%, transparent 70%);border-radius:50%;z-index:9999;animation:logoFade 0.8s ease-out forwards;display:grid;place-items:center;font-size:16px;}
 @keyframes logoFade{0%{transform:scale(1);opacity:1}100%{transform:scale(2.5);opacity:0}}
 
-/* ====== 8. دکمه بازگشت سراسری با حفظ اطلاعات ====== */
+/* ====== 8. دکمه بازگشت سراسری ====== */
 .global-back-btn{position:absolute;top:16px;left:16px;background:rgba(26,26,26,0.8);border:1px solid rgba(255,255,255,0.1);color:var(--gray);width:35px;height:35px;border-radius:10px;display:grid;place-items:center;cursor:pointer;z-index:100;font-size:18px;transition:0.3s;}
 .global-back-btn:hover{background:rgba(230,0,0,0.2);color:var(--white);border-color:var(--red);}
 
@@ -67,7 +67,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:14p
 .brand-text h1{font-size:20px;font-weight:900;background:linear-gradient(90deg,var(--fire-blue),var(--fire-red),var(--fire-orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-shadow:0 0 20px rgba(230,0,0,0.4)}
 .brand-text small{font-size:11px;color:var(--gray);letter-spacing:2px;display:block;margin-top:2px}
 
-/* ====== 6. تایمر و باکس کد تخفیف (تخفیف ویژه) ====== */
+/* ====== 6. تایمر تخفیف ====== */
 .timer-box{background:linear-gradient(90deg,rgba(230,0,0,0.2),rgba(0,191,255,0.1));border:1px solid var(--red);border-radius:12px;padding:10px;text-align:center;margin-bottom:18px;box-shadow:0 0 15px rgba(230,0,0,0.2);cursor:pointer;transition:0.3s;}
 .timer-box:hover{box-shadow:0 0 25px rgba(0,191,255,0.4);border-color:var(--fire-blue);}
 .timer-box span{font-weight:900;color:var(--white);font-size:14px;display:block;}
@@ -79,8 +79,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:14p
 .menu-btn{background:rgba(26,26,26,0.8);border:1px solid rgba(230,0,0,0.4);border-radius:12px;padding:10px 14px;color:var(--white);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit;transition:all 0.3s}
 .menu-btn:hover{background:rgba(230,0,0,0.15);border-color:var(--red);transform:translateY(-2px);box-shadow:0 0 15px rgba(230,0,0,0.3)}
 
-.view{display:none !important;}
-.view.active{display:block !important;animation:fadeIn 0.4s ease-out}
+.view{display:none !important;}.view.active{display:block !important;animation:fadeIn 0.4s ease-out}
 @keyframes fadeIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
 
 .hero{background:linear-gradient(145deg,rgba(26,26,26,0.95),rgba(10,10,10,0.95));border:1px solid rgba(230,0,0,0.3);border-radius:22px;padding:30px 22px;margin-bottom:18px;box-shadow:0 10px 40px rgba(0,0,0,0.6);overflow:hidden;position:relative}
@@ -132,7 +131,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:14p
 .option-card .opt-desc{font-size:10px;color:var(--gray);margin-top:4px;line-height:1.5}
 .option-card .opt-price{font-size:13px;font-weight:900;color:var(--gold)}
 
-/* کد تخفیف (2) */
+/* کد تخفیف */
 .coupon-section{background:rgba(230,0,0,0.05);border:1px dashed var(--fire-red);padding:15px;border-radius:12px;margin-top:20px}
 .coupon-row{display:flex;gap:10px;margin-bottom:10px;}
 .coupon-row input{flex:1;background:rgba(10,10,10,0.8);border:1px solid rgba(230,0,0,0.3);border-radius:10px;padding:10px;color:var(--white);font-size:13px;direction:ltr}
@@ -146,7 +145,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:14p
 .total-price-val{font-size:20px;font-weight:900;color:var(--green);direction:rtl}
 .total-price-unit{font-size:12px;color:var(--gray);margin-right:5px}
 
-/* کارت بلو (9) */
+/* کارت بلو */
 .blue-card{background:linear-gradient(135deg,#0052d4,#4364f7,#6fb1fc);border-radius:20px;padding:25px;color:white;box-shadow:0 15px 35px rgba(0,82,212,0.4),inset 0 0 20px rgba(255,255,255,0.2), 0 10px 20px rgba(230,0,0,0.3);position:relative;overflow:hidden;margin:20px 0}
 .blue-card::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,0.1) 0%,transparent 60%);transform:rotate(30deg)}
 .blue-card .bank-logo{font-size:20px;font-weight:900;font-style:italic;letter-spacing:1px;margin-bottom:25px;display:flex;justify-content:space-between}
@@ -178,7 +177,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:14p
 .track-input{width:100%;background:#000;border:1px solid var(--fire-orange);padding:12px;border-radius:10px;color:white;text-align:center;font-size:16px;letter-spacing:2px;margin-bottom:10px;}
 .track-result{margin-top:15px;font-size:13px;font-weight:700;text-align:center;line-height:1.8;}
 
-/* صفحه تشکر (12) */
+/* صفحه تشکر */
 .success-card{margin-top: 20px; border:1px solid var(--green); border-radius:20px; padding:30px; text-align:center; background:rgba(0,200,83,0.05); box-shadow:0 0 30px rgba(0,200,83,0.1);}
 .success-icon{font-size:60px; color:var(--green); margin-bottom:10px; text-shadow:0 0 20px rgba(0,200,83,0.5);}
 .success-title{color:var(--green); font-size:20px; margin-bottom:15px;}
@@ -545,7 +544,6 @@ let order = {
   senderCard: '', sentAmount: 0, sentTime: '', email: '', pass: '', rubika: '', desc: '', coupon: '', discount: 0
 };
 let isCouponChecked = false;
-let couponTimer;
 
 // افکت ذرات
 function createParticles() {
@@ -564,18 +562,14 @@ createParticles();
 
 // افکت جرقه (کلیک)
 document.addEventListener('click', function(e) {
-    // افکت جرقه برای کلیک
     let sparkle = document.createElement('div');
     sparkle.className = 'sparkle';
     sparkle.style.left = (e.pageX - 4) + 'px';
     sparkle.style.top = (e.pageY - 4) + 'px';
-    
-    // رنگ‌های تصادفی آتشین
     let colors = ['#ff0000', '#ff4500', '#00bfff', '#ffaa00'];
     let randomColor = colors[Math.floor(Math.random() * colors.length)];
     sparkle.style.color = randomColor;
     sparkle.style.background = randomColor;
-    
     document.body.appendChild(sparkle);
     setTimeout(() => sparkle.remove(), 600);
 
@@ -589,31 +583,23 @@ document.addEventListener('click', function(e) {
     setTimeout(() => logoEffect.remove(), 800);
 });
 
-// (6) تایمر تخفیف (از دیتابیس می‌خونه)
-let countdownDate = new Date().getTime() + (48 * 60 * 60 * 1000); // پیش‌فرض ۴۸ ساعت
-let couponCode = "WELCOME10"; // پیش‌فرض
+// (6) تایمر تخفیف
+let countdownDate = new Date().getTime() + (48 * 60 * 60 * 1000);
+let couponCode = "WELCOME10";
 
-async function initTimer() {
-    // در اینجا می‌تونیم از دیتابیس بخونیم، ولی فعلا پیش‌فرض می‌ذاریم
-    // برای آپدیت بعدی: دریافت از API
-    setInterval(() => {
-      let now = new Date().getTime();
-      let distance = countdownDate - now;
-      if(distance < 0) distance = 0;
-      
-      let days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      let hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      let seconds = Math.floor((distance % (1000 * 60)) / 1000);
-      
-      let display = "";
-      if (days > 0) display += days + " روز و ";
-      display += hours + ":" + minutes + ":" + seconds;
-      
-      document.getElementById("countdown").innerHTML = display;
-    }, 1000);
-}
-initTimer();
+setInterval(() => {
+  let now = new Date().getTime();
+  let distance = countdownDate - now;
+  if(distance < 0) distance = 0;
+  let days = Math.floor(distance / (1000 * 60 * 60 * 24));
+  let hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  let seconds = Math.floor((distance % (1000 * 60)) / 1000);
+  let display = "";
+  if (days > 0) display += days + " روز و ";
+  display += hours + ":" + minutes + ":" + seconds;
+  document.getElementById("countdown").innerHTML = display;
+}, 1000);
 
 function toggleCouponBox() {
     let box = document.getElementById('hiddenCouponBox');
@@ -636,7 +622,6 @@ function go(pageId, saveState = true){
   document.getElementById(pageId).classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
   
-  // وقتی به صفحه پرداخت رفتیم، تایمر 30 ثانیه رو شروع کن
   if (pageId === 'pagePayment') {
       startPaymentTimer();
   }
@@ -644,7 +629,7 @@ function go(pageId, saveState = true){
 
 function goBackHistory() {
     if (historyStack.length > 1) {
-        historyStack.pop(); // حذف صفحه فعلی
+        historyStack.pop();
         let prevPage = historyStack[historyStack.length - 1];
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.getElementById(prevPage).classList.add('active');
@@ -746,21 +731,22 @@ function formatTime(input) {
     }
 }
 
-// (11) تایمر 30 ثانیه برای دکمه پرداخت
+// (11) تایمر 30 ثانیه
+let paymentTimer = null;
 function startPaymentTimer() {
     let btn = document.getElementById('btnGoToInfo');
     let seconds = 30;
     btn.disabled = true;
     btn.textContent = `تایید اطلاعات و ادامه (${seconds})`;
     
-    // پاک کردن تایمر قبلی اگه وجود داره
-    if (window.payTimer) clearInterval(window.payTimer);
+    if (paymentTimer) clearInterval(paymentTimer);
     
-    window.payTimer = setInterval(() => {
+    paymentTimer = setInterval(() => {
         seconds--;
         if (seconds <= 0) {
-            clearInterval(window.payTimer);
-            validateForm(); // بررسی اینکه کاربر اطلاعات رو پر کرده یا نه
+            clearInterval(paymentTimer);
+            paymentTimer = null;
+            validateForm();
         } else {
             btn.textContent = `تایید اطلاعات و ادامه (${seconds})`;
         }
@@ -778,11 +764,7 @@ function validateForm(){
   if(amount !== order.totalPrice) { isValid = false; document.getElementById('sentAmountError').textContent = 'مبلغ باید دقیقا برابر سفارش باشد'; } else document.getElementById('sentAmountError').textContent = '';
   if(!/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(time)) { isValid = false; document.getElementById('sentTimeError').textContent = 'ساعت اشتباه (مثال: 18:30)'; } else document.getElementById('sentTimeError').textContent = '';
 
-  // بررسی تایمر
-  if (window.payTimer) {
-      // اگه تایمر هنوز هست، دکمه غیرفعاله
-      return; 
-  }
+  if (paymentTimer) return; 
 
   btn.disabled = !isValid;
   if (isValid) {
@@ -838,7 +820,7 @@ async function finalSubmit(){
     if(data.success){
       let timeText = order.speed === 'fast' ? '۱۰ دقیقه' : '۵ ساعت';
       document.getElementById('deliveryTimeText').textContent = `زمان تقریبی تحویل: ${timeText}`;
-      document.getElementById('finalOrderCode').textContent = data.code; // نمایش کد در صفحه تشکر
+      document.getElementById('finalOrderCode').textContent = data.code;
       go('pageSuccess');
     } else { alert('❌ خطا: ' + data.message); btn.textContent = '✓ ثبت نهایی'; btn.disabled = false; }
   } catch(err) { alert('❌ خطا در ارتباط با سرور!'); btn.textContent = '✓ ثبت نهایی'; btn.disabled = false; }
@@ -853,7 +835,6 @@ async function loadSettings(){
     ANTIBAN_PRICE = SETTINGS.price_antiban || 50000;
     FAST_DELIVERY_PRICE = SETTINGS.price_fast || 20000;
     
-    // (3) متن خوش آمدگویی دقیقاً همونی که خودت گفتی
     let siteName = "فونیکس چیت";
     document.getElementById('welcomeTitle').innerHTML = `به فروشگاه <span class="neon">${siteName}</span> خوش آمدید`;
     document.getElementById('welcomeText1').textContent = "ما مفتخریم که به عنوان یکی از پیشگامان و معتبرترین مراجع تخصصی در حوزه خدمات گیمینگ (به‌ویژه Call of Duty) در خدمت شما هستیم.";
