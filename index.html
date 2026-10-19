@@ -22,7 +22,7 @@ body{
   color:var(--white); font-family:'Vazirmatn',Tahoma,sans-serif; min-height:100vh; overflow-x:hidden; position:relative;
 }
 
-/* افکت‌ها */
+/* ====== افکت‌ها ====== */
 .particles{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden}
 .particle{position:absolute;width:4px;height:4px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px var(--gold);animation:floatUp 15s infinite ease-in-out;opacity:0.6}
 .particle:nth-child(2n){background:var(--red);box-shadow:0 0 10px var(--red);width:6px;height:6px;animation-duration:20s;animation-delay:-5s}
@@ -47,8 +47,9 @@ header{display:flex;justify-content:space-between;align-items:center;padding:14p
 .header-glow{position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--fire-red),var(--fire-blue),transparent);box-shadow:0 0 15px var(--fire-blue);}
 .brand{display:flex;align-items:center;gap:12px}
 
+/* ====== لوگوی ققنوس آتشین (SVG) ====== */
 .logo-container{
-  position:relative;width:60px;height:60px;border-radius:50%;
+  position:relative;width:65px;height:65px;border-radius:50%;
   background:var(--panel);
   display:grid;place-items:center;
   box-shadow:0 0 15px var(--fire-red),0 0 25px var(--fire-orange);
@@ -59,16 +60,18 @@ header{display:flex;justify-content:space-between;align-items:center;padding:14p
   animation:pulseLogo 2s infinite alternate;
 }
 @keyframes pulseLogo{0%{box-shadow:0 0 10px var(--fire-red),0 0 20px var(--fire-orange)}100%{box-shadow:0 0 25px var(--fire-red),0 0 40px var(--fire-blue)}}
-.logo-container svg{width:38px;height:38px;fill:url(#fireGradient);}
-.brand-text h1{font-size:20px;font-weight:900;background:linear-gradient(90deg,var(--fire-blue),var(--fire-red),var(--fire-orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-shadow:0 0 20px rgba(230,0,0,0.4)}
+.logo-container svg{width:45px;height:45px;filter:drop-shadow(0 0 5px rgba(255,0,0,0.8));}
+.brand-text h1{font-size:22px;font-weight:900;background:linear-gradient(90deg,var(--fire-blue),var(--fire-red),var(--fire-orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-shadow:0 0 20px rgba(230,0,0,0.4)}
 .brand-text small{font-size:11px;color:var(--gray);letter-spacing:2px;display:block;margin-top:2px}
 
-.timer-box{background:linear-gradient(90deg,rgba(230,0,0,0.2),rgba(0,191,255,0.1));border:1px solid var(--red);border-radius:12px;padding:10px;text-align:center;margin-bottom:18px;box-shadow:0 0 15px rgba(230,0,0,0.2);cursor:pointer;transition:0.3s;}
+/* ====== تایمر تخفیف ====== */
+.timer-box{background:linear-gradient(90deg,rgba(230,0,0,0.2),rgba(0,191,255,0.1));border:1px solid var(--red);border-radius:12px;padding:10px;text-align:center;margin-bottom:18px;box-shadow:0 0 15px rgba(230,0,0,0.2);cursor:pointer;transition:0.3s; display:none;}
 .timer-box:hover{box-shadow:0 0 25px rgba(0,191,255,0.4);border-color:var(--fire-blue);}
 .timer-box span{font-weight:900;color:var(--white);font-size:14px;display:block;}
 .timer-box small{font-size:11px;color:var(--gold);display:block;margin-top:4px;}
 .timer-val{color:var(--gold);font-family:monospace;font-size:15px;margin-left:5px;letter-spacing:1px;}
 
+/* منو */
 .top-menu{display:flex;gap:8px;margin-bottom:18px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
 .menu-btn{background:rgba(26,26,26,0.8);border:1px solid rgba(230,0,0,0.4);border-radius:12px;padding:10px 14px;color:var(--white);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit;transition:all 0.3s}
 .menu-btn:hover{background:rgba(230,0,0,0.15);border-color:var(--red);transform:translateY(-2px);box-shadow:0 0 15px rgba(230,0,0,0.3)}
@@ -186,12 +189,15 @@ footer .gradient{background:linear-gradient(90deg,var(--fire-red),var(--fire-blu
 </head>
 <body>
 
+<!-- لوگوی ققنوس SVG -->
 <svg width="0" height="0">
-  <linearGradient id="fireGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-    <stop offset="0%" style="stop-color:var(--fire-red);stop-opacity:1" />
-    <stop offset="50%" style="stop-color:var(--fire-orange);stop-opacity:1" />
-    <stop offset="100%" style="stop-color:var(--fire-blue);stop-opacity:1" />
-  </linearGradient>
+  <defs>
+    <linearGradient id="fireGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:var(--fire-red);stop-opacity:1" />
+      <stop offset="50%" style="stop-color:var(--fire-orange);stop-opacity:1" />
+      <stop offset="100%" style="stop-color:var(--fire-blue);stop-opacity:1" />
+    </linearGradient>
+  </defs>
 </svg>
 
 <div class="stars-bg"></div>
@@ -205,55 +211,24 @@ footer .gradient{background:linear-gradient(90deg,var(--fire-red),var(--fire-blu
   <div class="header-glow"></div>
   <div class="brand">
     <div class="logo-container">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+      <!-- لوگو ققنوس آتشین -->
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path fill="url(#fireGradient)" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+      </svg>
     </div>
     <div class="brand-text">
       <h1 id="siteName">فونیکس چیت</h1>
       <small id="siteTagline">PHOENIX CHEAT STORE</small>
     </div>
   </div>
-  <span class="version">v8.1</span>
+  <span class="version">v9.0</span>
 </header>
 
-// لود کردن تنظیمات (اگر سرور جواب داد، آپدیت میکنه، اگر نداد با پیش‌فرض کار میکنه)
-async function loadSettings(){
-  try {
-    const res = await fetch('/api/settings');
-    const data = await res.json();
-    TEXTS = data.texts  {}; SETTINGS = data.settings  {};
-    PRICE_PER_1000_CP = SETTINGS.price_per_1000 || 25000;
-    ANTIBAN_PRICE = SETTINGS.price_antiban || 50000;
-    FAST_DELIVERY_PRICE = SETTINGS.price_fast || 20000;
-    
-    if(SETTINGS.card_number) document.getElementById('cardNumDisplay').textContent = SETTINGS.card_number.replace(/(\d{4})/g, '$1 ').trim();
-    if(SETTINGS.card_holder) document.getElementById('cardHolderDisplay').textContent = SETTINGS.card_holder;
-    document.getElementById('lblAntibanPrice').textContent = ANTIBAN_PRICE.toLocaleString('fa-IR') + ' تومان';
-    document.getElementById('lblFastPrice').textContent = '+' + FAST_DELIVERY_PRICE.toLocaleString('fa-IR');
-
-    // تنظیم متن‌های خوش‌آمدگویی از دیتابیس
-    let siteName = TEXTS.site_name || "فونیکس چیت";
-    document.getElementById('welcomeTitle').innerHTML = به فروشگاه <span class="neon">${siteName}</span> خوش آمدید;
-    document.getElementById('welcomeText1').textContent = TEXTS.welcome_text1 || "ما مفتخریم که به عنوان یکی از پیشگامان...";
-    document.getElementById('welcomeText2').textContent = TEXTS.welcome_text2 || "تیم متخصص ما با تکیه بر دانش فنی...";
-
-    // تنظیم متن تخفیف ویژه
-    let discountText = TEXTS.special_discount_text || "";
-    if (discountText.trim() !== "") {
-        document.getElementById('timerBox').style.display = 'block';
-        document.getElementById('specialDiscountText').textContent = discountText;
-        couponCode = data.special_coupon || "WELCOME10";
-    } else {
-        document.getElementById('timerBox').style.display = 'none';
-    }
-
-  } catch(err){
-    console.log("Server not responding, using default settings.");
-  } finally {
-    document.getElementById('preloader').classList.add('hide'); 
-    setTimeout(() => document.getElementById('preloader').remove(), 600);
-    calculateTotal();
-  }
-}
+<div class="timer-box" id="timerBox" onclick="toggleCouponBox()">
+  <span id="specialDiscountText">🎁 تخفیف ویژه</span>
+  <small>برای دریافت کد تخفیف کلیک کنید</small>
+  <span class="timer-val" id="countdown"></span>
+</div>
 
 <div id="hiddenCouponBox" style="display:none; background:rgba(0,0,0,0.8); border:1px solid var(--green); border-radius:12px; padding:15px; margin-bottom:18px; text-align:center; animation:fadeIn 0.3s;">
   <p style="font-size:12px; color:var(--gray); margin-bottom:10px;">کد تخفیف زیر را کپی کرده و در بخش کد تخفیف وارد کنید.</p>
@@ -275,7 +250,7 @@ async function loadSettings(){
       <span class="badge" id="welcomeBadge">🔥 PHOENIXCHEAT</span>
       <h2 id="welcomeTitle">به فروشگاه <span class="neon">فونیکس چیت</span> خوش آمدید</h2>
       <p id="welcomeText1">ما مفتخریم که به عنوان یکی از پیشگامان و معتبرترین مراجع تخصصی در حوزه خدمات گیمینگ (به‌ویژه Call of Duty) در خدمت شما هستیم.</p>
-      <p id="welcomeText2">تیم متخصص ما با تکیه بر دانش فنی و تجربه چندین ساله، بستری امن، سریع و تضمینی را برای ارتقاء تجربه بازی شما فراهم کرده است.</p>
+      <p id="welcomeText2">تیم متخصص ما با تکیه بر دانش فنی و تجربه چندین ساله، بستری امن، سریع و تضمینی را برای ارتقاء تجربه بازی شما فراهم کرده است. هدف ما ارائه بهترین کیفیت با بالاترین ضریب امنیت (بدون بن) و پشتیبانی ۲۴ ساعته است تا با خیالی آسوده بازی خود را به سطح حرفه‌ای ببرید.</p>
       <ul id="featuresList">
         <li><span class="check">✓</span> بدون بن و کاملاً امن</li>
         <li><span class="check">✓</span> تحویل سریع و رایگان</li>
@@ -528,20 +503,21 @@ async function loadSettings(){
 </div>
 
 <script>
+// ================= متغیرها =================
 let PRICE_PER_1000_CP = 25000;
 let ANTIBAN_PRICE = 50000;
 let FAST_DELIVERY_PRICE = 20000;
-
-// دیتای پیش‌فرض (اگر سرور جواب نداد، اینا لود میشن)
 let TEXTS = {};
 let SETTINGS = {};
 let historyStack = [];
+let couponCode = "WELCOME10";
 
 let order = {
   cp: 10000, antiban: false, speed: 'normal', totalPrice: 250000,
   senderCard: '', sentAmount: 0, sentTime: '', email: '', pass: '', rubika: '', desc: '', coupon: '', discount: 0
 };
 
+// ================= افکت‌ها =================
 function createParticles() {
   const container = document.getElementById('particles');
   for(let i=0; i<40; i++) {
@@ -577,9 +553,8 @@ document.addEventListener('click', function(e) {
     setTimeout(() => logoEffect.remove(), 800);
 });
 
+// ================= تایمر تخفیف =================
 let countdownDate = new Date().getTime() + (48 * 60 * 60 * 1000);
-let couponCode = "WELCOME10";
-
 setInterval(() => {
   let now = new Date().getTime();
   let distance = countdownDate - now;
@@ -604,6 +579,7 @@ function toggleCouponBox() {
     }
 }
 
+// ================= مدیریت صفحات =================
 function go(pageId, saveState = true){
   if (saveState) {
       historyStack.push(pageId);
@@ -628,6 +604,7 @@ function goBackHistory() {
     }
 }
 
+// ================= محاسبات =================
 function calculateTotal(){
   let cpInput = document.getElementById('cpAmount');
   let val = parseInt(cpInput.value) || 0;
@@ -654,6 +631,7 @@ function toggleOption(opt){ if(opt === 'antiban'){ order.antiban = !order.antiba
 function toggleSpeed(speed){ order.speed = speed; document.getElementById('optNormal').classList.toggle('active', speed === 'normal'); document.getElementById('optFast').classList.toggle('active', speed === 'fast'); calculateTotal(); }
 toggleSpeed('normal');
 
+// ================= کد تخفیف =================
 function resetCouponStatus() {
     document.getElementById('btnCheckCoupon').style.display = 'block';
     document.getElementById('btnApplyCoupon').style.display = 'none';
@@ -700,6 +678,7 @@ function applyCoupon() {
     document.getElementById('btnApplyCoupon').style.display = 'none';
 }
 
+// ================= پرداخت =================
 function goToPayment(){
   document.getElementById('payAmountText').textContent = order.totalPrice.toLocaleString('fa-IR');
   document.getElementById('sentAmount').value = order.totalPrice;
@@ -809,7 +788,7 @@ async function trackOrder() {
   } catch(e) { resDiv.innerHTML = '<span style="color:var(--red)">خطا در ارتباط با سرور.</span>'; }
 }
 
-// لود کردن تنظیمات (اگر سرور جواب داد، آپدیت میکنه، اگر نداد با پیش‌فرض کار میکنه)
+// ================= لود تنظیمات =================
 async function loadSettings(){
   try {
     const res = await fetch('/api/settings');
@@ -824,16 +803,23 @@ async function loadSettings(){
     document.getElementById('lblAntibanPrice').textContent = ANTIBAN_PRICE.toLocaleString('fa-IR') + ' تومان';
     document.getElementById('lblFastPrice').textContent = '+' + FAST_DELIVERY_PRICE.toLocaleString('fa-IR');
 
-    // تنظیم متن‌های خوش‌آمدگویی از دیتابیس
     let siteName = TEXTS.site_name || "فونیکس چیت";
     document.getElementById('welcomeTitle').innerHTML = `به فروشگاه <span class="neon">${siteName}</span> خوش آمدید`;
     document.getElementById('welcomeText1').textContent = TEXTS.welcome_text1 || "ما مفتخریم که به عنوان یکی از پیشگامان...";
     document.getElementById('welcomeText2').textContent = TEXTS.welcome_text2 || "تیم متخصص ما با تکیه بر دانش فنی...";
 
+    let discountText = TEXTS.special_discount_text || "";
+    if (discountText.trim() !== "") {
+        document.getElementById('timerBox').style.display = 'block';
+        document.getElementById('specialDiscountText').textContent = discountText;
+        couponCode = data.special_coupon || "WELCOME10";
+    } else {
+        document.getElementById('timerBox').style.display = 'none';
+    }
+
   } catch(err){
     console.log("Server not responding, using default settings.");
   } finally {
-    // به هر حال لودینگ رو مخفی کن
     document.getElementById('preloader').classList.add('hide'); 
     setTimeout(() => document.getElementById('preloader').remove(), 600);
     calculateTotal();
