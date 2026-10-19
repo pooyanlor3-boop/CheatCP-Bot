@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-# PhoenixCheat Bot V15 - Complete Admin Panel + Full Info Display
+# PhoenixCheat Bot V16 - Ultimate Fix for Render Conflict
 
 import json
 import os
 import random
 import string
 import threading
+import asyncio
 from datetime import datetime
 
 from flask import Flask, request, jsonify, send_from_directory
@@ -43,7 +44,7 @@ DEFAULT_DATA = {
         "site_name": "فونیکس چیت",
         "welcome_title": "به فروشگاه فونیکس چیت خوش آمدید",
         "welcome_text1": "ما مفتخریم که به عنوان یکی از پیشگامان و معتبرترین مراجع تخصصی در حوزه خدمات گیمینگ (به‌ویژه Call of Duty) در خدمت شما هستیم.",
-        "welcome_text2": "تیم متخصص ما با تکیه بر دانش فنی و تجربه چندین ساله، بستری امن، سریع و تضمینی را برای ارتقاء تجربه بازی شما فراهم کرده است. هدف ما ارائه بهترین کیفیت با بالاترین ضریب امنیت (بدون بن) و پشتیبانی ۲۴ ساعته است تا با خیالی آسوده بازی خود را به سطح حرفه‌ای ببرید.",
+        "welcome_text2": "تیم متخصص ما با تکیه بر دانش فنی و تجربه چندین ساله، بستری امن، سریع و تضمینی را برای ارتقاء تجربه بازی شما فراهم کرده است.",
         "features": ["بدون بن و کاملاً امن", "تحویل سریع و رایگان", "پشتیبانی ۲۴ ساعته"],
         "about_text": "ما یه تیم حرفه‌ای از گیمرهای کالاف دیوتی هستیم.",
         "trust_text": "✓ بیش از ۵۰۰ مشتری راضی\n✓ چنل اعتماد فعال\n✓ پشتیبانی ۲۴/۷",
@@ -119,22 +120,15 @@ def register():
         oid = db.get("next_order_id", 1)
         
         order = {
-            "id": oid,
-            "code": make_code(),
+            "id": oid, "code": make_code(),
             "date": datetime.now().strftime("%Y-%m-%d %H:%M"),
-            "email": data.get("email", ""),
-            "pass": data.get("pass", ""),
-            "rubika": data.get("rubika", ""),
-            "desc": data.get("desc", ""),
-            "cp": int(data.get("cp", 0)),
-            "antiban": data.get("antiban", False),
-            "speed": data.get("speed", "normal"),
-            "total_price": int(data.get("totalPrice", 0)),
+            "email": data.get("email", ""), "pass": data.get("pass", ""),
+            "rubika": data.get("rubika", ""), "desc": data.get("desc", ""),
+            "cp": int(data.get("cp", 0)), "antiban": data.get("antiban", False),
+            "speed": data.get("speed", "normal"), "total_price": int(data.get("totalPrice", 0)),
             "discount": discount,
-            "sender_card": data.get("senderCard", ""),
-            "sent_amount": data.get("sentAmount", ""),
-            "sent_time": data.get("sentTime", ""),
-            "status": "pending"
+            "sender_card": data.get("senderCard", ""), "sent_amount": data.get("sentAmount", ""),
+            "sent_time": data.get("sentTime", ""), "status": "pending"
         }
         
         db["orders"].append(order)
@@ -142,6 +136,7 @@ def register():
         db["stats"]["total_orders"] = db["stats"].get("total_orders", 0) + 1
         save_data(db)
         
+        # ارسال به تلگرام در یک ترد جداگانه
         threading.Thread(target=send_order_to_telegram, args=(order,), daemon=True).start()
         return jsonify({"success": True, "code": order["code"]})
     except Exception as e:
@@ -150,9 +145,9 @@ def register():
 
 # ================= ارسال به تلگرام =================
 def send_order_to_telegram(order):
+    global bot_app
     if not bot_app: return
     try:
-        import asyncio
         speed_text = "فوری (۱۰ دقیقه)" if order['speed'] == 'fast' else "زمان‌بر (۵ ساعت)"
         antiban_text = "✅ دارد" if order['antiban'] else "❌ ندارد"
         
@@ -182,6 +177,7 @@ def send_order_to_telegram(order):
             InlineKeyboardButton("❌ رد", callback_data=f"no_{order['id']}")
         ]]
         
+        # ارسال با ایونت لوپ مجزا
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         loop.run_until_complete(bot_app.bot.send_message(
@@ -204,10 +200,7 @@ async def start(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         [InlineKeyboardButton("💰 تنظیم نرخ قیمت", callback_data="set_prices")],
         [InlineKeyboardButton("🔐 باز/بسته ثبت‌نام", callback_data="toggle_reg")],
     ]
-    await update.message.reply_text(
-        "🎮 PhoenixCheat Admin Panel\n\nیک گزینه را انتخاب کن:",
-        reply_markup=InlineKeyboardMarkup(keyboard)
-    )
+    await update.message.reply_text("🎮 PhoenixCheat Admin Panel", reply_markup=InlineKeyboardMarkup(keyboard))
 
 async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -218,30 +211,24 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     if data.startswith("list_orders_"):
         page = int(data.split("_")[2])
         orders = db.get("orders", [])
-        
         if not orders:
             await query.edit_message_text("📭 هیچ سفارشی ثبت نشده.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 بازگشت", callback_data="back")]]))
             return
-            
         per_page = 5
         total_pages = (len(orders) + per_page - 1) // per_page
         page = max(0, min(page, total_pages - 1))
-        
         start_idx = page * per_page
         end_idx = start_idx + per_page
         page_orders = orders[::-1][start_idx:end_idx]
-        
         text = f"📦 **سفارشات (صفحه {page+1} از {total_pages})**\n\n"
         keyboard = []
         for o in page_orders:
             status = "⏳" if o['status'] == 'pending' else ("✅" if o['status'] == 'accepted' else "❌")
             keyboard.append([InlineKeyboardButton(f"{status} {o['code']} | {o['email'][:15]}", callback_data=f"view_{o['id']}")])
-        
         nav = []
         if page > 0: nav.append(InlineKeyboardButton("◀️ قبلی", callback_data=f"list_orders_{page-1}"))
         if page < total_pages - 1: nav.append(InlineKeyboardButton("بعدی ▶️", callback_data=f"list_orders_{page+1}"))
         if nav: keyboard.append(nav)
-        
         keyboard.append([InlineKeyboardButton("🔙 بازگشت به منو", callback_data="back")])
         await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="Markdown")
 
@@ -251,11 +238,9 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         if not order:
             await query.edit_message_text("❌ سفارش پیدا نشد.")
             return
-
         speed_text = "فوری" if order['speed'] == 'fast' else "زمان‌بر"
         antiban_text = "✅ دارد" if order['antiban'] else "❌ ندارد"
         status_fa = "⏳ در انتظار" if order['status'] == 'pending' else ("✅ تایید شده" if order['status'] == 'accepted' else "❌ رد شده")
-
         text = (
             f"👁️ **مشاهده جزئیات سفارش**\n\n"
             f"🔢 کد: `{order['code']}`\n"
@@ -277,7 +262,6 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             f"💵 مبلغ واریزی: {order['sent_amount']} تومان\n"
             f"⏰ ساعت: {order['sent_time']}"
         )
-        
         keyboard = [
             [InlineKeyboardButton("✅ تایید سفارش", callback_data=f"ok_{oid}"), InlineKeyboardButton("❌ رد سفارش", callback_data=f"no_{oid}")],
             [InlineKeyboardButton("🔙 بازگشت به لیست", callback_data="list_orders_0")]
@@ -286,33 +270,18 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
     elif data == "search_order":
         USER_STATES[ADMIN_ID] = {"state": "waiting_search_order"}
-        await query.edit_message_text(
-            "🔍 کد رهگیری سفارش (مثلاً ORD-XXXXXX) را وارد کنید:",
-            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 بازگشت", callback_data="back")]])
-        )
+        await query.edit_message_text("🔍 کد رهگیری سفارش را وارد کنید:", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 بازگشت", callback_data="back")]]))
 
     elif data == "stats":
         orders = db.get("orders", [])
         pending = len([o for o in orders if o['status'] == 'pending'])
         accepted = len([o for o in orders if o['status'] == 'accepted'])
-        text = (
-            f"📊 **آمار کامل سیستم**\n\n"
-            f"📦 کل سفارشات: {len(orders)}\n"
-            f"⏳ در انتظار: {pending}\n"
-            f"✅ تایید شده: {accepted}\n"
-            f"👁️ بازدید سایت: {db.get('stats', {}).get('total_visits', 0)}\n"
-            f"🎟️ کدهای فعال: {len([c for c in db.get('coupons', []) if c['active']])}\n"
-        )
+        text = f"📊 **آمار**\n\n📦 کل: {len(orders)}\n⏳ در انتظار: {pending}\n✅ تایید شده: {accepted}\n👁️ بازدید: {db.get('stats', {}).get('total_visits', 0)}\n🎟️ کدهای فعال: {len([c for c in db.get('coupons', []) if c['active']])}"
         await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 بازگشت", callback_data="back")]]), parse_mode="Markdown")
 
     elif data == "coupons_menu":
-        keyboard = [
-            [InlineKeyboardButton("➕ ساخت کد جدید", callback_data="add_coupon_info")],
-            [InlineKeyboardButton("🔙 بازگشت", callback_data="back")]
-        ]
-        text = "🎟️ **مدیریت کدهای تخفیف**\n\nکدهای فعال: "
-        text += ", ".join([c['code'] for c in db.get("coupons", []) if c['active']]) or "ندارد"
-        await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard))
+        text = "🎟️ **مدیریت کدهای تخفیف**\n\nکدهای فعال: " + (", ".join([c['code'] for c in db.get("coupons", []) if c['active']]) or "ندارد")
+        await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("➕ ساخت کد جدید", callback_data="add_coupon_info")], [InlineKeyboardButton("🔙 بازگشت", callback_data="back")]]))
 
     elif data == "add_coupon_info":
         await query.edit_message_text("برای ساخت کد تخفیف دستور زیر را بفرستید:\n\n`/addcoupon CODE PERCENT`\n\nمثال: `/addcoupon CHEAT10 10`", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 بازگشت", callback_data="coupons_menu")]]), parse_mode="Markdown")
@@ -320,25 +289,11 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     elif data == "set_card_info":
         card = db["settings"].get("card_number", "")
         holder = db["settings"].get("card_holder", "")
-        await query.edit_message_text(
-            f"💳 **تنظیم کارت**\n\nفعلی: `{card}`\nبه نام: {holder}\n\n"
-            f"برای تغییر:\n`/setcard 6219... - نام صاحب کارت`", 
-            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 بازگشت", callback_data="back")]]),
-            parse_mode="Markdown"
-        )
+        await query.edit_message_text(f"💳 **تنظیم کارت**\n\nفعلی: `{card}`\nبه نام: {holder}\n\nبرای تغییر:\n`/setcard 6219... - نام صاحب کارت`", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 بازگشت", callback_data="back")]]), parse_mode="Markdown")
 
     elif data == "set_prices":
         s = db["settings"]
-        text = (
-            f"💰 **تنظیم نرخ قیمت**\n\n"
-            f"هر ۱۰۰۰ سی‌پی: {s.get('price_per_1000', 25000):,} ت\n"
-            f"انتی بن: {s.get('price_antiban', 50000):,} ت\n"
-            f"فوری: {s.get('price_fast', 20000):,} ت\n\n"
-            f"برای تغییر:\n"
-            f"`/setprice per_1000 25000`\n"
-            f"`/setprice antiban 50000`\n"
-            f"`/setprice fast 20000`"
-        )
+        text = f"💰 **تنظیم نرخ قیمت**\n\nهر ۱۰۰۰ سی‌پی: {s.get('price_per_1000', 25000):,} ت\nانتی بن: {s.get('price_antiban', 50000):,} ت\nفوری: {s.get('price_fast', 20000):,} ت\n\n`/setprice per_1000 25000`\n`/setprice antiban 50000`\n`/setprice fast 20000`"
         await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 بازگشت", callback_data="back")]]), parse_mode="Markdown")
 
     elif data == "toggle_reg":
@@ -346,17 +301,13 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         db["settings"]["registration_open"] = not status
         save_data(db)
         emoji = "🟢" if not status else "🔴"
-        await query.edit_message_text(
-            f"{emoji} ثبت‌نام سایت: {'باز' if not status else 'بسته'} شد.",
-            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 بازگشت", callback_data="back")]])
-        )
-    
+        await query.edit_message_text(f"{emoji} ثبت‌نام: {'باز' if not status else 'بسته'} شد.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 بازگشت", callback_data="back")]]))
+
     elif data.startswith("ok_"):
         oid = int(data.split("_")[1])
         for o in db["orders"]:
             if o["id"] == oid: o["status"] = "accepted"; save_data(db); break
         await query.edit_message_text(f"✅ سفارش تایید شد.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 بازگشت به لیست", callback_data="list_orders_0")]]))
-    
     elif data.startswith("no_"):
         oid = int(data.split("_")[1])
         for o in db["orders"]:
@@ -381,27 +332,16 @@ async def handle_text(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ADMIN_ID: return
     state = USER_STATES.get(ADMIN_ID, {}).get("state")
     text = update.message.text.strip()
-    
     if state == "waiting_search_order":
         db = load_data()
         order = next((o for o in db["orders"] if o["code"].upper() == text.upper()), None)
         if order:
             speed_text = "فوری" if order['speed'] == 'fast' else "زمان‌بر"
             antiban_text = "✅ دارد" if order['antiban'] else "❌ ندارد"
-            status_fa = "⏳ در انتظار" if order['status'] == 'pending' else ("✅ تایید شده" if order['status'] == 'accepted' else "❌ رد شده")
-            msg = (
-                f"🔍 **سفارش یافت شد!**\n\n"
-                f"🔢 کد: `{order['code']}`\n"
-                f"📌 وضعیت: {status_fa}\n\n"
-                f"📧 ایمیل: `{order['email']}`\n"
-                f"🔑 رمز: `{order['pass']}`\n"
-                f"💬 روبیکا: {order['rubika']}\n\n"
-                f"🔹 {order['cp']:,} CP | {antiban_text} | {speed_text}\n"
-                f"💳 کارت مبدا: `{order['sender_card']}`"
-            )
+            msg = f"🔍 **یافت شد!**\n\n🔢 `{order['code']}`\n📧 `{order['email']}`\n🔑 `{order['pass']}`\n\n🔹 {order['cp']:,} CP | {antiban_text} | {speed_text}\n💳 `{order['sender_card']}`"
             await update.message.reply_text(msg, parse_mode="Markdown")
         else:
-            await update.message.reply_text("❌ سفارشی با این کد پیدا نشد.")
+            await update.message.reply_text("❌ پیدا نشد.")
         USER_STATES.pop(ADMIN_ID, None)
 
 async def set_card(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
@@ -437,12 +377,13 @@ async def add_coupon(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(f"✅ کد {code} ساخته شد.")
     except: await update.message.reply_text("❌ فرمت: /addcoupon CODE 10")
 
-# ================= اجرا =================
+# ================= اجرای سرور و ربات =================
 def run_flask():
     port = int(os.environ.get("PORT", 5000))
     app_web.run(host="0.0.0.0", port=port, debug=False, use_reloader=False)
 
-def main():
+# تابعی که ربات رو در یک حلقه مجزا اجرا میکنه
+def run_bot():
     global bot_app
     bot_app = Application.builder().token(BOT_TOKEN).build()
     bot_app.add_handler(CommandHandler("start", start))
@@ -451,12 +392,11 @@ def main():
     bot_app.add_handler(CommandHandler("addcoupon", add_coupon))
     bot_app.add_handler(CallbackQueryHandler(button_handler))
     bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
-
-    threading.Thread(target=run_flask, daemon=True).start()
     
-    # این خط جادویی، پیام‌های معلق رو دور می‌ریزه و Conflict نمیده
-    print("🚀 Starting Polling...")
+    print("🚀 Bot is polling...")
     bot_app.run_polling(drop_pending_updates=True)
 
 if __name__ == "__main__":
-    main()
+    # اجرای همزمان وب‌سرور و ربات بدون تداخل
+    threading.Thread(target=run_flask, daemon=True).start()
+    run_bot()
