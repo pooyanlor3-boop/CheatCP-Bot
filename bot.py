@@ -453,6 +453,9 @@ def main():
     bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
 
     threading.Thread(target=run_flask, daemon=True).start()
+    
+    # این خط جادویی، پیام‌های معلق رو دور می‌ریزه و Conflict نمیده
+    print("🚀 Starting Polling...")
     bot_app.run_polling(drop_pending_updates=True)
 
 if __name__ == "__main__":
