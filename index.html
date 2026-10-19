@@ -549,7 +549,7 @@ document.addEventListener('click', function(e) {
     let logoEffect = document.createElement('div');
     logoEffect.className = 'click-logo-effect';
     logoEffect.style.left = (e.clientX - 15) + 'px';
-    logoEffect.style.top = (e.clientX - 15) + 'px';
+    logoEffect.style.top = (e.clientY - 15) + 'px';
     logoEffect.innerHTML = '🔥';
     document.body.appendChild(logoEffect);
     setTimeout(() => logoEffect.remove(), 800);
