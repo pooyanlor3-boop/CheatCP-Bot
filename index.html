@@ -606,25 +606,45 @@ function goBackHistory() {
     }
 }
 
-// ================= محاسبات =================
 function calculateTotal(){
   let cpInput = document.getElementById('cpAmount');
   let val = parseInt(cpInput.value) || 0;
+  
   if(val < 10000 && val !== 0){
      cpInput.style.borderColor = 'var(--red)';
      document.getElementById('totalPriceDisplay').textContent = 'نامعتبر';
-  } else {
-     cpInput.style.borderColor = '';
-     order.cp = val;
-     let basePrice = Math.ceil(val / 1000) * PRICE_PER_1000_CP;
-     let extra = 0;
-     if(order.antiban) extra += ANTIBAN_PRICE;
-     if(order.speed === 'fast') extra += FAST_DELIVERY_PRICE;
-     let total = basePrice + extra;
-     if(order.discount > 0) total = total - (total * order.discount / 100);
-     order.totalPrice = total;
-     document.getElementById('totalPriceDisplay').textContent = total.toLocaleString('fa-IR');
+     return;
   }
+  
+  cpInput.style.borderColor = '';
+  order.cp = val;
+  
+  let basePrice = 0;
+  let packages = SETTINGS.custom_packages || [];
+  
+  // 1. چک میکنیم ببینیم کاربر دقیقا یه پکیج رو انتخاب کرده یا نه
+  let exactMatch = packages.find(p => p.cp === val);
+  if (exactMatch) {
+      basePrice = exactMatch.price;
+  } else {
+      // 2. اگه کاربر عدد دلخواه زده بود، از نرخ متغیر (هر 1000) استفاده میکنیم
+      let rate = SETTINGS.price_per_1000 || 25000;
+      basePrice = Math.ceil(val / 1000) * rate;
+  }
+
+  let extra = 0;
+  if(order.antiban) extra += ANTIBAN_PRICE;
+  if(order.speed === 'fast') extra += FAST_DELIVERY_PRICE;
+  
+  let total = basePrice + extra;
+  if(order.discount > 0) {
+      if(order.discountType === 'percent') total = total - (total * order.discount / 100);
+      else total = total - order.discount;
+  }
+  if(total < 0) total = 0;
+
+  order.totalPrice = total;
+  document.getElementById('totalPriceDisplay').textContent = total.toLocaleString('fa-IR');
 }
 
 function changeCP(amount){ let input = document.getElementById('cpAmount'); let val = parseInt(input.value) || 10000; val += amount; if(val < 10000) val = 10000; input.value = val; calculateTotal(); }
@@ -640,6 +660,7 @@ function resetCouponStatus() {
     document.getElementById('couponStatus').textContent = '';
     order.discount = 0;
     order.coupon = '';
+    order.discountType = '';
     calculateTotal();
 }
 
@@ -655,6 +676,29 @@ async function checkCoupon(){
       let res = await fetch('/api/check_coupon', {method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({code})});
       let data = await res.json();
       if(data.success){
+        // تشخیص خودکار درصدی یا مبلغی
+        let typeFa = data.type === 'percent' ? ${data.amount}% : ${data.amount.toLocaleString('fa-IR')} تومان;
+        status.textContent = ✅ کد معتبر است (${typeFa} تخفیف). برای اعمال، دکمه زیر را بزنید.;
+        status.style.color = 'var(--green)';
+        
+        order.coupon = code;
+        order.discount = data.amount;
+        order.discountType = data.type; // <--- این خط خیلی مهمه
+        
+        btnCheck.style.display = 'none';
+        btnApply.style.display = 'block';
+      } else {
+        status.textContent = '❌ کد نامعتبر است';
+        status.style.color = 'var(--red)';
+        resetCouponStatus();
+        btnCheck.textContent = "بررسی کد تخفیف";
+      }
+  } catch(e) {
+      status.textContent = '❌ خطا در ارتباط با سرور';
+      status.style.color = 'var(--red)';
+      btnCheck.textContent = "بررسی کد تخفیف";
+  }
+}
         status.textContent = `✅ کد معتبر است (${data.discount}% تخفیف). برای اعمال، دکمه زیر را بزنید.`;
         status.style.color = 'var(--green)';
         order.coupon = code;
