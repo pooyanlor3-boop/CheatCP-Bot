@@ -60,11 +60,19 @@ def load_data():
     try:
         with open(DB_PATH, "r", encoding="utf-8") as f:
             data = json.load(f)
+            
+            # چک میکنیم اگر کلیدهای اصلی توی دیتابیس نبود، یعنی دیتابیس قدیمیه
+            if "orders" not in data or "settings" not in data:
+                print("⚠️ Old or broken DB detected. Creating new one.")
+                save_data(DEFAULT_DATA)
+                return DEFAULT_DATA
+                
             if "texts" not in data: data["texts"] = {}
             if "special_discount_text" not in data["texts"]:
                 data["texts"]["special_discount_text"] = "🎁 تخفیف ویژه"
             return data
-    except:
+    except Exception as e:
+        print(f"⚠️ Error loading DB: {e}. Creating default.")
         save_data(DEFAULT_DATA)
         return DEFAULT_DATA
 
