@@ -47,7 +47,6 @@ header{display:flex;justify-content:space-between;align-items:center;padding:14p
 .header-glow{position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--fire-red),var(--fire-blue),transparent);box-shadow:0 0 15px var(--fire-blue);}
 .brand{display:flex;align-items:center;gap:12px}
 
-/* ====== لوگوی ققنوس آتشین (SVG) ====== */
 .logo-container{
   position:relative;width:65px;height:65px;border-radius:50%;
   background:var(--panel);
@@ -64,14 +63,12 @@ header{display:flex;justify-content:space-between;align-items:center;padding:14p
 .brand-text h1{font-size:22px;font-weight:900;background:linear-gradient(90deg,var(--fire-blue),var(--fire-red),var(--fire-orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-shadow:0 0 20px rgba(230,0,0,0.4)}
 .brand-text small{font-size:11px;color:var(--gray);letter-spacing:2px;display:block;margin-top:2px}
 
-/* ====== تایمر تخفیف ====== */
 .timer-box{background:linear-gradient(90deg,rgba(230,0,0,0.2),rgba(0,191,255,0.1));border:1px solid var(--red);border-radius:12px;padding:10px;text-align:center;margin-bottom:18px;box-shadow:0 0 15px rgba(230,0,0,0.2);cursor:pointer;transition:0.3s; display:none;}
 .timer-box:hover{box-shadow:0 0 25px rgba(0,191,255,0.4);border-color:var(--fire-blue);}
 .timer-box span{font-weight:900;color:var(--white);font-size:14px;display:block;}
 .timer-box small{font-size:11px;color:var(--gold);display:block;margin-top:4px;}
 .timer-val{color:var(--gold);font-family:monospace;font-size:15px;margin-left:5px;letter-spacing:1px;}
 
-/* منو */
 .top-menu{display:flex;gap:8px;margin-bottom:18px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
 .menu-btn{background:rgba(26,26,26,0.8);border:1px solid rgba(230,0,0,0.4);border-radius:12px;padding:10px 14px;color:var(--white);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit;transition:all 0.3s}
 .menu-btn:hover{background:rgba(230,0,0,0.15);border-color:var(--red);transform:translateY(-2px);box-shadow:0 0 15px rgba(230,0,0,0.3)}
@@ -143,7 +140,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:14p
 .blue-card::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,0.1) 0%,transparent 60%);transform:rotate(30deg)}
 .blue-card .bank-logo{font-size:20px;font-weight:900;font-style:italic;letter-spacing:1px;margin-bottom:25px;display:flex;justify-content:space-between}
 .blue-card .chip{width:45px;height:35px;background:linear-gradient(135deg,#e6c27a,#b78c2e);border-radius:6px;margin-bottom:20px}
-.blue-card .card-number{font-family:monospace;font-size:20px;letter-spacing:1.5px;direction:ltr;text-align:left;margin-bottom:20px;text-shadow:0 2px 4px rgba(0,0,0,0.5); white-space: nowrap; overflow: hidden; text-overflow: clip; width: 100%;}
+.blue-card .card-number{font-family:monospace;font-size:20px;letter-spacing:1.5px;direction:ltr;text-align:center;margin-bottom:20px;text-shadow:0 2px 4px rgba(0,0,0,0.5); white-space: nowrap;}
 .blue-card .card-holder{font-size:16px;font-weight:700;letter-spacing:1px;text-align:right;opacity:0.9;font-family:Vazirmatn}
 .copy-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:-10px;margin-bottom:20px}
 .copy-btn{background:rgba(0,82,212,0.1);border:1px solid var(--blue-card);color:var(--fire-blue);padding:10px;border-radius:10px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;transition:0.3s}
@@ -212,18 +209,18 @@ footer .gradient{background:linear-gradient(90deg,var(--fire-red),var(--fire-blu
   <div class="brand">
     <div class="logo-container">
       <!-- لوگو ققنوس آتشین -->
-<svg viewBox="0 0 100 100" style="width:45px; height:45px; filter:drop-shadow(0 0 5px rgba(255,0,0,0.8));">
-  <path d="M50 10 L60 30 L80 20 L70 40 L90 50 L70 60 L80 80 L60 70 L50 90 L40 70 L20 80 L30 60 L10 50 L30 40 L20 20 L40 30 Z" fill="url(#fireGradient)" />
-  <circle cx="50" cy="50" r="10" fill="#0a0a0a" />
-  <path d="M50 40 L53 47 L60 50 L53 53 L50 60 L47 53 L40 50 L47 47 Z" fill="#ffaa00" />
-</svg>
+      <svg viewBox="0 0 100 100" style="width:45px; height:45px; filter:drop-shadow(0 0 5px rgba(255,0,0,0.8));">
+        <path d="M50 10 L60 30 L80 20 L70 40 L90 50 L70 60 L80 80 L60 70 L50 90 L40 70 L20 80 L30 60 L10 50 L30 40 L20 20 L40 30 Z" fill="url(#fireGradient)" />
+        <circle cx="50" cy="50" r="10" fill="#0a0a0a" />
+        <path d="M50 40 L53 47 L60 50 L53 53 L50 60 L47 53 L40 50 L47 47 Z" fill="#ffaa00" />
+      </svg>
     </div>
     <div class="brand-text">
       <h1 id="siteName">فونیکس چیت</h1>
       <small id="siteTagline">PHOENIX CHEAT STORE</small>
     </div>
   </div>
-  <span class="version">v9.0</span>
+  <span class="version">v10.0</span>
 </header>
 
 <div class="timer-box" id="timerBox" onclick="toggleCouponBox()">
@@ -235,7 +232,7 @@ footer .gradient{background:linear-gradient(90deg,var(--fire-red),var(--fire-blu
 <div id="hiddenCouponBox" style="display:none; background:rgba(0,0,0,0.8); border:1px solid var(--green); border-radius:12px; padding:15px; margin-bottom:18px; text-align:center; animation:fadeIn 0.3s;">
   <p style="font-size:12px; color:var(--gray); margin-bottom:10px;">کد تخفیف زیر را کپی کرده و در بخش کد تخفیف وارد کنید.</p>
   <div class="code-box" id="specialCouponCode" style="margin:10px 0; font-size:18px; color:var(--fire-orange); border-color:var(--fire-orange); padding:10px;">WELCOME10</div>
-  <button class="btn-copy-code" style="background:var(--fire-orange); color:var(--black); font-size:12px; padding:8px;" onclick="copyText('WELCOME10', 'کد تخفیف')">📋 کپی کد تخفیف</button>
+  <button class="btn-copy-code" style="background:var(--fire-orange); color:var(--black); font-size:12px; padding:8px;" onclick="copyText(document.getElementById('specialCouponCode').textContent, 'کد تخفیف')">📋 کپی کد تخفیف</button>
   <p style="font-size:11px; color:var(--gold); margin-top:10px;">🌟 کانال روبیکا: <a href="https://rubika.ir/PhoenixCheat" target="_blank" style="color:var(--fire-blue);">Rubika.ir/PhoenixCheat</a></p>
 </div>
 
@@ -252,7 +249,7 @@ footer .gradient{background:linear-gradient(90deg,var(--fire-red),var(--fire-blu
       <span class="badge" id="welcomeBadge">🔥 PHOENIXCHEAT</span>
       <h2 id="welcomeTitle">به فروشگاه <span class="neon">فونیکس چیت</span> خوش آمدید</h2>
       <p id="welcomeText1">ما مفتخریم که به عنوان یکی از پیشگامان و معتبرترین مراجع تخصصی در حوزه خدمات گیمینگ (به‌ویژه Call of Duty) در خدمت شما هستیم.</p>
-      <p id="welcomeText2">تیم متخصص ما با تکیه بر دانش فنی و تجربه چندین ساله، بستری امن، سریع و تضمینی را برای ارتقاء تجربه بازی شما فراهم کرده است. هدف ما ارائه بهترین کیفیت با بالاترین ضریب امنیت (بدون بن) و پشتیبانی ۲۴ ساعته است تا با خیالی آسوده بازی خود را به سطح حرفه‌ای ببرید.</p>
+      <p id="welcomeText2">تیم متخصص ما با تکیه بر دانش فنی و تجربه چندین ساله، بستری امن، سریع و تضمینی را برای ارتقاء تجربه بازی شما فراهم کرده است.</p>
       <ul id="featuresList">
         <li><span class="check">✓</span> بدون بن و کاملاً امن</li>
         <li><span class="check">✓</span> تحویل سریع و رایگان</li>
@@ -348,7 +345,7 @@ footer .gradient{background:linear-gradient(90deg,var(--fire-red),var(--fire-blu
     </div>
 
     <div class="copy-actions">
-      <button class="copy-btn" onclick="copyText('6219861452724577', 'شماره کارت')">📋 کپی شماره کارت</button>
+      <button class="copy-btn" onclick="copyText(document.getElementById('cardNumDisplay').textContent.replace(/\s/g,''), 'شماره کارت')">📋 کپی شماره کارت</button>
       <button class="copy-btn" onclick="copyPrice()">💰 کپی مبلغ (ریال)</button>
     </div>
 
@@ -505,7 +502,6 @@ footer .gradient{background:linear-gradient(90deg,var(--fire-red),var(--fire-blu
 </div>
 
 <script>
-// ================= متغیرها =================
 let PRICE_PER_1000_CP = 25000;
 let ANTIBAN_PRICE = 50000;
 let FAST_DELIVERY_PRICE = 20000;
@@ -516,7 +512,7 @@ let couponCode = "WELCOME10";
 
 let order = {
   cp: 10000, antiban: false, speed: 'normal', totalPrice: 250000,
-  senderCard: '', sentAmount: 0, sentTime: '', email: '', pass: '', rubika: '', desc: '', coupon: '', discount: 0
+  senderCard: '', sentAmount: 0, sentTime: '', email: '', pass: '', rubika: '', desc: '', coupon: '', discount: 0, discountType: ''
 };
 
 // ================= افکت‌ها =================
@@ -555,7 +551,6 @@ document.addEventListener('click', function(e) {
     setTimeout(() => logoEffect.remove(), 800);
 });
 
-// ================= تایمر تخفیف =================
 let countdownDate = new Date().getTime() + (48 * 60 * 60 * 1000);
 setInterval(() => {
   let now = new Date().getTime();
@@ -568,7 +563,7 @@ setInterval(() => {
   let display = "";
   if (days > 0) display += days + " روز و ";
   display += hours + ":" + minutes + ":" + seconds;
-  document.getElementById("countdown").innerHTML = display;
+  if(document.getElementById("countdown")) document.getElementById("countdown").innerHTML = display;
 }, 1000);
 
 function toggleCouponBox() {
@@ -581,7 +576,6 @@ function toggleCouponBox() {
     }
 }
 
-// ================= مدیریت صفحات =================
 function go(pageId, saveState = true){
   if (saveState) {
       historyStack.push(pageId);
@@ -606,6 +600,7 @@ function goBackHistory() {
     }
 }
 
+// ================= محاسبات قیمت (هوشمند) =================
 function calculateTotal(){
   let cpInput = document.getElementById('cpAmount');
   let val = parseInt(cpInput.value) || 0;
@@ -622,12 +617,12 @@ function calculateTotal(){
   let basePrice = 0;
   let packages = SETTINGS.custom_packages || [];
   
-  // 1. چک میکنیم ببینیم کاربر دقیقا یه پکیج رو انتخاب کرده یا نه
+  // 1. چک پکیج ثابت
   let exactMatch = packages.find(p => p.cp === val);
   if (exactMatch) {
       basePrice = exactMatch.price;
   } else {
-      // 2. اگه کاربر عدد دلخواه زده بود، از نرخ متغیر (هر 1000) استفاده میکنیم
+      // 2. نرخ متغیر
       let rate = SETTINGS.price_per_1000 || 25000;
       basePrice = Math.ceil(val / 1000) * rate;
   }
@@ -659,8 +654,8 @@ function resetCouponStatus() {
     document.getElementById('btnApplyCoupon').style.display = 'none';
     document.getElementById('couponStatus').textContent = '';
     order.discount = 0;
-    order.coupon = '';
     order.discountType = '';
+    order.coupon = '';
     calculateTotal();
 }
 
@@ -676,33 +671,12 @@ async function checkCoupon(){
       let res = await fetch('/api/check_coupon', {method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({code})});
       let data = await res.json();
       if(data.success){
-        // تشخیص خودکار درصدی یا مبلغی
-        let typeFa = data.type === 'percent' ? ${data.amount}% : ${data.amount.toLocaleString('fa-IR')} تومان;
-        status.textContent = ✅ کد معتبر است (${typeFa} تخفیف). برای اعمال، دکمه زیر را بزنید.;
+        let typeFa = data.type === 'percent' ? `${data.amount}%` : `${data.amount.toLocaleString('fa-IR')} تومان`;
+        status.textContent = `✅ کد معتبر است (${typeFa} تخفیف). برای اعمال، دکمه زیر را بزنید.`;
         status.style.color = 'var(--green)';
-        
         order.coupon = code;
         order.discount = data.amount;
-        order.discountType = data.type; // <--- این خط خیلی مهمه
-        
-        btnCheck.style.display = 'none';
-        btnApply.style.display = 'block';
-      } else {
-        status.textContent = '❌ کد نامعتبر است';
-        status.style.color = 'var(--red)';
-        resetCouponStatus();
-        btnCheck.textContent = "بررسی کد تخفیف";
-      }
-  } catch(e) {
-      status.textContent = '❌ خطا در ارتباط با سرور';
-      status.style.color = 'var(--red)';
-      btnCheck.textContent = "بررسی کد تخفیف";
-  }
-}
-        status.textContent = `✅ کد معتبر است (${data.discount}% تخفیف). برای اعمال، دکمه زیر را بزنید.`;
-        status.style.color = 'var(--green)';
-        order.coupon = code;
-        order.discount = data.discount;
+        order.discountType = data.type;
         btnCheck.style.display = 'none';
         btnApply.style.display = 'block';
       } else {
@@ -724,7 +698,6 @@ function applyCoupon() {
     document.getElementById('btnApplyCoupon').style.display = 'none';
 }
 
-// ================= پرداخت =================
 function goToPayment(){
   document.getElementById('payAmountText').textContent = order.totalPrice.toLocaleString('fa-IR');
   document.getElementById('sentAmount').value = order.totalPrice;
@@ -834,7 +807,6 @@ async function trackOrder() {
   } catch(e) { resDiv.innerHTML = '<span style="color:var(--red)">خطا در ارتباط با سرور.</span>'; }
 }
 
-// ================= لود تنظیمات =================
 async function loadSettings(){
   try {
     const res = await fetch('/api/settings');
@@ -845,33 +817,62 @@ async function loadSettings(){
     FAST_DELIVERY_PRICE = SETTINGS.price_fast || 20000;
     
     if(SETTINGS.card_number) {
-    // تبدیل به رشته و جدا کردن هر ۴ رقم
-    let rawCard = String(SETTINGS.card_number).replace(/\s+/g, '');
-    let formattedCard = rawCard.match(/.{1,4}/g).join(' ');
-    document.getElementById('cardNumDisplay').textContent = formattedCard;
-    document.getElementById('cardNumDisplay').style.direction = 'ltr';
-    document.getElementById('cardNumDisplay').style.textAlign = 'center'; // وسط چین بشه قشنگ‌تره
-}
+        let rawCard = String(SETTINGS.card_number).replace(/\s+/g, '');
+        let formattedCard = rawCard.match(/.{1,4}/g).join(' ');
+        document.getElementById('cardNumDisplay').textContent = formattedCard;
+        document.getElementById('cardNumDisplay').style.textAlign = 'center';
+    }
     if(SETTINGS.card_holder) document.getElementById('cardHolderDisplay').textContent = SETTINGS.card_holder;
+    
     document.getElementById('lblAntibanPrice').textContent = ANTIBAN_PRICE.toLocaleString('fa-IR') + ' تومان';
     document.getElementById('lblFastPrice').textContent = '+' + FAST_DELIVERY_PRICE.toLocaleString('fa-IR');
 
     let siteName = TEXTS.site_name || "فونیکس چیت";
     document.getElementById('welcomeTitle').innerHTML = `به فروشگاه <span class="neon">${siteName}</span> خوش آمدید`;
-    document.getElementById('welcomeText1').textContent = TEXTS.welcome_text1 || "ما مفتخریم که به عنوان یکی از پیشگامان...";
-    document.getElementById('welcomeText2').textContent = TEXTS.welcome_text2 || "تیم متخصص ما با تکیه بر دانش فنی...";
+    document.getElementById('welcomeText1').textContent = TEXTS.welcome_text1 || "ما مفتخریم...";
+    document.getElementById('welcomeText2').textContent = TEXTS.welcome_text2 || "تیم متخصص ما...";
 
-    let discountText = TEXTS.special_discount_text || "";
-    if (discountText.trim() !== "") {
-        document.getElementById('timerBox').style.display = 'block';
-        document.getElementById('specialDiscountText').textContent = discountText;
-        couponCode = data.special_coupon || "WELCOME10";
+    let discountText = SETTINGS.special_discount_text || "";
+    let endTimeStr = SETTINGS.special_coupon_end_time || "";
+    couponCode = data.special_coupon || "WELCOME10";
+
+    if (discountText.trim() !== "" && endTimeStr !== "" && couponCode !== "") {
+        let endTime = parseInt(endTimeStr) * 1000;
+        let now = new Date().getTime();
+        let timeLeft = endTime - now;
+
+        if (timeLeft > 0) {
+            document.getElementById('timerBox').style.display = 'block';
+            document.getElementById('specialDiscountText').textContent = discountText;
+            document.getElementById('specialCouponCode').textContent = couponCode;
+            
+            if(window.discountTimer) clearInterval(window.discountTimer);
+            window.discountTimer = setInterval(() => {
+                let currentNow = new Date().getTime();
+                let currentDist = endTime - currentNow;
+                if (currentDist < 0) {
+                    clearInterval(window.discountTimer);
+                    document.getElementById('timerBox').style.display = 'none';
+                    return;
+                }
+                let days = Math.floor(currentDist / (1000 * 60 * 60 * 24));
+                let hours = Math.floor((currentDist % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                let minutes = Math.floor((currentDist % (1000 * 60 * 60)) / (1000 * 60));
+                let seconds = Math.floor((currentDist % (1000 * 60)) / 1000);
+                let display = "";
+                if (days > 0) display += days + " روز و ";
+                display += hours + ":" + minutes + ":" + seconds;
+                if(document.getElementById("countdown")) document.getElementById("countdown").innerHTML = display;
+            }, 1000);
+        } else {
+            document.getElementById('timerBox').style.display = 'none';
+        }
     } else {
         document.getElementById('timerBox').style.display = 'none';
     }
 
   } catch(err){
-    console.log("Server not responding, using default settings.");
+    console.log("Error loading settings:", err);
   } finally {
     document.getElementById('preloader').classList.add('hide'); 
     setTimeout(() => document.getElementById('preloader').remove(), 600);
