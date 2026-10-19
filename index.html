@@ -143,7 +143,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:14p
 .blue-card::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,0.1) 0%,transparent 60%);transform:rotate(30deg)}
 .blue-card .bank-logo{font-size:20px;font-weight:900;font-style:italic;letter-spacing:1px;margin-bottom:25px;display:flex;justify-content:space-between}
 .blue-card .chip{width:45px;height:35px;background:linear-gradient(135deg,#e6c27a,#b78c2e);border-radius:6px;margin-bottom:20px}
-.blue-card .card-number{font-family:monospace;font-size:22px;letter-spacing:2px;direction:ltr;text-align:left;margin-bottom:20px;text-shadow:0 2px 4px rgba(0,0,0,0.5); white-space: nowrap; overflow: hidden; text-overflow: clip;}
+.blue-card .card-number{font-family:monospace;font-size:20px;letter-spacing:1.5px;direction:ltr;text-align:left;margin-bottom:20px;text-shadow:0 2px 4px rgba(0,0,0,0.5); white-space: nowrap; overflow: hidden; text-overflow: clip; width: 100%;}
 .blue-card .card-holder{font-size:16px;font-weight:700;letter-spacing:1px;text-align:right;opacity:0.9;font-family:Vazirmatn}
 .copy-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:-10px;margin-bottom:20px}
 .copy-btn{background:rgba(0,82,212,0.1);border:1px solid var(--blue-card);color:var(--fire-blue);padding:10px;border-radius:10px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;transition:0.3s}
@@ -537,7 +537,7 @@ createParticles();
 document.addEventListener('click', function(e) {
     let sparkle = document.createElement('div');
     sparkle.className = 'sparkle';
-    sparkle.style.left = (e.clientx - 4) + 'px';
+    sparkle.style.left = (e.clientX - 4) + 'px';
     sparkle.style.top = (e.clientY - 4) + 'px';
     let colors = ['#ff0000', '#ff4500', '#00bfff', '#ffaa00'];
     let randomColor = colors[Math.floor(Math.random() * colors.length)];
@@ -549,7 +549,7 @@ document.addEventListener('click', function(e) {
     let logoEffect = document.createElement('div');
     logoEffect.className = 'click-logo-effect';
     logoEffect.style.left = (e.clientX - 15) + 'px';
-    logoEffect.style.top = (e.clienty - 15) + 'px';
+    logoEffect.style.top = (e.clientX - 15) + 'px';
     logoEffect.innerHTML = '🔥';
     document.body.appendChild(logoEffect);
     setTimeout(() => logoEffect.remove(), 800);
@@ -800,7 +800,14 @@ async function loadSettings(){
     ANTIBAN_PRICE = SETTINGS.price_antiban || 50000;
     FAST_DELIVERY_PRICE = SETTINGS.price_fast || 20000;
     
-    if(SETTINGS.card_number) document.getElementById('cardNumDisplay').textContent = SETTINGS.card_number.replace(/(\d{4})/g, '$1 ').trim();
+    if(SETTINGS.card_number) {
+    // تبدیل به رشته و جدا کردن هر ۴ رقم
+    let rawCard = String(SETTINGS.card_number).replace(/\s+/g, '');
+    let formattedCard = rawCard.match(/.{1,4}/g).join(' ');
+    document.getElementById('cardNumDisplay').textContent = formattedCard;
+    document.getElementById('cardNumDisplay').style.direction = 'ltr';
+    document.getElementById('cardNumDisplay').style.textAlign = 'center'; // وسط چین بشه قشنگ‌تره
+}
     if(SETTINGS.card_holder) document.getElementById('cardHolderDisplay').textContent = SETTINGS.card_holder;
     document.getElementById('lblAntibanPrice').textContent = ANTIBAN_PRICE.toLocaleString('fa-IR') + ' تومان';
     document.getElementById('lblFastPrice').textContent = '+' + FAST_DELIVERY_PRICE.toLocaleString('fa-IR');
