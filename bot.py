@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# PhoenixCheat Bot V16 - Ultimate Fix for Render Conflict
+# PhoenixCheat Bot V19 - Control Special Discount Text
 
 import json
 import os
@@ -26,7 +26,6 @@ CORS(app_web)
 bot_app = None
 USER_STATES = {}
 
-# --- دیتابیس ---
 DEFAULT_DATA = {
     "orders": [],
     "next_order_id": 1,
@@ -39,19 +38,21 @@ DEFAULT_DATA = {
         "price_fast": 20000,
         "registration_open": True
     },
-    "coupons": [],
+    "coupons": [
+        {"code": "WELCOME10", "discount": 10, "active": True}
+    ],
     "texts": {
         "site_name": "فونیکس چیت",
         "welcome_title": "به فروشگاه فونیکس چیت خوش آمدید",
         "welcome_text1": "ما مفتخریم که به عنوان یکی از پیشگامان و معتبرترین مراجع تخصصی در حوزه خدمات گیمینگ (به‌ویژه Call of Duty) در خدمت شما هستیم.",
-        "welcome_text2": "تیم متخصص ما با تکیه بر دانش فنی و تجربه چندین ساله، بستری امن، سریع و تضمینی را برای ارتقاء تجربه بازی شما فراهم کرده است.",
-        "features": ["بدون بن و کاملاً امن", "تحویل سریع و رایگان", "پشتیبانی ۲۴ ساعته"],
+        "welcome_text2": "تیم متخصص ما با تکیه بر دانش فنی و تجربه چندین ساله، بستری امن، سریع و تضمینی را برای ارتقاء تجربه بازی شما فراهم کرده است. هدف ما ارائه بهترین کیفیت با بالاترین ضریب امنیت (بدون بن) و پشتیبانی ۲۴ ساعته است تا با خیالی آسوده بازی خود را به سطح حرفه‌ای ببرید.",
         "about_text": "ما یه تیم حرفه‌ای از گیمرهای کالاف دیوتی هستیم.",
         "trust_text": "✓ بیش از ۵۰۰ مشتری راضی\n✓ چنل اعتماد فعال\n✓ پشتیبانی ۲۴/۷",
         "channel_link": "https://rubika.ir/PhoenixCheat",
         "support_link": "https://rubika.ir/my_hinata",
         "telegram_link": "https://t.me/Phoenix1Cheat",
-        "site_status": "open"
+        "site_status": "open",
+        "special_discount_text": "🎁 تخفیف ویژه"
     }
 }
 
@@ -59,8 +60,9 @@ def load_data():
     try:
         with open(DB_PATH, "r", encoding="utf-8") as f:
             data = json.load(f)
-            if "orders" not in data or "settings" not in data:
-                raise ValueError("Old DB")
+            if "texts" not in data: data["texts"] = {}
+            if "special_discount_text" not in data["texts"]:
+                data["texts"]["special_discount_text"] = "🎁 تخفیف ویژه"
             return data
     except:
         save_data(DEFAULT_DATA)
@@ -80,7 +82,11 @@ def index(): return send_from_directory(BASE_DIR, "index.html")
 @app_web.route("/api/settings", methods=["GET"])
 def get_settings():
     db = load_data()
-    return jsonify({"texts": db.get("texts", {}), "settings": db.get("settings", {})})
+    return jsonify({
+        "texts": db.get("texts", {}),
+        "settings": db.get("settings", {}),
+        "special_coupon": next((c["code"] for c in db.get("coupons", []) if c.get("active")), "")
+    })
 
 @app_web.route("/api/check_coupon", methods=["POST"])
 def check_coupon():
@@ -88,7 +94,7 @@ def check_coupon():
     for c in load_data().get("coupons", []):
         if c["code"] == code and c["active"]:
             return jsonify({"success": True, "discount": c["discount"]})
-    return jsonify({"success": False, "message": "کد نامعتبر"}), 400
+    return jsonify({"success": False, "message": "کد نامعتبر است"}), 400
 
 @app_web.route("/api/track", methods=["POST"])
 def track_order():
@@ -136,7 +142,6 @@ def register():
         db["stats"]["total_orders"] = db["stats"].get("total_orders", 0) + 1
         save_data(db)
         
-        # ارسال به تلگرام در یک ترد جداگانه
         threading.Thread(target=send_order_to_telegram, args=(order,), daemon=True).start()
         return jsonify({"success": True, "code": order["code"]})
     except Exception as e:
@@ -177,7 +182,6 @@ def send_order_to_telegram(order):
             InlineKeyboardButton("❌ رد", callback_data=f"no_{order['id']}")
         ]]
         
-        # ارسال با ایونت لوپ مجزا
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         loop.run_until_complete(bot_app.bot.send_message(
@@ -193,11 +197,12 @@ async def start(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ADMIN_ID: return
     keyboard = [
         [InlineKeyboardButton("📦 لیست سفارشات", callback_data="list_orders_0")],
-        [InlineKeyboardButton("🔍 جستجوی سریع سفارش", callback_data="search_order")],
+        [InlineKeyboardButton("🔍 جستجوی سریع", callback_data="search_order")],
         [InlineKeyboardButton("📊 آمار کامل", callback_data="stats")],
-        [InlineKeyboardButton("🎟️ مدیریت کد تخفیف", callback_data="coupons_menu")],
+        [InlineKeyboardButton("🎟️ کد تخفیف", callback_data="coupons_menu")],
         [InlineKeyboardButton("💳 تنظیمات کارت", callback_data="set_card_info")],
         [InlineKeyboardButton("💰 تنظیم نرخ قیمت", callback_data="set_prices")],
+        [InlineKeyboardButton("📝 متن سایت", callback_data="edit_texts")],
         [InlineKeyboardButton("🔐 باز/بسته ثبت‌نام", callback_data="toggle_reg")],
     ]
     await update.message.reply_text("🎮 PhoenixCheat Admin Panel", reply_markup=InlineKeyboardMarkup(keyboard))
@@ -235,9 +240,7 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     elif data.startswith("view_"):
         oid = int(data.split("_")[1])
         order = next((o for o in db["orders"] if o["id"] == oid), None)
-        if not order:
-            await query.edit_message_text("❌ سفارش پیدا نشد.")
-            return
+        if not order: return
         speed_text = "فوری" if order['speed'] == 'fast' else "زمان‌بر"
         antiban_text = "✅ دارد" if order['antiban'] else "❌ ندارد"
         status_fa = "⏳ در انتظار" if order['status'] == 'pending' else ("✅ تایید شده" if order['status'] == 'accepted' else "❌ رد شده")
@@ -296,6 +299,9 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         text = f"💰 **تنظیم نرخ قیمت**\n\nهر ۱۰۰۰ سی‌پی: {s.get('price_per_1000', 25000):,} ت\nانتی بن: {s.get('price_antiban', 50000):,} ت\nفوری: {s.get('price_fast', 20000):,} ت\n\n`/setprice per_1000 25000`\n`/setprice antiban 50000`\n`/setprice fast 20000`"
         await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 بازگشت", callback_data="back")]]), parse_mode="Markdown")
 
+    elif data == "edit_texts":
+        await query.edit_message_text("📝 برای تغییر متن‌های سایت از دستور زیر استفاده کنید:\n\n`/set key value`\n\nمثلاً:\n`/set welcome_title سلام به فونیکس چیت`\n`/set special_discount_text تخفیف ویژه عیدانه`\n\n*برای حذف بخش تخفیف، مقدار آن را خالی بفرستید:*\n`/set special_discount_text`", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 بازگشت", callback_data="back")]]), parse_mode="Markdown")
+
     elif data == "toggle_reg":
         status = db["settings"].get("registration_open", True)
         db["settings"]["registration_open"] = not status
@@ -320,9 +326,10 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             [InlineKeyboardButton("📦 لیست سفارشات", callback_data="list_orders_0")],
             [InlineKeyboardButton("🔍 جستجوی سریع سفارش", callback_data="search_order")],
             [InlineKeyboardButton("📊 آمار کامل", callback_data="stats")],
-            [InlineKeyboardButton("🎟️ مدیریت کد تخفیف", callback_data="coupons_menu")],
+            [InlineKeyboardButton("🎟️ کد تخفیف", callback_data="coupons_menu")],
             [InlineKeyboardButton("💳 تنظیمات کارت", callback_data="set_card_info")],
             [InlineKeyboardButton("💰 تنظیم نرخ قیمت", callback_data="set_prices")],
+            [InlineKeyboardButton("📝 متن سایت", callback_data="edit_texts")],
             [InlineKeyboardButton("🔐 باز/بسته ثبت‌نام", callback_data="toggle_reg")],
         ]
         await query.edit_message_text("🎮 PhoenixCheat Admin Panel", reply_markup=InlineKeyboardMarkup(keyboard))
@@ -332,6 +339,7 @@ async def handle_text(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ADMIN_ID: return
     state = USER_STATES.get(ADMIN_ID, {}).get("state")
     text = update.message.text.strip()
+    
     if state == "waiting_search_order":
         db = load_data()
         order = next((o for o in db["orders"] if o["code"].upper() == text.upper()), None)
@@ -343,6 +351,27 @@ async def handle_text(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         else:
             await update.message.reply_text("❌ پیدا نشد.")
         USER_STATES.pop(ADMIN_ID, None)
+
+async def set_text(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    if update.effective_user.id != ADMIN_ID: return
+    try:
+        full_text = update.message.text.replace("/set ", "").strip()
+        parts = full_text.split(" ", 1)
+        key = parts[0].strip()
+        value = parts[1].strip() if len(parts) > 1 else ""
+        value = value.replace("\\n", "\n")
+        
+        db = load_data()
+        if "texts" not in db: db["texts"] = {}
+        db["texts"][key] = value
+        save_data(db)
+        
+        if value == "":
+            await update.message.reply_text(f"✅ متن '{key}' پاک شد (از سایت حذف می‌شود).")
+        else:
+            await update.message.reply_text(f"✅ متن '{key}' با موفقیت تغییر کرد.\n\nمتن جدید:\n{value}")
+    except Exception as e:
+        await update.message.reply_text(f"❌ خطا: {e}\nفرمت: /set key value")
 
 async def set_card(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     try:
@@ -382,7 +411,6 @@ def run_flask():
     port = int(os.environ.get("PORT", 5000))
     app_web.run(host="0.0.0.0", port=port, debug=False, use_reloader=False)
 
-# تابعی که ربات رو در یک حلقه مجزا اجرا میکنه
 def run_bot():
     global bot_app
     bot_app = Application.builder().token(BOT_TOKEN).build()
@@ -390,13 +418,20 @@ def run_bot():
     bot_app.add_handler(CommandHandler("setcard", set_card))
     bot_app.add_handler(CommandHandler("setprice", set_price))
     bot_app.add_handler(CommandHandler("addcoupon", add_coupon))
+    bot_app.add_handler(CommandHandler("set", set_text))
     bot_app.add_handler(CallbackQueryHandler(button_handler))
     bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
     
     print("🚀 Bot is polling...")
-    bot_app.run_polling(drop_pending_updates=True)
+    try:
+        bot_app.run_polling(drop_pending_updates=True)
+    except Exception as e:
+        print(f"⚠️ Bot crashed: {e}")
 
 if __name__ == "__main__":
-    # اجرای همزمان وب‌سرور و ربات بدون تداخل
+    print("🌐 Starting Web Server...")
     threading.Thread(target=run_flask, daemon=True).start()
+    import time
+    time.sleep(2) 
+    print("🤖 Starting Bot...")
     run_bot()

@@ -215,11 +215,45 @@ footer .gradient{background:linear-gradient(90deg,var(--fire-red),var(--fire-blu
   <span class="version">v8.1</span>
 </header>
 
-<div class="timer-box" id="timerBox" onclick="toggleCouponBox()">
-  <span>🎁 تخفیف ویژه</span>
-  <small>برای دریافت کد تخفیف کلیک کنید</small>
-  <span class="timer-val" id="countdown"></span>
-</div>
+// لود کردن تنظیمات (اگر سرور جواب داد، آپدیت میکنه، اگر نداد با پیش‌فرض کار میکنه)
+async function loadSettings(){
+  try {
+    const res = await fetch('/api/settings');
+    const data = await res.json();
+    TEXTS = data.texts  {}; SETTINGS = data.settings  {};
+    PRICE_PER_1000_CP = SETTINGS.price_per_1000 || 25000;
+    ANTIBAN_PRICE = SETTINGS.price_antiban || 50000;
+    FAST_DELIVERY_PRICE = SETTINGS.price_fast || 20000;
+    
+    if(SETTINGS.card_number) document.getElementById('cardNumDisplay').textContent = SETTINGS.card_number.replace(/(\d{4})/g, '$1 ').trim();
+    if(SETTINGS.card_holder) document.getElementById('cardHolderDisplay').textContent = SETTINGS.card_holder;
+    document.getElementById('lblAntibanPrice').textContent = ANTIBAN_PRICE.toLocaleString('fa-IR') + ' تومان';
+    document.getElementById('lblFastPrice').textContent = '+' + FAST_DELIVERY_PRICE.toLocaleString('fa-IR');
+
+    // تنظیم متن‌های خوش‌آمدگویی از دیتابیس
+    let siteName = TEXTS.site_name || "فونیکس چیت";
+    document.getElementById('welcomeTitle').innerHTML = به فروشگاه <span class="neon">${siteName}</span> خوش آمدید;
+    document.getElementById('welcomeText1').textContent = TEXTS.welcome_text1 || "ما مفتخریم که به عنوان یکی از پیشگامان...";
+    document.getElementById('welcomeText2').textContent = TEXTS.welcome_text2 || "تیم متخصص ما با تکیه بر دانش فنی...";
+
+    // تنظیم متن تخفیف ویژه
+    let discountText = TEXTS.special_discount_text || "";
+    if (discountText.trim() !== "") {
+        document.getElementById('timerBox').style.display = 'block';
+        document.getElementById('specialDiscountText').textContent = discountText;
+        couponCode = data.special_coupon || "WELCOME10";
+    } else {
+        document.getElementById('timerBox').style.display = 'none';
+    }
+
+  } catch(err){
+    console.log("Server not responding, using default settings.");
+  } finally {
+    document.getElementById('preloader').classList.add('hide'); 
+    setTimeout(() => document.getElementById('preloader').remove(), 600);
+    calculateTotal();
+  }
+}
 
 <div id="hiddenCouponBox" style="display:none; background:rgba(0,0,0,0.8); border:1px solid var(--green); border-radius:12px; padding:15px; margin-bottom:18px; text-align:center; animation:fadeIn 0.3s;">
   <p style="font-size:12px; color:var(--gray); margin-bottom:10px;">کد تخفیف زیر را کپی کرده و در بخش کد تخفیف وارد کنید.</p>
