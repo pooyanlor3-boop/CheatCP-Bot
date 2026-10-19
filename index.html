@@ -537,8 +537,8 @@ createParticles();
 document.addEventListener('click', function(e) {
     let sparkle = document.createElement('div');
     sparkle.className = 'sparkle';
-    sparkle.style.left = (e.pageX - 4) + 'px';
-    sparkle.style.top = (e.pageY - 4) + 'px';
+    sparkle.style.left = (e.clientx - 4) + 'px';
+    sparkle.style.top = (e.clientY - 4) + 'px';
     let colors = ['#ff0000', '#ff4500', '#00bfff', '#ffaa00'];
     let randomColor = colors[Math.floor(Math.random() * colors.length)];
     sparkle.style.color = randomColor;
@@ -548,8 +548,8 @@ document.addEventListener('click', function(e) {
 
     let logoEffect = document.createElement('div');
     logoEffect.className = 'click-logo-effect';
-    logoEffect.style.left = (e.pageX - 15) + 'px';
-    logoEffect.style.top = (e.pageY - 15) + 'px';
+    logoEffect.style.left = (e.clientX - 15) + 'px';
+    logoEffect.style.top = (e.clienty - 15) + 'px';
     logoEffect.innerHTML = '🔥';
     document.body.appendChild(logoEffect);
     setTimeout(() => logoEffect.remove(), 800);
