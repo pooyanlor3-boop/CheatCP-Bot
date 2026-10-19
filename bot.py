@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# PhoenixCheat Bot V12 - Fully Fixed (No Conflict)
+# PhoenixCheat Bot V13 - DB Fix
 
 import json
 import os
@@ -8,30 +8,22 @@ import string
 import threading
 from datetime import datetime
 
-from dotenv import load_dotenv
-load_dotenv()
-
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import (
-    Application, CommandHandler, CallbackQueryHandler,
-    MessageHandler, filters, ContextTypes
-)
-from telegram.request import HTTPXRequest
+from telegram.ext import Application, CommandHandler, CallbackQueryHandler
 
-# --- تنظیمات ---
-BOT_TOKEN = "8699196899:AAGaY7pFzU2OzBxwcF8_E-LqUbQZk4UUDgo" # (توکنی که دادی)
+BOT_TOKEN = "8699196899:AAGaY7pFzU2OzBxwcF8_E-LqUbQZk4UUDgo"
 ADMIN_ID = 8113206201
 GROUP_ID = -1004335107809
-DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data.json")
 
-app_web = Flask(__name__, static_folder=os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "data.json")
+app_web = Flask(__name__, static_folder=BASE_DIR)
 CORS(app_web)
 bot_app = None
 
-# --- دیتابیس ---
+# ================= دیتابیس استاندارد =================
 DEFAULT_DATA = {
     "orders": [],
     "next_order_id": 1,
@@ -49,33 +41,33 @@ DEFAULT_DATA = {
         "welcome_text1": "ما مفتخریم که به عنوان یکی از پیشگامان و معتبرترین مراجع تخصصی در حوزه خدمات گیمینگ (به‌ویژه Call of Duty) در خدمت شما هستیم.",
         "welcome_text2": "تیم متخصص ما با تکیه بر دانش فنی و تجربه چندین ساله، بستری امن، سریع و تضمینی را برای ارتقاء تجربه بازی شما فراهم کرده است.",
         "about_text": "ما یه تیم حرفه‌ای از گیمرهای کالاف دیوتی هستیم.",
-        "trust_text": "✓ بیش از ۵۰۰ مشتری راضی\n✓ چنل اعتماد فعال\n✓ پشتیبانی ۲۴/۷",
-        "channel_link": "https://rubika.ir/PhoenixCheat",
-        "support_link": "https://rubika.ir/my_hinata",
-        "site_status": "open"
+        "trust_text": "✓ بیش از ۵۰۰ مشتری راضی\n✓ چنل اعتماد فعال\n✓ پشتیبانی ۲۴/۷"
     }
 }
 
 def load_data():
     try:
-        with open(DB_PATH, "r", encoding="utf-8") as f: return json.load(f)
+        with open(DB_PATH, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            # چک کردن سالم بودن دیتابیس (دیباگ)
+            if "orders" not in data or "settings" not in data:
+                raise ValueError("Old DB Format")
+            return data
     except:
+        print("⚠️ [DEBUG] Old or broken DB detected. Creating new one.")
         save_data(DEFAULT_DATA)
         return DEFAULT_DATA
 
 def save_data(data):
-    try:
-        with open(DB_PATH, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
-        return True
-    except: return False
+    with open(DB_PATH, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
 
 def make_code():
     return f"ORD-{''.join(random.choices(string.ascii_uppercase + string.digits, k=6))}"
 
-# --- API سایت ---
+# ================= API سایت =================
 @app_web.route("/")
-def index(): return send_from_directory(app_web.static_folder, "index.html")
+def index(): return send_from_directory(BASE_DIR, "index.html")
 
 @app_web.route("/api/settings", methods=["GET"])
 def get_settings():
@@ -112,19 +104,17 @@ def register():
         db["next_order_id"] = oid + 1
         save_data(db)
         
-        # ارسال به تلگرام در پس‌زمینه
         threading.Thread(target=send_to_telegram, args=(order,), daemon=True).start()
         return jsonify({"success": True, "code": order["code"]})
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"❌ [DEBUG] Register error: {e}")
         return jsonify({"success": False, "message": str(e)}), 500
 
-# --- ارسال به تلگرام (ضد تداخل) ---
+# ================= ارسال به تلگرام =================
 def send_to_telegram(order):
     if not bot_app: return
     try:
         import asyncio
-        
         speed_text = "فوری" if order['speed'] == 'fast' else "زمان‌بر"
         antiban_text = "✅ دارد" if order['antiban'] else "❌ ندارد"
         
@@ -152,7 +142,6 @@ def send_to_telegram(order):
             InlineKeyboardButton("❌ رد", callback_data=f"no_{order['id']}")
         ]]
         
-        # استفاده از حلقه مجزا و امن
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         loop.run_until_complete(bot_app.bot.send_message(
@@ -160,49 +149,25 @@ def send_to_telegram(order):
             reply_markup=InlineKeyboardMarkup(keyboard)
         ))
         loop.close()
-        print("✅ Sent to group")
     except Exception as e:
-        print(f"❌ Telegram error: {e}")
+        print(f"❌ [DEBUG] Telegram error: {e}")
 
-# --- ربات تلگرام ---
-async def start(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+# ================= ربات =================
+async def start(update: Update, ctx):
     if update.effective_user.id != ADMIN_ID: return
-    await update.message.reply_text("🎮 ربات فعال است. سفارشات به گروه ارسال می‌شوند.")
+    await update.message.reply_text("🎮 ربات متصل است.")
 
-async def handle_buttons(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
-    data = query.data
-    
-    if data.startswith("ok_"):
-        await query.edit_message_text(f"✅ سفارش تایید شد.")
-    elif data.startswith("no_"):
-        await query.edit_message_text(f"❌ سفارش رد شد.")
-
-# --- اجرای وب‌سرور و ربات ---
 def run_flask():
     port = int(os.environ.get("PORT", 5000))
     app_web.run(host="0.0.0.0", port=port, debug=False, use_reloader=False)
 
 def main():
     global bot_app
-    print("🚀 Starting Bot...")
-    
-    # راه‌اندازی ربات
     bot_app = Application.builder().token(BOT_TOKEN).build()
     bot_app.add_handler(CommandHandler("start", start))
-    bot_app.add_handler(CallbackQueryHandler(handle_buttons))
-
-    # اجرای وب‌سرور در یک ترد جداگانه
-    threading.Thread(target=run_flask, daemon=True).start()
     
-    # اجرای ربات با مدیریت خطای Conflict
-    print("✅ Bot is ready. Polling...")
-    try:
-        bot_app.run_polling(drop_pending_updates=True) # این خط خیلی مهمه! پیام‌های تکراری رو پاک میکنه
-    except Exception as e:
-        print(f"⚠️ Polling stopped: {e}")
+    threading.Thread(target=run_flask, daemon=True).start()
+    bot_app.run_polling(drop_pending_updates=True)
 
 if __name__ == "__main__":
     main()
-    

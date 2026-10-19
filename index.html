@@ -108,9 +108,6 @@ header::after{content:'';position:absolute;bottom:-1px;right:0;left:0;height:2px
 .copy-btn{background:rgba(0,82,212,0.1);border:1px solid var(--blue-card);color:var(--blue);padding:10px;border-radius:10px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer}
 .copy-btn:hover{background:var(--blue-card);color:white}
 
-.captcha-box{display:flex;align-items:center;gap:10px;margin-bottom:15px}
-.captcha-code{background:linear-gradient(135deg,#222,#111);border:2px dashed var(--gold);color:var(--gold);font-family:monospace;font-size:24px;font-weight:900;padding:10px 20px;border-radius:10px;letter-spacing:5px;user-select:none;text-shadow:0 0 10px var(--gold)}
-
 .warn-box{background:rgba(230,0,0,0.1);border:1px solid rgba(230,0,0,0.4);padding:12px;border-radius:10px;margin-bottom:15px;font-size:12px;color:#ff9999;line-height:1.8}
 .warn-box strong{color:var(--red)}
 .notice-box{background:rgba(255,170,0,0.1);border:1px solid rgba(255,170,0,0.3);padding:10px;border-radius:10px;font-size:12px;color:#ffcc80;margin-bottom:15px;line-height:1.8}
@@ -142,7 +139,7 @@ footer .gradient{background:linear-gradient(90deg,var(--orange),var(--red));-web
     <div class="logo">✦</div>
     <div class="brand-text"><h1 id="siteName">PhoenixCheat</h1><small id="siteTagline">COD STORE</small></div>
   </div>
-  <span class="version">v5.2</span>
+  <span class="version">v6.0</span>
 </header>
 
 <div class="top-menu" id="topMenu">
@@ -304,14 +301,6 @@ footer .gradient{background:linear-gradient(90deg,var(--orange),var(--red));-web
       <textarea id="accDesc" placeholder="توضیحات (حداکثر ۳۰۰ کاراکتر)..." maxlength="300"></textarea>
     </div>
 
-    <label class="section-label">تایید امنیتی</label>
-    <div class="captcha-box">
-      <div class="captcha-code" id="captchaCode">----</div>
-      <div class="form-group" style="flex:1; margin:0;">
-        <input type="number" id="captchaInput" placeholder="کد را وارد کنید" dir="ltr">
-      </div>
-    </div>
-
     <button class="btn-orange" id="finalSubmitBtn" onclick="finalSubmit()">✓ ثبت نهایی سفارش</button>
   </div>
 </section>
@@ -363,7 +352,6 @@ let order = {
   cp: 10000, antiban: false, speed: 'normal', totalPrice: 250000,
   senderCard: '', sentAmount: 0, sentTime: '', email: '', pass: '', rubika: '', desc: '', coupon: '', discount: 0
 };
-let currentCaptcha = '';
 
 function createParticles() {
   const container = document.getElementById('particles');
@@ -461,11 +449,8 @@ function goToInfoForm(){
   order.senderCard = document.getElementById('senderCard').value.trim();
   order.sentAmount = document.getElementById('sentAmount').value.trim();
   order.sentTime = document.getElementById('sentTime').value.trim();
-  generateCaptcha();
   go('pageUserInfo');
 }
-
-function generateCaptcha(){ currentCaptcha = Math.floor(1000 + Math.random() * 9000).toString(); document.getElementById('captchaCode').textContent = currentCaptcha; document.getElementById('captchaInput').value = ''; }
 
 // ================= چکرهای دقیق برای فرم اطلاعات اکانت =================
 function validateUserForm(){
@@ -508,7 +493,6 @@ function validateUserForm(){
 
 async function finalSubmit(){
   if(!validateUserForm()){ alert('❌ اطلاعات اکانت را کامل و صحیح وارد کنید!'); return; }
-  if(document.getElementById('captchaInput').value.trim() !== currentCaptcha){ alert('❌ کد کپچا اشتباه است!'); generateCaptcha(); return; }
 
   order.email = document.getElementById('accEmail').value.trim();
   order.pass = document.getElementById('accPass').value.trim();
@@ -530,7 +514,7 @@ async function finalSubmit(){
       btn.textContent = '✓ ثبت نهایی'; btn.disabled = false; 
     }
   } catch(err) { 
-    alert('❌ خطا در ارتباط با سرور! لطفاً دوباره تلاش کنید.'); 
+    alert('❌ خطا در ارتباط با سرور!'); 
     btn.textContent = '✓ ثبت نهایی'; btn.disabled = false; 
   }
 }
