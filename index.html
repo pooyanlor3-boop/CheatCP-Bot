@@ -22,7 +22,7 @@ body{
   color:var(--white); font-family:'Vazirmatn',Tahoma,sans-serif; min-height:100vh; overflow-x:hidden; position:relative;
 }
 
-/* ====== 7. افکت ستاره‌ها و ذرات ====== */
+/* افکت‌ها */
 .particles{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden}
 .particle{position:absolute;width:4px;height:4px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px var(--gold);animation:floatUp 15s infinite ease-in-out;opacity:0.6}
 .particle:nth-child(2n){background:var(--red);box-shadow:0 0 10px var(--red);width:6px;height:6px;animation-duration:20s;animation-delay:-5s}
@@ -31,14 +31,11 @@ body{
 .stars-bg{position:fixed;inset:0;z-index:0;background-image:radial-gradient(1px 1px at 10% 10%,white,transparent),radial-gradient(1px 1px at 30% 40%,rgba(255,255,255,0.5),transparent),radial-gradient(2px 2px at 70% 20%,var(--fire-blue),transparent);background-size:200px 200px;opacity:0.3;animation:twinkle 4s infinite alternate}
 @keyframes twinkle{0%{opacity:0.2}100%{opacity:0.5}}
 
-/* افکت جرقه قرمز و آبی */
 .sparkle{position:fixed;pointer-events:none;width:8px;height:8px;border-radius:50%;animation:sparkleAnim 0.6s ease-out forwards;z-index:9999;box-shadow:0 0 15px currentColor;}
 @keyframes sparkleAnim{0%{transform:scale(1);opacity:1}100%{transform:scale(0);opacity:0}}
-/* افکت لوگو زیر دست (مورد 7) */
 .click-logo-effect{position:fixed;pointer-events:none;width:30px;height:30px;background:radial-gradient(circle,var(--fire-orange) 0%, transparent 70%);border-radius:50%;z-index:9999;animation:logoFade 0.8s ease-out forwards;display:grid;place-items:center;font-size:16px;}
 @keyframes logoFade{0%{transform:scale(1);opacity:1}100%{transform:scale(2.5);opacity:0}}
 
-/* ====== 8. دکمه بازگشت سراسری ====== */
 .global-back-btn{position:absolute;top:16px;left:16px;background:rgba(26,26,26,0.8);border:1px solid rgba(255,255,255,0.1);color:var(--gray);width:35px;height:35px;border-radius:10px;display:grid;place-items:center;cursor:pointer;z-index:100;font-size:18px;transition:0.3s;}
 .global-back-btn:hover{background:rgba(230,0,0,0.2);color:var(--white);border-color:var(--red);}
 
@@ -50,7 +47,6 @@ header{display:flex;justify-content:space-between;align-items:center;padding:14p
 .header-glow{position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--fire-red),var(--fire-blue),transparent);box-shadow:0 0 15px var(--fire-blue);}
 .brand{display:flex;align-items:center;gap:12px}
 
-/* ====== 1. لوگوی ققنوس آتشین ====== */
 .logo-container{
   position:relative;width:60px;height:60px;border-radius:50%;
   background:var(--panel);
@@ -67,14 +63,12 @@ header{display:flex;justify-content:space-between;align-items:center;padding:14p
 .brand-text h1{font-size:20px;font-weight:900;background:linear-gradient(90deg,var(--fire-blue),var(--fire-red),var(--fire-orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-shadow:0 0 20px rgba(230,0,0,0.4)}
 .brand-text small{font-size:11px;color:var(--gray);letter-spacing:2px;display:block;margin-top:2px}
 
-/* ====== 6. تایمر تخفیف ====== */
 .timer-box{background:linear-gradient(90deg,rgba(230,0,0,0.2),rgba(0,191,255,0.1));border:1px solid var(--red);border-radius:12px;padding:10px;text-align:center;margin-bottom:18px;box-shadow:0 0 15px rgba(230,0,0,0.2);cursor:pointer;transition:0.3s;}
 .timer-box:hover{box-shadow:0 0 25px rgba(0,191,255,0.4);border-color:var(--fire-blue);}
 .timer-box span{font-weight:900;color:var(--white);font-size:14px;display:block;}
 .timer-box small{font-size:11px;color:var(--gold);display:block;margin-top:4px;}
 .timer-val{color:var(--gold);font-family:monospace;font-size:15px;margin-left:5px;letter-spacing:1px;}
 
-/* منو */
 .top-menu{display:flex;gap:8px;margin-bottom:18px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
 .menu-btn{background:rgba(26,26,26,0.8);border:1px solid rgba(230,0,0,0.4);border-radius:12px;padding:10px 14px;color:var(--white);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit;transition:all 0.3s}
 .menu-btn:hover{background:rgba(230,0,0,0.15);border-color:var(--red);transform:translateY(-2px);box-shadow:0 0 15px rgba(230,0,0,0.3)}
@@ -94,7 +88,6 @@ header{display:flex;justify-content:space-between;align-items:center;padding:14p
 .hero ul li{font-size:13px;padding:8px 0;color:#e0e0e0;display:flex;align-items:center;gap:8px}
 .hero ul li .check{color:var(--green);font-weight:900;font-size:16px}
 
-/* دکمه‌ها */
 .btn-main,.btn-orange,.btn-blue{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;color:#0a0a0a;font-weight:900;font-size:15px;border:0;border-radius:14px;padding:16px;margin-top:10px;cursor:pointer;font-family:inherit;transition:all 0.3s;position:relative;overflow:hidden}
 .btn-main,.btn-orange{background:linear-gradient(100deg,var(--fire-red),var(--fire-orange));box-shadow:0 0 25px rgba(230,0,0,0.5)}
 .btn-main:hover,.btn-orange:hover{box-shadow:0 0 40px rgba(230,0,0,0.8);transform:translateY(-2px)}
@@ -102,7 +95,6 @@ header{display:flex;justify-content:space-between;align-items:center;padding:14p
 .btn-blue:hover{box-shadow:0 0 40px rgba(0,191,255,0.7);transform:translateY(-2px)}
 .btn-blue:disabled{opacity:0.5;cursor:not-allowed;transform:none;box-shadow:none}
 
-/* فرم‌ها */
 .form-group{margin-bottom:16px}
 .form-group label{display:block;font-size:12px;font-weight:700;color:#e0e0e0;margin-bottom:8px}
 .form-group input,.form-group textarea{width:100%;background:rgba(10,10,10,0.8);border:1px solid rgba(230,0,0,0.2);border-radius:12px;padding:14px 16px;color:var(--white);font-size:13px;font-family:inherit;outline:none;transition:all 0.3s}
@@ -131,7 +123,6 @@ header{display:flex;justify-content:space-between;align-items:center;padding:14p
 .option-card .opt-desc{font-size:10px;color:var(--gray);margin-top:4px;line-height:1.5}
 .option-card .opt-price{font-size:13px;font-weight:900;color:var(--gold)}
 
-/* کد تخفیف */
 .coupon-section{background:rgba(230,0,0,0.05);border:1px dashed var(--fire-red);padding:15px;border-radius:12px;margin-top:20px}
 .coupon-row{display:flex;gap:10px;margin-bottom:10px;}
 .coupon-row input{flex:1;background:rgba(10,10,10,0.8);border:1px solid rgba(230,0,0,0.3);border-radius:10px;padding:10px;color:var(--white);font-size:13px;direction:ltr}
@@ -145,7 +136,6 @@ header{display:flex;justify-content:space-between;align-items:center;padding:14p
 .total-price-val{font-size:20px;font-weight:900;color:var(--green);direction:rtl}
 .total-price-unit{font-size:12px;color:var(--gray);margin-right:5px}
 
-/* کارت بلو */
 .blue-card{background:linear-gradient(135deg,#0052d4,#4364f7,#6fb1fc);border-radius:20px;padding:25px;color:white;box-shadow:0 15px 35px rgba(0,82,212,0.4),inset 0 0 20px rgba(255,255,255,0.2), 0 10px 20px rgba(230,0,0,0.3);position:relative;overflow:hidden;margin:20px 0}
 .blue-card::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,0.1) 0%,transparent 60%);transform:rotate(30deg)}
 .blue-card .bank-logo{font-size:20px;font-weight:900;font-style:italic;letter-spacing:1px;margin-bottom:25px;display:flex;justify-content:space-between}
@@ -156,12 +146,10 @@ header{display:flex;justify-content:space-between;align-items:center;padding:14p
 .copy-btn{background:rgba(0,82,212,0.1);border:1px solid var(--blue-card);color:var(--fire-blue);padding:10px;border-radius:10px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;transition:0.3s}
 .copy-btn:hover{background:var(--blue-card);color:white}
 
-/* هشدارها */
 .warn-box{background:rgba(230,0,0,0.1);border:1px solid rgba(230,0,0,0.4);padding:12px;border-radius:10px;margin-bottom:15px;font-size:12px;color:#ff9999;line-height:1.8}
 .warn-box strong{color:var(--fire-red)}
 .notice-box{background:rgba(255,170,0,0.1);border:1px solid rgba(255,170,0,0.3);padding:10px;border-radius:10px;font-size:12px;color:#ffcc80;margin-bottom:15px;line-height:1.8}
 
-/* مودال‌ها */
 .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);backdrop-filter:blur(8px);z-index:1000;padding:20px;overflow-y:auto}
 .modal.show{display:flex;align-items:center;justify-content:center;animation:fadeIn 0.3s}
 .modal-content{max-width:480px;width:100%;background:linear-gradient(145deg,#1a1a1a,#0a0a0a);border:1px solid rgba(230,0,0,0.4);border-radius:22px;padding:28px 22px;max-height:90vh;overflow-y:auto}
@@ -172,12 +160,10 @@ header{display:flex;justify-content:space-between;align-items:center;padding:14p
 .modal-body h4{color:var(--fire-red);margin-top:15px;margin-bottom:5px;font-size:14px;}
 .modal-close{width:100%;margin-top:20px;background:linear-gradient(100deg,var(--fire-red),var(--fire-orange));color:#0a0a0a;font-weight:900;border:0;border-radius:12px;padding:14px;cursor:pointer;font-family:inherit;font-size:14px}
 
-/* رهگیری سفارش */
 .track-box{background:rgba(26,26,26,0.8);border:1px solid rgba(255,107,0,0.4);border-radius:15px;padding:20px;margin-bottom:20px;box-shadow:0 0 20px rgba(255,107,0,0.1)}
 .track-input{width:100%;background:#000;border:1px solid var(--fire-orange);padding:12px;border-radius:10px;color:white;text-align:center;font-size:16px;letter-spacing:2px;margin-bottom:10px;}
 .track-result{margin-top:15px;font-size:13px;font-weight:700;text-align:center;line-height:1.8;}
 
-/* صفحه تشکر */
 .success-card{margin-top: 20px; border:1px solid var(--green); border-radius:20px; padding:30px; text-align:center; background:rgba(0,200,83,0.05); box-shadow:0 0 30px rgba(0,200,83,0.1);}
 .success-icon{font-size:60px; color:var(--green); margin-bottom:10px; text-shadow:0 0 20px rgba(0,200,83,0.5);}
 .success-title{color:var(--green); font-size:20px; margin-bottom:15px;}
@@ -200,7 +186,6 @@ footer .gradient{background:linear-gradient(90deg,var(--fire-red),var(--fire-blu
 </head>
 <body>
 
-<!-- گرادیانت برای لوگو -->
 <svg width="0" height="0">
   <linearGradient id="fireGradient" x1="0%" y1="0%" x2="100%" y2="100%">
     <stop offset="0%" style="stop-color:var(--fire-red);stop-opacity:1" />
@@ -214,14 +199,12 @@ footer .gradient{background:linear-gradient(90deg,var(--fire-red),var(--fire-blu
 <div id="preloader"><div class="pre-spinner"></div></div>
 
 <div class="app">
-<!-- دکمه بازگشت سراسری (8) -->
 <button class="global-back-btn" id="globalBackBtn" onclick="goBackHistory()" style="display:none;">→</button>
 
 <header>
   <div class="header-glow"></div>
   <div class="brand">
     <div class="logo-container">
-      <!-- لوگو ققنوس -->
       <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
     </div>
     <div class="brand-text">
@@ -229,22 +212,20 @@ footer .gradient{background:linear-gradient(90deg,var(--fire-red),var(--fire-blu
       <small id="siteTagline">PHOENIX CHEAT STORE</small>
     </div>
   </div>
-  <span class="version">v8.0</span>
+  <span class="version">v8.1</span>
 </header>
 
-<!-- تایمر تخفیف (6) -->
 <div class="timer-box" id="timerBox" onclick="toggleCouponBox()">
   <span>🎁 تخفیف ویژه</span>
   <small>برای دریافت کد تخفیف کلیک کنید</small>
   <span class="timer-val" id="countdown"></span>
 </div>
 
-<!-- باکس مخفی کد تخفیف (6) -->
 <div id="hiddenCouponBox" style="display:none; background:rgba(0,0,0,0.8); border:1px solid var(--green); border-radius:12px; padding:15px; margin-bottom:18px; text-align:center; animation:fadeIn 0.3s;">
-  <p style="font-size:12px; color:var(--gray); margin-bottom:10px;">کد تخفیف زیر را کپی کرده و در بخش کد تخفیف (هنگام خرید) وارد کنید تا تخفیف اعمال شود.</p>
+  <p style="font-size:12px; color:var(--gray); margin-bottom:10px;">کد تخفیف زیر را کپی کرده و در بخش کد تخفیف وارد کنید.</p>
   <div class="code-box" id="specialCouponCode" style="margin:10px 0; font-size:18px; color:var(--fire-orange); border-color:var(--fire-orange); padding:10px;">WELCOME10</div>
   <button class="btn-copy-code" style="background:var(--fire-orange); color:var(--black); font-size:12px; padding:8px;" onclick="copyText('WELCOME10', 'کد تخفیف')">📋 کپی کد تخفیف</button>
-  <p style="font-size:11px; color:var(--gold); margin-top:10px;">🌟 عضو چنل روبیکا شوید: <a href="https://rubika.ir/PhoenixCheat" target="_blank" style="color:var(--fire-blue);">Rubika.ir/PhoenixCheat</a></p>
+  <p style="font-size:11px; color:var(--gold); margin-top:10px;">🌟 کانال روبیکا: <a href="https://rubika.ir/PhoenixCheat" target="_blank" style="color:var(--fire-blue);">Rubika.ir/PhoenixCheat</a></p>
 </div>
 
 <div class="top-menu" id="topMenu">
@@ -254,19 +235,21 @@ footer .gradient{background:linear-gradient(90deg,var(--fire-red),var(--fire-blu
   <button class="menu-btn" onclick="openModal('contact')">🎧 ارتباط</button>
 </div>
 
-<!-- صفحه ۱: معرفی -->
 <section id="page1" class="view active">
   <div class="hero">
     <div class="hero-content">
       <span class="badge" id="welcomeBadge">🔥 PHOENIXCHEAT</span>
       <h2 id="welcomeTitle">به فروشگاه <span class="neon">فونیکس چیت</span> خوش آمدید</h2>
-      <p id="welcomeText1"></p>
-      <p id="welcomeText2"></p>
-      <ul id="featuresList"></ul>
+      <p id="welcomeText1">ما مفتخریم که به عنوان یکی از پیشگامان و معتبرترین مراجع تخصصی در حوزه خدمات گیمینگ (به‌ویژه Call of Duty) در خدمت شما هستیم.</p>
+      <p id="welcomeText2">تیم متخصص ما با تکیه بر دانش فنی و تجربه چندین ساله، بستری امن، سریع و تضمینی را برای ارتقاء تجربه بازی شما فراهم کرده است.</p>
+      <ul id="featuresList">
+        <li><span class="check">✓</span> بدون بن و کاملاً امن</li>
+        <li><span class="check">✓</span> تحویل سریع و رایگان</li>
+        <li><span class="check">✓</span> پشتیبانی ۲۴ ساعته</li>
+      </ul>
     </div>
   </div>
 
-  <!-- سفارش CP (5) -->
   <h3 class="section-label" style="font-size: 16px; text-align: center; margin-top: 30px;">محصولات ما</h3>
   
   <div class="product-card" onclick="go('pageStore')" style="border-color:var(--fire-red);">
@@ -276,7 +259,6 @@ footer .gradient{background:linear-gradient(90deg,var(--fire-red),var(--fire-blu
     <button class="btn-main" style="margin-top: 5px; font-size:16px; padding:18px;">مشاهده و خرید ←</button>
   </div>
 
-  <!-- رهگیری سفارش (5) -->
   <div class="track-box" style="margin-top:30px;">
     <h3 style="color:var(--fire-orange); text-align:center; font-size:16px; margin-bottom:10px;">🔍 رهگیری سفارش</h3>
     <p style="text-align:center; font-size:11px; color:#aaa; margin-bottom:15px;">با وارد کردن کد رهگیری، وضعیت سفارش خود را ببینید.</p>
@@ -284,14 +266,8 @@ footer .gradient{background:linear-gradient(90deg,var(--fire-red),var(--fire-blu
     <button class="btn-blue" style="padding:10px; font-size:14px;" onclick="trackOrder()">رهگیری سفارش</button>
     <div id="trackResult" class="track-result"></div>
   </div>
-
-  <div class="product-card" style="opacity: 0.5; border-color: var(--gray); cursor: not-allowed; pointer-events: none;">
-    <div class="product-title">🛡️ محصولات دیگر</div>
-    <div class="product-desc" style="color: var(--gold); font-weight: 700;">به زودی محصولات جدید اضافه خواهد شد...</div>
-  </div>
 </section>
 
-<!-- صفحه ۲: فروشگاه -->
 <section id="pageStore" class="view">
   <div class="product-card">
     <div class="product-title" style="color: var(--fire-orange);">خرید سی‌پی هکی</div>
@@ -309,7 +285,6 @@ footer .gradient{background:linear-gradient(90deg,var(--fire-red),var(--fire-blu
       <button class="quick-cp" onclick="setCP(50000)">50,000</button>
       <button class="quick-cp" onclick="setCP(100000)">100,000</button>
     </div>
-    <div style="font-size: 11px; color: var(--fire-orange); text-align: left; margin-bottom: 15px;">* حداقل خرید: ۱۰,۰۰۰ سی‌پی</div>
 
     <label class="section-label">۲. سیستم ضد بن (Anti-Ban)</label>
     <div class="option-card" id="optAntiBan" onclick="toggleOption('antiban')">
@@ -329,7 +304,6 @@ footer .gradient{background:linear-gradient(90deg,var(--fire-red),var(--fire-blu
       </div>
     </div>
 
-    <!-- (2) بخش کد تخفیف دو مرحله‌ای -->
     <div class="coupon-section">
       <label style="font-size:12px; font-weight:700; color:var(--fire-orange); margin-bottom:8px; display:block;">🎟️ کد تخفیف (اختیاری)</label>
       <div class="coupon-row">
@@ -350,7 +324,6 @@ footer .gradient{background:linear-gradient(90deg,var(--fire-red),var(--fire-blu
   </div>
 </section>
 
-<!-- صفحه ۳: پرداخت -->
 <section id="pagePayment" class="view">
   <div class="product-card" style="border-color: var(--fire-blue);">
     <div class="product-title">پرداخت سفارش</div>
@@ -372,7 +345,6 @@ footer .gradient{background:linear-gradient(90deg,var(--fire-red),var(--fire-blu
 
     <label class="section-label">اطلاعات واریز شما</label>
     
-    <!-- (10) لیبل‌های بالای کادرها -->
     <div class="form-group">
       <label>🔢 شماره کارت مبدا:</label>
       <input type="text" id="senderCard" placeholder="مثلاً 6037..." dir="ltr" maxlength="16" oninput="validateForm()">
@@ -392,13 +364,11 @@ footer .gradient{background:linear-gradient(90deg,var(--fire-red),var(--fire-blu
       </div>
     </div>
 
-    <!-- (11) پیام و تایمر 30 ثانیه -->
     <p style="font-size:11px; color:var(--gold); text-align:center; margin-bottom:5px;">لطفا اول واریز کنید، سپس اطلاعات را دقیق وارد کرده و روی دکمه زیر بزنید.</p>
     <button class="btn-blue" id="btnGoToInfo" onclick="goToInfoForm()" disabled>تایید اطلاعات و ادامه</button>
   </div>
 </section>
 
-<!-- صفحه ۴: اطلاعات اکانت -->
 <section id="pageUserInfo" class="view">
   <div class="product-card">
     <div class="product-title">تکمیل سفارش</div>
@@ -430,7 +400,6 @@ footer .gradient{background:linear-gradient(90deg,var(--fire-red),var(--fire-blu
   </div>
 </section>
 
-<!-- صفحه ۵: موفقیت -->
 <section id="pageSuccess" class="view">
   <div class="success-card">
     <div class="success-icon">✓</div>
@@ -438,7 +407,6 @@ footer .gradient{background:linear-gradient(90deg,var(--fire-red),var(--fire-blu
     <p class="success-text">از خرید شما سپاسگزاریم ✦</p>
     <p class="success-text" id="deliveryTimeText" style="font-weight:900; color:var(--fire-orange); margin-bottom:20px;"></p>
 
-    <!-- (12) کد رهگیری در صفحه تشکر -->
     <p style="font-size:13px; color:var(--gray);">کد رهگیری سفارش شما:</p>
     <div class="code-box" id="finalOrderCode">ORD-XXXXXX</div>
     <button class="btn-copy-code" onclick="copyText(document.getElementById('finalOrderCode').textContent, 'کد پیگیری')">📋 کپی کد پیگیری</button>
@@ -471,10 +439,8 @@ footer .gradient{background:linear-gradient(90deg,var(--fire-red),var(--fire-blu
 </footer>
 </div>
 
-<!-- مودال‌ها -->
-<div class="modal" id="modal-about"><div class="modal-content"><div class="modal-header"><div class="ico">✦</div><h3>درباره ما</h3></div><div class="modal-body" id="aboutBody">...</div><button class="modal-close" onclick="closeModal('about')">بستن</button></div></div>
+<div class="modal" id="modal-about"><div class="modal-content"><div class="modal-header"><div class="ico">✦</div><h3>درباره ما</h3></div><div class="modal-body" id="aboutBody">ما یه تیم حرفه‌ای از گیمرهای کالاف دیوتی هستیم.</div><button class="modal-close" onclick="closeModal('about')">بستن</button></div></div>
 
-<!-- (4) اعتماد بازتر -->
 <div class="modal" id="modal-trust">
   <div class="modal-content">
     <div class="modal-header"><div class="ico">🛡️</div><h3>چرا ما قابل اعتمادیم؟</h3></div>
@@ -514,16 +480,12 @@ footer .gradient{background:linear-gradient(90deg,var(--fire-red),var(--fire-blu
     <div class="modal-body">
       <h4>⏰ چقدر طول می‌کشه تا سی‌پی من واریز بشه؟</h4>
       <p>اگر گزینه «زمان‌بر» رو انتخاب کرده باشید، تا ۵ ساعت آینده و اگر گزینه «فوری» رو انتخاب کرده باشید، طی ۱۰ دقیقه واریز انجام می‌شود.</p>
-      
       <h4>💳 چطور باید پرداخت کنم؟</h4>
-      <p>در صفحه پرداخت، کارت بانکی ما نمایش داده می‌شود. مبلغ ذکر شده را کارت به کارت کرده و اطلاعات واریز (شماره کارت مبدا، مبلغ و ساعت) را در فرم وارد کنید. <strong>دقت کنید که حتما ۳۰ ثانیه صبر کنید تا دکمه تایید فعال شود.</strong></p>
-      
+      <p>در صفحه پرداخت، کارت بانکی ما نمایش داده می‌شود. مبلغ ذکر شده را کارت به کارت کرده و اطلاعات واریز را در فرم وارد کنید. <strong>دقت کنید که حتما ۳۰ ثانیه صبر کنید تا دکمه تایید فعال شود.</strong></p>
       <h4>🛡️ چرا باید سیستم ضد بن بخرم؟</h4>
-      <p>سیستم ضد بن از اکانت شما در برابر مسدود شدن توسط سیستم‌های امنیتی بازی محافظت می‌کند. پیشنهاد می‌کنیم حتماً این گزینه را فعال کنید.</p>
-      
+      <p>سیستم ضد بن از اکانت شما در برابر مسدود شدن توسط سیستم‌های امنیتی بازی محافظت می‌کند.</p>
       <h4>🎧 چطور با پشتیبانی در ارتباط باشم؟</h4>
       <p>از طریق آیدی روبیکا <a href="https://rubika.ir/my_hinata" target="_blank" style="color:var(--fire-orange)">Rubika.ir/my_hinata</a> با ما در تماس باشید.</p>
-      
       <h4>📢 کانال اطلاع‌رسانی شما کجاست؟</h4>
       <p>برای مشاهده اخبار و آپدیت‌ها به کانال روبیکای ما <a href="https://rubika.ir/PhoenixCheat" target="_blank" style="color:var(--fire-blue)">Rubika.ir/PhoenixCheat</a> بپیوندید.</p>
     </div>
@@ -535,6 +497,8 @@ footer .gradient{background:linear-gradient(90deg,var(--fire-red),var(--fire-blu
 let PRICE_PER_1000_CP = 25000;
 let ANTIBAN_PRICE = 50000;
 let FAST_DELIVERY_PRICE = 20000;
+
+// دیتای پیش‌فرض (اگر سرور جواب نداد، اینا لود میشن)
 let TEXTS = {};
 let SETTINGS = {};
 let historyStack = [];
@@ -543,9 +507,7 @@ let order = {
   cp: 10000, antiban: false, speed: 'normal', totalPrice: 250000,
   senderCard: '', sentAmount: 0, sentTime: '', email: '', pass: '', rubika: '', desc: '', coupon: '', discount: 0
 };
-let isCouponChecked = false;
 
-// افکت ذرات
 function createParticles() {
   const container = document.getElementById('particles');
   for(let i=0; i<40; i++) {
@@ -560,7 +522,6 @@ function createParticles() {
 }
 createParticles();
 
-// افکت جرقه (کلیک)
 document.addEventListener('click', function(e) {
     let sparkle = document.createElement('div');
     sparkle.className = 'sparkle';
@@ -573,7 +534,6 @@ document.addEventListener('click', function(e) {
     document.body.appendChild(sparkle);
     setTimeout(() => sparkle.remove(), 600);
 
-    // (7) افکت لوگو زیر دست
     let logoEffect = document.createElement('div');
     logoEffect.className = 'click-logo-effect';
     logoEffect.style.left = (e.pageX - 15) + 'px';
@@ -583,7 +543,6 @@ document.addEventListener('click', function(e) {
     setTimeout(() => logoEffect.remove(), 800);
 });
 
-// (6) تایمر تخفیف
 let countdownDate = new Date().getTime() + (48 * 60 * 60 * 1000);
 let couponCode = "WELCOME10";
 
@@ -611,20 +570,15 @@ function toggleCouponBox() {
     }
 }
 
-// (8) مدیریت صفحات با تاریخچه
 function go(pageId, saveState = true){
   if (saveState) {
       historyStack.push(pageId);
       document.getElementById('globalBackBtn').style.display = 'grid';
   }
-  
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById(pageId).classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
-  
-  if (pageId === 'pagePayment') {
-      startPaymentTimer();
-  }
+  if (pageId === 'pagePayment') { startPaymentTimer(); }
 }
 
 function goBackHistory() {
@@ -633,10 +587,7 @@ function goBackHistory() {
         let prevPage = historyStack[historyStack.length - 1];
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.getElementById(prevPage).classList.add('active');
-        
-        if (prevPage === 'page1') {
-            document.getElementById('globalBackBtn').style.display = 'none';
-        }
+        if (prevPage === 'page1') { document.getElementById('globalBackBtn').style.display = 'none'; }
     } else {
         go('page1', false);
         document.getElementById('globalBackBtn').style.display = 'none';
@@ -669,7 +620,6 @@ function toggleOption(opt){ if(opt === 'antiban'){ order.antiban = !order.antiba
 function toggleSpeed(speed){ order.speed = speed; document.getElementById('optNormal').classList.toggle('active', speed === 'normal'); document.getElementById('optFast').classList.toggle('active', speed === 'fast'); calculateTotal(); }
 toggleSpeed('normal');
 
-// (2) کد تخفیف دو مرحله‌ای
 function resetCouponStatus() {
     document.getElementById('btnCheckCoupon').style.display = 'block';
     document.getElementById('btnApplyCoupon').style.display = 'none';
@@ -684,25 +634,29 @@ async function checkCoupon(){
   let status = document.getElementById('couponStatus');
   let btnCheck = document.getElementById('btnCheckCoupon');
   let btnApply = document.getElementById('btnApplyCoupon');
-  
   if(!code) { status.textContent = "لطفا کد را وارد کنید."; status.style.color = "var(--red)"; return; }
   
   btnCheck.textContent = "در حال بررسی...";
-  let res = await fetch('/api/check_coupon', {method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({code})});
-  let data = await res.json();
-  
-  if(data.success){
-    status.textContent = `✅ کد معتبر است (${data.discount}% تخفیف). برای اعمال، دکمه زیر را بزنید.`;
-    status.style.color = 'var(--green)';
-    order.coupon = code;
-    order.discount = data.discount;
-    btnCheck.style.display = 'none';
-    btnApply.style.display = 'block';
-  } else {
-    status.textContent = '❌ کد نامعتبر است';
-    status.style.color = 'var(--red)';
-    resetCouponStatus();
-    btnCheck.textContent = "بررسی کد تخفیف";
+  try {
+      let res = await fetch('/api/check_coupon', {method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({code})});
+      let data = await res.json();
+      if(data.success){
+        status.textContent = `✅ کد معتبر است (${data.discount}% تخفیف). برای اعمال، دکمه زیر را بزنید.`;
+        status.style.color = 'var(--green)';
+        order.coupon = code;
+        order.discount = data.discount;
+        btnCheck.style.display = 'none';
+        btnApply.style.display = 'block';
+      } else {
+        status.textContent = '❌ کد نامعتبر است';
+        status.style.color = 'var(--red)';
+        resetCouponStatus();
+        btnCheck.textContent = "بررسی کد تخفیف";
+      }
+  } catch(e) {
+      status.textContent = '❌ خطا در ارتباط با سرور';
+      status.style.color = 'var(--red)';
+      btnCheck.textContent = "بررسی کد تخفیف";
   }
 }
 
@@ -721,7 +675,6 @@ function goToPayment(){
 function copyText(t, l){ navigator.clipboard.writeText(t).then(() => alert(`✅ ${l} کپی شد!`)).catch(() => alert(`❌ کپی نشد.`)); }
 function copyPrice(){ copyText((order.totalPrice * 10).toString(), 'مبلغ (ریال)'); }
 
-// (10) فرمت خودکار ساعت
 function formatTime(input) {
     let val = input.value.replace(/[^0-9]/g, '');
     if (val.length > 2) {
@@ -731,16 +684,13 @@ function formatTime(input) {
     }
 }
 
-// (11) تایمر 30 ثانیه
 let paymentTimer = null;
 function startPaymentTimer() {
     let btn = document.getElementById('btnGoToInfo');
     let seconds = 30;
     btn.disabled = true;
     btn.textContent = `تایید اطلاعات و ادامه (${seconds})`;
-    
     if (paymentTimer) clearInterval(paymentTimer);
-    
     paymentTimer = setInterval(() => {
         seconds--;
         if (seconds <= 0) {
@@ -759,19 +709,12 @@ function validateForm(){
   let time = document.getElementById('sentTime').value.trim();
   let btn = document.getElementById('btnGoToInfo');
   let isValid = true;
-
   if(!/^\d{16}$/.test(card)) { isValid = false; document.getElementById('senderCardError').textContent = 'شماره کارت ۱۶ رقم است'; } else document.getElementById('senderCardError').textContent = '';
   if(amount !== order.totalPrice) { isValid = false; document.getElementById('sentAmountError').textContent = 'مبلغ باید دقیقا برابر سفارش باشد'; } else document.getElementById('sentAmountError').textContent = '';
   if(!/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(time)) { isValid = false; document.getElementById('sentTimeError').textContent = 'ساعت اشتباه (مثال: 18:30)'; } else document.getElementById('sentTimeError').textContent = '';
-
   if (paymentTimer) return; 
-
   btn.disabled = !isValid;
-  if (isValid) {
-      btn.textContent = "تایید اطلاعات و ادامه";
-  } else {
-      btn.textContent = "لطفا اطلاعات را کامل کنید";
-  }
+  if (isValid) { btn.textContent = "تایید اطلاعات و ادامه"; } else { btn.textContent = "لطفا اطلاعات را کامل کنید"; }
 }
 
 function goToInfoForm(){
@@ -785,35 +728,28 @@ function validateUserForm(){
   let email = document.getElementById('accEmail');
   let pass = document.getElementById('accPass');
   let rubika = document.getElementById('accRubika');
-
   let validEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email.value.trim());
   if(email.value.trim() === '') { email.className = ''; document.getElementById('accEmailError').textContent = ''; } 
   else if(!validEmail) { email.className = 'error'; document.getElementById('accEmailError').textContent = 'ایمیل نامعتبر است'; } 
   else { email.className = 'success'; document.getElementById('accEmailError').textContent = ''; }
-
   let validPass = /^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]{4,50}$/.test(pass.value.trim());
   if(pass.value.trim() === '') { pass.className = ''; document.getElementById('accPassError').textContent = ''; } 
   else if(!validPass) { pass.className = 'error'; document.getElementById('accPassError').textContent = 'رمز باید فقط شامل حروف لاتین، عدد و کاراکتر باشد'; } 
   else { pass.className = 'success'; document.getElementById('accPassError').textContent = ''; }
-
   let validRubika = /^@[a-zA-Z0-9_]{3,32}$/.test(rubika.value.trim());
   if(rubika.value.trim() === '') { rubika.className = ''; document.getElementById('accRubikaError').textContent = ''; } 
   else if(!validRubika) { rubika.className = 'error'; document.getElementById('accRubikaError').textContent = 'آیدی باید با @ شروع شده و فقط شامل حروف لاتین/عدد باشد'; } 
   else { rubika.className = 'success'; document.getElementById('accRubikaError').textContent = ''; }
-
   return validEmail && validPass && validRubika && email.value.trim() !== '' && pass.value.trim() !== '' && rubika.value.trim() !== '';
 }
 
 async function finalSubmit(){
   if(!validateUserForm()){ alert('❌ اطلاعات اکانت را کامل و صحیح وارد کنید!'); return; }
-
   order.email = document.getElementById('accEmail').value.trim();
   order.pass = document.getElementById('accPass').value.trim();
   order.rubika = document.getElementById('accRubika').value.trim();
   order.desc = document.getElementById('accDesc').value.trim();
-
   let btn = document.getElementById('finalSubmitBtn'); btn.textContent = 'در حال ارسال...'; btn.disabled = true;
-
   try {
     const res = await fetch('/register', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ ...order, sp: order.cp }) });
     const data = await res.json();
@@ -826,6 +762,20 @@ async function finalSubmit(){
   } catch(err) { alert('❌ خطا در ارتباط با سرور!'); btn.textContent = '✓ ثبت نهایی'; btn.disabled = false; }
 }
 
+async function trackOrder() {
+  let code = document.getElementById('trackInput').value.trim().toUpperCase();
+  let resDiv = document.getElementById('trackResult');
+  if(!code) { resDiv.innerHTML = '<span style="color:var(--red)">لطفا کد را وارد کنید</span>'; return; }
+  resDiv.innerHTML = 'در حال جستجو...';
+  try {
+      let res = await fetch('/api/track', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({code})});
+      let data = await res.json();
+      if(data.success) { resDiv.innerHTML = `<span style="color:var(--green)">وضعیت سفارش: ${data.status}</span>`; } 
+      else { resDiv.innerHTML = '<span style="color:var(--red)">سفارشی با این کد یافت نشد.</span>'; }
+  } catch(e) { resDiv.innerHTML = '<span style="color:var(--red)">خطا در ارتباط با سرور.</span>'; }
+}
+
+// لود کردن تنظیمات (اگر سرور جواب داد، آپدیت میکنه، اگر نداد با پیش‌فرض کار میکنه)
 async function loadSettings(){
   try {
     const res = await fetch('/api/settings');
@@ -835,29 +785,31 @@ async function loadSettings(){
     ANTIBAN_PRICE = SETTINGS.price_antiban || 50000;
     FAST_DELIVERY_PRICE = SETTINGS.price_fast || 20000;
     
-    let siteName = "فونیکس چیت";
-    document.getElementById('welcomeTitle').innerHTML = `به فروشگاه <span class="neon">${siteName}</span> خوش آمدید`;
-    document.getElementById('welcomeText1').textContent = "ما مفتخریم که به عنوان یکی از پیشگامان و معتبرترین مراجع تخصصی در حوزه خدمات گیمینگ (به‌ویژه Call of Duty) در خدمت شما هستیم.";
-    document.getElementById('welcomeText2').textContent = "تیم متخصص ما با تکیه بر دانش فنی و تجربه چندین ساله، بستری امن، سریع و تضمینی را برای ارتقاء تجربه بازی شما فراهم کرده است. هدف ما ارائه بهترین کیفیت با بالاترین ضریب امنیت (بدون بن) و پشتیبانی ۲۴ ساعته است تا با خیالی آسوده بازی خود را به سطح حرفه‌ای ببرید. با سیستم‌های پیشرفته ضد بن، تحویل فوری سفارشات و پشتیبانی شبانه‌روزی، فونیکس‌چیت تضمین‌کننده امنیت و موفقیت شما در میدان نبرد است. به خانواده بزرگ ما بپیوندید و قدرتمندتر از همیشه بازی کنید.";
-    
-    document.getElementById('aboutBody').textContent = TEXTS.about_text || '';
-    document.getElementById('trustBody').textContent = TEXTS.trust_text || '';
-    
     if(SETTINGS.card_number) document.getElementById('cardNumDisplay').textContent = SETTINGS.card_number.replace(/(\d{4})/g, '$1 ').trim();
     if(SETTINGS.card_holder) document.getElementById('cardHolderDisplay').textContent = SETTINGS.card_holder;
-    
     document.getElementById('lblAntibanPrice').textContent = ANTIBAN_PRICE.toLocaleString('fa-IR') + ' تومان';
     document.getElementById('lblFastPrice').textContent = '+' + FAST_DELIVERY_PRICE.toLocaleString('fa-IR');
-    
-    document.getElementById('preloader').classList.add('hide'); setTimeout(() => document.getElementById('preloader').remove(), 600);
-  } catch(err){ document.getElementById('preloader').innerHTML = '<p style="color:#f55">خطا در بارگذاری</p>'; }
+
+    // تنظیم متن‌های خوش‌آمدگویی از دیتابیس
+    let siteName = TEXTS.site_name || "فونیکس چیت";
+    document.getElementById('welcomeTitle').innerHTML = `به فروشگاه <span class="neon">${siteName}</span> خوش آمدید`;
+    document.getElementById('welcomeText1').textContent = TEXTS.welcome_text1 || "ما مفتخریم که به عنوان یکی از پیشگامان...";
+    document.getElementById('welcomeText2').textContent = TEXTS.welcome_text2 || "تیم متخصص ما با تکیه بر دانش فنی...";
+
+  } catch(err){
+    console.log("Server not responding, using default settings.");
+  } finally {
+    // به هر حال لودینگ رو مخفی کن
+    document.getElementById('preloader').classList.add('hide'); 
+    setTimeout(() => document.getElementById('preloader').remove(), 600);
+    calculateTotal();
+  }
 }
 
 function openModal(name){ document.getElementById('modal-' + name).classList.add('show'); document.body.style.overflow = 'hidden'; }
 function closeModal(name){ document.getElementById('modal-' + name).classList.remove('show'); document.body.style.overflow = ''; }
 
 loadSettings();
-calculateTotal();
 </script>
 </body>
 </html>
