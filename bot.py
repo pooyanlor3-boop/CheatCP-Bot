@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# PhoenixCheat Bot V26 - Final Debugged Version
+# PhoenixCheat Bot V27 - Complete & Bug-Free
 
 import json
 import os
@@ -8,7 +8,6 @@ import string
 import threading
 import asyncio
 from datetime import datetime, timedelta
-import requests
 
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
@@ -16,9 +15,9 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
 
 # ==========================================
-# 🔐 خواندن اطلاعات از Environment Variables
+# 🔐 تنظیمات
 # ==========================================
-BOT_TOKEN = os.environ.get("BOT_TOKEN", "8699196899:AAGaY7pFzU2OzBxwcF8_E-LqUbQZk4UUDgo") # توکن موقت
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "8699196899:AAGaY7pFzU2OzBxwcF8_E-LqUbQZk4UUDgo")
 ADMIN_ID = int(os.environ.get("ADMIN_ID", "8113206201"))
 GROUP_ID = int(os.environ.get("GROUP_ID", "-1004335107809"))
 
@@ -58,21 +57,17 @@ DEFAULT_DATA = {
     }
 }
 
-# ================= توابع دیتابیس =================
+# ================= دیتابیس =================
 def load_data():
     try:
         with open(DB_PATH, "r", encoding="utf-8") as f:
             data = json.load(f)
-            
-            # 🔍 چک کردن سالم بودن دیتابیس
             if "orders" not in data or "settings" not in data:
-                print("⚠️ Old or broken DB detected. Creating a new one...")
                 save_data(DEFAULT_DATA)
                 return DEFAULT_DATA
-                
             return data
     except Exception as e:
-        print(f"⚠️ DB Error: {e}. Creating default.")
+        print(f"⚠️ DB Error: {e}")
         save_data(DEFAULT_DATA)
         return DEFAULT_DATA
 
@@ -123,7 +118,6 @@ def check_coupon():
             return jsonify({"success": True, "type": c["type"], "amount": c["amount"]})
     return jsonify({"success": False, "message": "کد نامعتبر"}), 400
 
-# بخش ثبت اطلاعات پرداخت (مرحله 1)
 @app_web.route("/api/payment_info", methods=["POST"])
 def payment_info():
     try:
@@ -155,7 +149,6 @@ def payment_info():
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
 
-# بخش ثبت اطلاعات اکانت (مرحله 2)
 @app_web.route("/api/final_order", methods=["POST"])
 def final_order():
     try:
@@ -222,7 +215,7 @@ def send_account_msg(code):
         loop.close()
     except Exception as e: print(f"TG Error: {e}")
 
-# ================= پنل ادمین (دکمه‌ای) =================
+# ================= پنل ادمین =================
 def get_main_menu():
     return [
         [InlineKeyboardButton("📦 سفارشات", callback_data="menu_orders"), InlineKeyboardButton("📊 آمار", callback_data="menu_stats")],
@@ -247,6 +240,23 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     if data == "back":
         USER_STATES.pop(ADMIN_ID, None)
         await query.edit_message_text("🎮 **پنل مدیریت PhoenixCheat**", reply_markup=InlineKeyboardMarkup(get_main_menu()), parse_mode="Markdown")
+
+    # --- آمار دقیق ---
+    elif data == "menu_stats":
+        orders = db.get("orders", [])
+        total_orders = len(orders)
+        accepted = len([o for o in orders if o.get('status') == 'accepted'])
+        pending = len([o for o in orders if o.get('status') == 'pending' or o.get('status') == 'pending_payment'])
+        total_income = sum(o.get('final_price', 0) for o in orders if o.get('status') == 'accepted')
+        
+        text = (
+            f"📊 **آمار کامل فروشگاه**\n\n"
+            f"📦 کل سفارشات: {total_orders}\n"
+            f"✅ تایید شده: {accepted}\n"
+            f"⏳ در انتظار: {pending}\n"
+            f"💰 مجموع درآمد (تایید شده): {total_income:,} تومان"
+        )
+        await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 بازگشت", callback_data="back")]]), parse_mode="Markdown")
 
     # --- متن ها ---
     elif data == "menu_texts":
@@ -277,15 +287,31 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     elif data == "extras_price":
         USER_STATES[ADMIN_ID] = {"state": "waiting_price_antiban"}
         await query.edit_message_text(f"قیمت فعلی انتی بن: {s['price_antiban']:,} ت\nقیمت جدید انتی بن رو بفرست:")
+    
+    # --- پکیج ها (با قابلیت حذف) ---
     elif data == "pkg_list":
-        text = "📦 پکیج‌ها:\n"
+        text = "📦 **مدیریت پکیج‌ها**\n\nبرای ویرایش یا حذف، روی دکمه‌ها بزن:\n"
         kb = []
         for i, pkg in enumerate(s.get("custom_packages", [])):
-            text += f"{pkg['cp']:,} CP = {pkg['price']:,} ت\n"
-            kb.append([InlineKeyboardButton(f"✏️ ویرایش {pkg['cp']:,}", callback_data=f"edit_pkg_{i}")])
-        kb.append([InlineKeyboardButton("➕ افزودن پکیج", callback_data="add_pkg")])
+            text += f"🔹 {pkg['cp']:,} CP = {pkg['price']:,} ت\n"
+            kb.append([
+                InlineKeyboardButton(f"✏️ ویرایش {pkg['cp']:,}", callback_data=f"edit_pkg_{i}"),
+                InlineKeyboardButton(f"🗑️ حذف", callback_data=f"del_pkg_{i}")
+            ])
+        kb.append([InlineKeyboardButton("➕ افزودن پکیج جدید", callback_data="add_pkg")])
         kb.append([InlineKeyboardButton("🔙 بازگشت", callback_data="menu_prices")])
-        await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(kb))
+        await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
+    
+    elif data.startswith("del_pkg_"):
+        idx = int(data.split("_")[2])
+        try:
+            s["custom_packages"].pop(idx)
+            save_data(db)
+            await query.answer("پکیج حذف شد!", show_alert=True)
+            await button_handler(update, ctx)
+        except:
+            await query.answer("خطا در حذف!", show_alert=True)
+
     elif data == "add_pkg":
         USER_STATES[ADMIN_ID] = {"state": "waiting_pkg_cp"}
         await query.edit_message_text("تعداد CP رو بفرست:")
@@ -294,7 +320,7 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         USER_STATES[ADMIN_ID] = {"state": "waiting_pkg_price", "idx": idx}
         await query.edit_message_text("قیمت جدید رو بفرست:")
 
-    # --- تخفیف ویژه (تاریخ‌شمار) ---
+    # --- تخفیف ویژه ---
     elif data == "menu_special":
         code = s.get("special_coupon_code", "تنظیم نشده")
         end = s.get("special_coupon_end_time", "تنظیم نشده")
@@ -320,7 +346,7 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         save_data(db)
         await query.answer("حذف شد!", show_alert=True)
         await button_handler(update, ctx)
-    elif data.startswith("dp_"): # Date picker logic
+    elif data.startswith("dp_"):
         parts = data.split("_")
         field, action = parts[1], parts[2]
         st = USER_STATES[ADMIN_ID]
@@ -376,7 +402,7 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     elif data == "menu_orders":
         kb = []
         for o in db.get("orders", [])[-5:][::-1]:
-            status = "⏳" if o.get('status') == 'pending' else ("✅" if o.get('status') == 'accepted' else "❌")
+            status = "⏳" if o.get('status') == 'pending' or o.get('status') == 'pending_payment' else ("✅" if o.get('status') == 'accepted' else "❌")
             kb.append([InlineKeyboardButton(f"{status} {o['code']} | {o.get('final_price',0):,} ت", callback_data=f"view_{o['id']}")])
         kb.append([InlineKeyboardButton("🔙 بازگشت", callback_data="back")])
         await query.edit_message_text("📦 سفارشات اخیر:", reply_markup=InlineKeyboardMarkup(kb))
@@ -400,10 +426,6 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         save_data(db)
         await query.answer("وضعیت ثبت‌نام تغییر کرد.", show_alert=True)
         await button_handler(update, ctx)
-    
-    elif data == "menu_stats":
-        orders = db.get("orders", [])
-        await query.edit_message_text(f"📊 کل سفارشات: {len(orders)}", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 بازگشت", callback_data="back")]]))
 
 async def show_date_picker(query, state):
     dt = datetime(state['y'], state['m'], state['d'], state['h'], state['min'])
