@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# PhoenixCheat Bot V25 - Final Backend (Sync with HTML V11)
+# PhoenixCheat Bot V26 - Final Debugged Version
 
 import json
 import os
@@ -18,7 +18,6 @@ from telegram.ext import Application, CommandHandler, CallbackQueryHandler, Mess
 # ==========================================
 # 🔐 خواندن اطلاعات از Environment Variables
 # ==========================================
-# این مقادیر باید توی تنظیمات Render (بخش Environment) تنظیم بشن
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "8699196899:AAGaY7pFzU2OzBxwcF8_E-LqUbQZk4UUDgo") # توکن موقت
 ADMIN_ID = int(os.environ.get("ADMIN_ID", "8113206201"))
 GROUP_ID = int(os.environ.get("GROUP_ID", "-1004335107809"))
@@ -59,12 +58,13 @@ DEFAULT_DATA = {
     }
 }
 
+# ================= توابع دیتابیس =================
 def load_data():
     try:
         with open(DB_PATH, "r", encoding="utf-8") as f:
             data = json.load(f)
             
-            # چک کردن سالم بودن دیتابیس
+            # 🔍 چک کردن سالم بودن دیتابیس
             if "orders" not in data or "settings" not in data:
                 print("⚠️ Old or broken DB detected. Creating a new one...")
                 save_data(DEFAULT_DATA)
@@ -75,6 +75,16 @@ def load_data():
         print(f"⚠️ DB Error: {e}. Creating default.")
         save_data(DEFAULT_DATA)
         return DEFAULT_DATA
+
+def save_data(data):
+    try:
+        with open(DB_PATH, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"❌ Error saving DB: {e}")
+
+def make_code():
+    return f"ORD-{''.join(random.choices(string.ascii_uppercase + string.digits, k=6))}"
 
 # ================= API های سایت =================
 @app_web.route("/")
