@@ -63,18 +63,18 @@ def load_data():
     try:
         with open(DB_PATH, "r", encoding="utf-8") as f:
             data = json.load(f)
-            if "settings" not in data: data["settings"] = DEFAULT_DATA["settings"]
+            
+            # چک کردن سالم بودن دیتابیس
+            if "orders" not in data or "settings" not in data:
+                print("⚠️ Old or broken DB detected. Creating a new one...")
+                save_data(DEFAULT_DATA)
+                return DEFAULT_DATA
+                
             return data
-    except:
+    except Exception as e:
+        print(f"⚠️ DB Error: {e}. Creating default.")
         save_data(DEFAULT_DATA)
         return DEFAULT_DATA
-
-def save_data(data):
-    with open(DB_PATH, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
-
-def make_code():
-    return f"ORD-{''.join(random.choices(string.ascii_uppercase + string.digits, k=6))}"
 
 # ================= API های سایت =================
 @app_web.route("/")
