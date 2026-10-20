@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# PhoenixCheat Bot V22 - Dual Pricing (Variable + Fixed Packages)
+# PhoenixCheat Bot V25 - Final Backend (Sync with HTML V11)
 
 import json
 import os
@@ -8,15 +8,20 @@ import string
 import threading
 import asyncio
 from datetime import datetime, timedelta
+import requests
 
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
 
-BOT_TOKEN = "8699196899:AAGaY7pFzU2OzBxwcF8_E-LqUbQZk4UUDgo"
-ADMIN_ID = 8113206201
-GROUP_ID = -1004335107809
+# ==========================================
+# 🔐 خواندن اطلاعات از Environment Variables
+# ==========================================
+# این مقادیر باید توی تنظیمات Render (بخش Environment) تنظیم بشن
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "8699196899:AAGaY7pFzU2OzBxwcF8_E-LqUbQZk4UUDgo") # توکن موقت
+ADMIN_ID = int(os.environ.get("ADMIN_ID", "8113206201"))
+GROUP_ID = int(os.environ.get("GROUP_ID", "-1004335107809"))
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "data.json")
@@ -31,7 +36,7 @@ DEFAULT_DATA = {
     "settings": {
         "card_number": "6219861452724577",
         "card_holder": "یوسف موسوی",
-        "price_per_1000": 25000,  # نرخ متغیر
+        "price_per_1000": 25000,
         "price_antiban": 50000,
         "price_fast": 20000,
         "registration_open": True,
@@ -40,8 +45,7 @@ DEFAULT_DATA = {
         "special_coupon_end_time": "",
         "custom_packages": [
             {"cp": 10000, "price": 250000},
-            {"cp": 20000, "price": 450000},
-            {"cp": 50000, "price": 1000000}
+            {"cp": 20000, "price": 470000}
         ]
     },
     "coupons": [], 
@@ -60,11 +64,6 @@ def load_data():
         with open(DB_PATH, "r", encoding="utf-8") as f:
             data = json.load(f)
             if "settings" not in data: data["settings"] = DEFAULT_DATA["settings"]
-            s = data["settings"]
-            if "price_per_1000" not in s: s["price_per_1000"] = 25000
-            if "custom_packages" not in s: s["custom_packages"] = DEFAULT_DATA["settings"]["custom_packages"]
-            if "special_coupon_code" not in s: s["special_coupon_code"] = ""
-            if "special_coupon_end_time" not in s: s["special_coupon_end_time"] = ""
             return data
     except:
         save_data(DEFAULT_DATA)
@@ -90,104 +89,143 @@ def get_settings():
         "special_coupon": db["settings"].get("special_coupon_code", "")
     })
 
+@app_web.route("/api/track", methods=["POST"])
+def track_order():
+    try:
+        code = request.get_json().get("code", "").upper()
+        db = load_data()
+        for o in db.get("orders", []):
+            if o["code"] == code:
+                status_fa = "⏳ در انتظار" if o["status"] == "pending" else ("✅ تایید شده" if o["status"] == "accepted" else "❌ رد شده")
+                return jsonify({
+                    "success": True, "status": status_fa, "cp": f"{o.get('cp',0):,}", 
+                    "price": f"{o.get('final_price',0):,}", "date": o.get('date','')
+                })
+        return jsonify({"success": False, "message": "یافت نشد"}), 404
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
 @app_web.route("/api/check_coupon", methods=["POST"])
 def check_coupon():
     code = request.get_json().get("code", "").strip().upper()
     for c in load_data().get("coupons", []):
         if c["code"] == code and c["active"]:
             return jsonify({"success": True, "type": c["type"], "amount": c["amount"]})
-    return jsonify({"success": False, "message": "کد نامعتبر است"}), 400
+    return jsonify({"success": False, "message": "کد نامعتبر"}), 400
 
-@app_web.route("/register", methods=["POST"])
-def register():
+# بخش ثبت اطلاعات پرداخت (مرحله 1)
+@app_web.route("/api/payment_info", methods=["POST"])
+def payment_info():
     try:
-        data = request.get_json()
+        data = request.form
         db = load_data()
-        
-        discount_amount = 0
-        coupon_code = data.get("coupon", "").upper()
-        if coupon_code:
-            for c in db.get("coupons", []):
-                if c["code"] == coupon_code and c["active"]:
-                    if c["type"] == "percent":
-                        discount_amount = (int(data.get("totalPrice", 0)) * c["amount"]) // 100
-                    elif c["type"] == "fixed":
-                        discount_amount = c["amount"]
-                    break
-        
-        final_price = int(data.get("totalPrice", 0)) - discount_amount
-        if final_price < 0: final_price = 0
-
         oid = db.get("next_order_id", 1)
+        
+        receipt = request.files.get('receipt')
+        receipt_path = ""
+        if receipt:
+            receipt_path = os.path.join(BASE_DIR, f"receipt_{oid}.jpg")
+            receipt.save(receipt_path)
+
         order = {
             "id": oid, "code": make_code(), "date": datetime.now().strftime("%Y-%m-%d %H:%M"),
-            "email": data.get("email", ""), "pass": data.get("pass", ""), "rubika": data.get("rubika", ""), "desc": data.get("desc", ""),
-            "cp": int(data.get("cp", 0)), "antiban": data.get("antiban", False), "speed": data.get("speed", "normal"),
-            "base_price": int(data.get("totalPrice", 0)), "discount_amount": discount_amount, "final_price": final_price,
-            "sender_card": data.get("senderCard", ""), "sent_amount": data.get("sentAmount", ""), "sent_time": data.get("sentTime", ""), 
-            "status": "pending"
+            "cp": int(data.get("cp", 0)), "antiban": data.get("antiban")=="true", "speed": data.get("speed", "normal"),
+            "base_price": int(data.get("totalPrice", 0)), "discount_amount": int(data.get("discountAmount", 0)), "final_price": int(data.get("finalPrice", 0)),
+            "sender_card": data.get("senderCard", ""), "sent_amount": data.get("sentAmount", ""), "sent_time": data.get("sentTime", ""),
+            "email": "", "pass": "", "rubika": "", "desc": "",
+            "status": "pending_payment"
         }
         
         db["orders"].append(order)
         db["next_order_id"] = oid + 1
         save_data(db)
         
-        threading.Thread(target=send_order_to_telegram, args=(order,), daemon=True).start()
-        return jsonify({"success": True, "code": order["code"]})
+        send_payment_msg(order, receipt_path)
+        return jsonify({"success": True, "order_code": order["code"]})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+# بخش ثبت اطلاعات اکانت (مرحله 2)
+@app_web.route("/api/final_order", methods=["POST"])
+def final_order():
+    try:
+        data = request.get_json()
+        code = data.get("order_code")
+        db = load_data()
+        
+        for o in db["orders"]:
+            if o["code"] == code:
+                o["email"] = data.get("email", "")
+                o["pass"] = data.get("pass", "")
+                o["rubika"] = data.get("rubika", "")
+                o["desc"] = data.get("desc", "")
+                o["status"] = "pending"
+                break
+        
+        save_data(db)
+        send_account_msg(code)
+        return jsonify({"success": True})
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
 
 # ================= ارسال به تلگرام =================
-def send_order_to_telegram(order):
-    global bot_app
+def send_payment_msg(order, receipt_path):
     if not bot_app: return
     try:
         speed_text = "فوری" if order['speed'] == 'fast' else "زمان‌بر"
-        antiban_text = "✅" if order['antiban'] else "❌"
-        
         text = (
-            f"🛒 **سفارش جدید!**\n\n"
-            f"🔢 کد: `{order['code']}`\n"
-            f"👤 **اکانت:**\n📧 `{order['email']}`\n🔑 `{order['pass']}`\n💬 {order['rubika']}\n\n"
-            f"💎 {order['cp']:,} CP | 🛡️ {antiban_text} | ⚡ {speed_text}\n"
-            f"💰 مبلغ کل: {order['base_price']:,} ت\n"
-            f"🎟️ تخفیف: {order['discount_amount']:,} ت\n"
-            f"💳 مبلغ نهایی: **{order['final_price']:,} ت**\n\n"
-            f"💳 **واریز:**\n`{order['sender_card']}` | {order['sent_time']}"
+            f"💳 **اطلاعات پرداخت (سفارش {order['code']})**\n\n"
+            f"💎 {order['cp']:,} CP | 🛡️ {'✅' if order['antiban'] else '❌'} | ⚡ {speed_text}\n"
+            f"💰 مبلغ نهایی: {order['final_price']:,} ت\n"
+            f"🔢 کارت مبدا: `{order['sender_card']}`\n"
+            f"⏰ ساعت: {order['sent_time']}"
         )
-        
-        keyboard = [[InlineKeyboardButton("✅ تأیید", callback_data=f"ok_{order['id']}"), InlineKeyboardButton("❌ رد", callback_data=f"no_{order['id']}")]]
         
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        loop.run_until_complete(bot_app.bot.send_message(
-            chat_id=GROUP_ID, text=text, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup(keyboard)
-        ))
+        if receipt_path and os.path.exists(receipt_path):
+            with open(receipt_path, 'rb') as photo:
+                loop.run_until_complete(bot_app.bot.send_photo(chat_id=GROUP_ID, photo=photo, caption=text, parse_mode="Markdown"))
+            os.remove(receipt_path)
+        else:
+            loop.run_until_complete(bot_app.bot.send_message(chat_id=GROUP_ID, text=text, parse_mode="Markdown"))
         loop.close()
     except Exception as e: print(f"TG Error: {e}")
 
-# ================= کیبوردها =================
+def send_account_msg(code):
+    if not bot_app: return
+    db = load_data()
+    order = next((o for o in db["orders"] if o["code"] == code), None)
+    if not order: return
+    try:
+        text = (
+            f"👤 **اطلاعات اکانت (سفارش {order['code']})**\n\n"
+            f"📧 ایمیل: `{order['email']}`\n"
+            f"🔑 رمز: `{order['pass']}`\n"
+            f"💬 روبیکا: {order['rubika']}\n"
+            f"📝 توضیحات: {order['desc'] or 'ندارد'}"
+        )
+        keyboard = [[InlineKeyboardButton("✅ تأیید", callback_data=f"ok_{order['id']}"), InlineKeyboardButton("❌ رد", callback_data=f"no_{order['id']}")]]
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(bot_app.bot.send_message(chat_id=GROUP_ID, text=text, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup(keyboard)))
+        loop.close()
+    except Exception as e: print(f"TG Error: {e}")
+
+# ================= پنل ادمین (دکمه‌ای) =================
 def get_main_menu():
     return [
-        [InlineKeyboardButton("📦 مدیریت سفارشات", callback_data="menu_orders")],
-        [InlineKeyboardButton("💰 تنظیم قیمت‌ها", callback_data="menu_prices"), InlineKeyboardButton("🎟️ کدهای تخفیف", callback_data="menu_coupons")],
-        [InlineKeyboardButton("🎁 تخفیف ویژه سایت", callback_data="menu_special_discount")],
-        [InlineKeyboardButton("💳 تنظیم کارت بانکی", callback_data="menu_card")],
-        [InlineKeyboardButton("📝 ویرایش متن سایت", callback_data="menu_texts")],
-        [InlineKeyboardButton("🔐 باز/بسته ثبت‌نام", callback_data="menu_toggle_reg")],
+        [InlineKeyboardButton("📦 سفارشات", callback_data="menu_orders"), InlineKeyboardButton("📊 آمار", callback_data="menu_stats")],
+        [InlineKeyboardButton("📝 ویرایش متن‌ها", callback_data="menu_texts")],
+        [InlineKeyboardButton("💰 تنظیم قیمت‌ها", callback_data="menu_prices"), InlineKeyboardButton("🎟️ کد تخفیف", callback_data="menu_coupons")],
+        [InlineKeyboardButton("🎁 تخفیف ویژه", callback_data="menu_special")],
+        [InlineKeyboardButton("💳 تنظیم کارت", callback_data="menu_card"), InlineKeyboardButton("🔐 باز/بسته", callback_data="menu_toggle_reg")],
     ]
 
-async def show_main_menu(update, text="🎮 **پنل مدیریت PhoenixCheat**\n\nیک گزینه را انتخاب کنید:"):
-    if update.callback_query:
-        await update.callback_query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(get_main_menu()), parse_mode="Markdown")
-    else:
-        await update.message.reply_text(text, reply_markup=InlineKeyboardMarkup(get_main_menu()), parse_mode="Markdown")
-
-# ================= هندلر اصلی =================
 async def start(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ADMIN_ID: return
     USER_STATES.pop(ADMIN_ID, None)
-    await show_main_menu(update)
+    await update.message.reply_text("🎮 **پنل مدیریت PhoenixCheat**", reply_markup=InlineKeyboardMarkup(get_main_menu()), parse_mode="Markdown")
 
 async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -198,260 +236,232 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
     if data == "back":
         USER_STATES.pop(ADMIN_ID, None)
-        await show_main_menu(update)
+        await query.edit_message_text("🎮 **پنل مدیریت PhoenixCheat**", reply_markup=InlineKeyboardMarkup(get_main_menu()), parse_mode="Markdown")
 
-    # --- بخش قیمت ها (تفکیک شده) ---
-    elif data == "menu_prices":
-        keyboard = [
-            [InlineKeyboardButton(f"⚙️ نرخ متغیر (فعلی: {s.get('price_per_1000', 25000):,} ت)", callback_data="price_var")],
-            [InlineKeyboardButton("📦 مدیریت پکیج‌ها", callback_data="price_pkgs")],
-            [InlineKeyboardButton("💰 تنظیم انتی بن و فوری", callback_data="edit_extras")],
+    # --- متن ها ---
+    elif data == "menu_texts":
+        kb = [
+            [InlineKeyboardButton("خوش‌آمد ۱", callback_data="txt_welcome_text1"), InlineKeyboardButton("خوش‌آمد ۲", callback_data="txt_welcome_text2")],
+            [InlineKeyboardButton("درباره ما", callback_data="txt_about_text"), InlineKeyboardButton("اعتماد", callback_data="txt_trust_text")],
             [InlineKeyboardButton("🔙 بازگشت", callback_data="back")]
         ]
-        await query.edit_message_text("💰 **بخش تنظیم قیمت‌ها**\n\nلطفاً یکی از بخش‌ها را انتخاب کنید:", reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="Markdown")
+        await query.edit_message_text("کدوم متن رو میخوای عوض کنی؟", reply_markup=InlineKeyboardMarkup(kb))
+    elif data.startswith("txt_"):
+        key = data.replace("txt_", "")
+        USER_STATES[ADMIN_ID] = {"state": f"waiting_text_{key}"}
+        current = db["texts"].get(key, "ندارد")
+        await query.edit_message_text(f"متن فعلی:\n{current}\n\nمتن جدید رو بفرست:", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 لغو", callback_data="back")]]))
 
-    elif data == "price_var":
+    # --- قیمت ها ---
+    elif data == "menu_prices":
+        kb = [
+            [InlineKeyboardButton("⚙️ نرخ متغیر (هر 1000)", callback_data="var_price")],
+            [InlineKeyboardButton("📦 پکیج‌های تخفیف‌دار", callback_data="pkg_list")],
+            [InlineKeyboardButton("🛡️ قیمت انتی بن و فوری", callback_data="extras_price")],
+            [InlineKeyboardButton("🔙 بازگشت", callback_data="back")]
+        ]
+        await query.edit_message_text("💰 تنظیمات قیمت:", reply_markup=InlineKeyboardMarkup(kb))
+    elif data == "var_price":
         USER_STATES[ADMIN_ID] = {"state": "waiting_price_var"}
-        await query.edit_message_text(f"نرخ فعلی برای هر ۱۰۰۰ سی‌پی: **{s.get('price_per_1000', 25000):,} تومان**\n\nنرخ جدید را به تومان بنویسید:\n(مثلاً 30000)", parse_mode="Markdown")
-
-    elif data == "price_pkgs":
-        text = "📦 **مدیریت پکیج‌ها**\n\nبرای تغییر قیمت هر پکیج، روی آن بزنید:\n"
-        keyboard = []
+        await query.edit_message_text(f"نرخ فعلی: {s.get('price_per_1000', 25000):,} ت\nنرخ جدید (هر 1000) رو بفرست:")
+    elif data == "extras_price":
+        USER_STATES[ADMIN_ID] = {"state": "waiting_price_antiban"}
+        await query.edit_message_text(f"قیمت فعلی انتی بن: {s['price_antiban']:,} ت\nقیمت جدید انتی بن رو بفرست:")
+    elif data == "pkg_list":
+        text = "📦 پکیج‌ها:\n"
+        kb = []
         for i, pkg in enumerate(s.get("custom_packages", [])):
-            text += f"🔹 {pkg['cp']:,} CP = {pkg['price']:,} ت\n"
-            keyboard.append([InlineKeyboardButton(f"✏️ {pkg['cp']:,} CP", callback_data=f"edit_pkg_{i}")])
-        
-        keyboard.append([InlineKeyboardButton("➕ افزودن پکیج جدید", callback_data="add_pkg")])
-        keyboard.append([InlineKeyboardButton("🔙 بازگشت", callback_data="menu_prices")])
-        await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="Markdown")
-
-    elif data.startswith("edit_pkg_"):
-        idx = int(data.split("_")[2])
-        pkg = s["custom_packages"][idx]
-        USER_STATES[ADMIN_ID] = {"state": "waiting_pkg_price", "idx": idx}
-        await query.edit_message_text(f"قیمت جدید برای **{pkg['cp']:,} CP** را بنویسید:")
-
+            text += f"{pkg['cp']:,} CP = {pkg['price']:,} ت\n"
+            kb.append([InlineKeyboardButton(f"✏️ ویرایش {pkg['cp']:,}", callback_data=f"edit_pkg_{i}")])
+        kb.append([InlineKeyboardButton("➕ افزودن پکیج", callback_data="add_pkg")])
+        kb.append([InlineKeyboardButton("🔙 بازگشت", callback_data="menu_prices")])
+        await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(kb))
     elif data == "add_pkg":
         USER_STATES[ADMIN_ID] = {"state": "waiting_pkg_cp"}
-        await query.edit_message_text("تعداد CP پکیج جدید را بنویسید (مثلاً 30000):")
+        await query.edit_message_text("تعداد CP رو بفرست:")
+    elif data.startswith("edit_pkg_"):
+        idx = int(data.split("_")[2])
+        USER_STATES[ADMIN_ID] = {"state": "waiting_pkg_price", "idx": idx}
+        await query.edit_message_text("قیمت جدید رو بفرست:")
 
-    elif data == "edit_extras":
-        USER_STATES[ADMIN_ID] = {"state": "waiting_extra_antiban"}
-        await query.edit_message_text(f"قیمت فعلی انتی بن: {s['price_antiban']:,} ت\n\nقیمت جدید انتی بن را بنویسید:")
-
-    # --- کدهای تخفیف ---
-    elif data == "menu_coupons":
-        text = "🎟️ **مدیریت کدهای تخفیف**\n\n"
-        keyboard = []
-        for c in db.get("coupons", []):
-            type_str = f"{c['amount']}%" if c['type'] == 'percent' else f"{c['amount']:,} ت"
-            status = "🟢" if c['active'] else "🔴"
-            text += f"{status} `{c['code']}` | {type_str}\n"
-            keyboard.append([InlineKeyboardButton(f"🗑️ حذف {c['code']}", callback_data=f"del_coupon_{c['code']}")])
+    # --- تخفیف ویژه (تاریخ‌شمار) ---
+    elif data == "menu_special":
+        code = s.get("special_coupon_code", "تنظیم نشده")
+        end = s.get("special_coupon_end_time", "تنظیم نشده")
+        if end != "تنظیم نشده" and end:
+            end = datetime.fromtimestamp(int(end)).strftime('%Y/%m/%d %H:%M')
+        kb = [
+            [InlineKeyboardButton("✏️ تغییر کد", callback_data="sd_set_code")],
+            [InlineKeyboardButton("⏳ تنظیم زمان", callback_data="sd_set_time")],
+            [InlineKeyboardButton("❌ حذف کامل", callback_data="sd_clear")],
+            [InlineKeyboardButton("🔙 بازگشت", callback_data="back")]
+        ]
+        await query.edit_message_text(f"🎁 کد: `{code}`\n⏰ پایان: {end}", reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
+    elif data == "sd_set_code":
+        USER_STATES[ADMIN_ID] = {"state": "waiting_sd_code"}
+        await query.edit_message_text("کد جدید رو بفرست:")
+    elif data == "sd_set_time":
+        now = datetime.now() + timedelta(days=1)
+        USER_STATES[ADMIN_ID] = {"state": "sd_date", "y": now.year, "m": now.month, "d": now.day, "h": now.hour, "min": now.minute}
+        await show_date_picker(query, USER_STATES[ADMIN_ID])
+    elif data == "sd_clear":
+        s["special_coupon_code"] = ""
+        s["special_coupon_end_time"] = ""
+        save_data(db)
+        await query.answer("حذف شد!", show_alert=True)
+        await button_handler(update, ctx)
+    elif data.startswith("dp_"): # Date picker logic
+        parts = data.split("_")
+        field, action = parts[1], parts[2]
+        st = USER_STATES[ADMIN_ID]
+        dt = datetime(st['y'], st['m'], st['d'], st['h'], st['min'])
         
-        keyboard.append([InlineKeyboardButton("➕ ساخت کد تخفیف جدید", callback_data="add_coupon")])
-        keyboard.append([InlineKeyboardButton("🔙 بازگشت", callback_data="back")])
-        await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="Markdown")
+        if field == 'y': dt = dt.replace(year=dt.year + (1 if action=='up' else -1))
+        elif field == 'm':
+            m = dt.month + (1 if action=='up' else -1)
+            dt = dt.replace(month=(m-1)%12+1, year=dt.year + (m//13))
+        elif field == 'd': dt += timedelta(days=1 if action=='up' else -1)
+        elif field == 'h': dt += timedelta(hours=1 if action=='up' else -1)
+        elif field == 'min': dt += timedelta(minutes=1 if action=='up' else -1)
+        
+        USER_STATES[ADMIN_ID].update({"y": dt.year, "m": dt.month, "d": dt.day, "h": dt.hour, "min": dt.minute})
+        await show_date_picker(query, USER_STATES[ADMIN_ID])
+    elif data == "dp_save":
+        st = USER_STATES[ADMIN_ID]
+        dt = datetime(st['y'], st['m'], st['d'], st['h'], st['min'])
+        s["special_coupon_end_time"] = str(int(dt.timestamp()))
+        save_data(db)
+        USER_STATES.pop(ADMIN_ID)
+        await query.edit_message_text("✅ تاریخ تنظیم شد.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 بازگشت", callback_data="menu_special")]]))
 
-    elif data == "add_coupon":
-        USER_STATES[ADMIN_ID] = {"state": "waiting_coupon_code"}
-        await query.edit_message_text("کد تخفیف را وارد کنید (فقط حروف انگلیسی و عدد):\n(مثلاً CHEAT10)")
-
-    elif data.startswith("del_coupon_"):
+    # --- کد تخفیف ---
+    elif data == "menu_coupons":
+        kb = [[InlineKeyboardButton("➕ ساخت کد تخفیف", callback_data="add_coup")], [InlineKeyboardButton("🔙 بازگشت", callback_data="back")]]
+        text = "🎟️ کدهای تخفیف:\n"
+        for c in db.get("coupons", []): 
+            type_str = f"{c['amount']}%" if c['type'] == 'percent' else f"{c['amount']:,} ت"
+            text += f"`{c['code']}` - {type_str}\n"
+            kb.insert(0, [InlineKeyboardButton(f"🗑️ حذف {c['code']}", callback_data=f"del_coup_{c['code']}")])
+        await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
+    elif data.startswith("del_coup_"):
         code = data.split("_")[2]
         db["coupons"] = [c for c in db["coupons"] if c["code"] != code]
         save_data(db)
-        await query.answer("کد حذف شد!", show_alert=True)
+        await query.answer("حذف شد!", show_alert=True)
         await button_handler(update, ctx)
-
-    # --- تخفیف ویژه ---
-    elif data == "menu_special_discount":
-        code = s.get("special_coupon_code", "تنظیم نشده")
-        end_time = s.get("special_coupon_end_time", "")
-        time_str = "تنظیم نشده"
-        if end_time:
-            end_dt = datetime.fromtimestamp(int(end_time))
-            time_left = end_dt - datetime.now()
-            if time_left.total_seconds() > 0:
-                time_str = f"{time_left.days} روز و {time_left.seconds // 3600} ساعت"
-            else:
-                time_str = "پایان یافته"
-                
-        text = f"🎁 **تنظیمات تخفیف ویژه**\n\n🎟️ کد: `{code}`\n⏳ زمان: {time_str}\n\n"
-        keyboard = [
-            [InlineKeyboardButton("✏️ تغییر کد تخفیف", callback_data="sd_code")],
-            [InlineKeyboardButton("⏳ تنظیم تایمر (ساعت)", callback_data="sd_time")],
-            [InlineKeyboardButton("❌ حذف از سایت", callback_data="sd_clear")],
-            [InlineKeyboardButton("🔙 بازگشت", callback_data="back")]
-        ]
-        await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="Markdown")
-
-    elif data == "sd_code":
-        USER_STATES[ADMIN_ID] = {"state": "waiting_sd_code"}
-        await query.edit_message_text("کد تخفیف ویژه جدید را بنویسید (باید از قبل ساخته شده باشد):")
-    elif data == "sd_time":
-        USER_STATES[ADMIN_ID] = {"state": "waiting_sd_time"}
-        await query.edit_message_text("چند ساعت روی سایت بماند؟ (مثلاً 48)")
-    elif data == "sd_clear":
-        db["settings"]["special_coupon_code"] = ""
-        db["settings"]["special_coupon_end_time"] = ""
-        save_data(db)
-        await query.answer("حذف شد.", show_alert=True)
-        await button_handler(update, ctx)
-
-    # --- کارت، متن، ثبت نام ---
+    elif data == "add_coup":
+        USER_STATES[ADMIN_ID] = {"state": "waiting_coupon_code"}
+        await query.edit_message_text("کد تخفیف رو بفرست:")
+    elif data == "coup_type_percent" or data == "coup_type_fixed":
+        t = "percent" if data == "coup_type_percent" else "fixed"
+        USER_STATES[ADMIN_ID] = {"state": f"waiting_coupon_amount_{t}", "code": USER_STATES[ADMIN_ID]["code"]}
+        await query.edit_message_text("مقدار تخفیف رو بفرست:")
+        
+    # --- کارت ---
     elif data == "menu_card":
         USER_STATES[ADMIN_ID] = {"state": "waiting_card"}
-        await query.edit_message_text(f"شماره کارت فعلی: `{s['card_number']}`\n\nفرمت: `6219861452724577 - یوسف موسوی`", parse_mode="Markdown")
-
-    elif data == "menu_texts":
-        keyboard = [
-            [InlineKeyboardButton("متن ۱", callback_data="set_txt_welcome_text1")],
-            [InlineKeyboardButton("متن ۲", callback_data="set_txt_welcome_text2")],
-            [InlineKeyboardButton("درباره ما", callback_data="set_txt_about_text")],
-            [InlineKeyboardButton("🔙 بازگشت", callback_data="back")]
-        ]
-        await query.edit_message_text("📝 کدوم متن رو میخوای عوض کنی؟", reply_markup=InlineKeyboardMarkup(keyboard))
-
-    elif data.startswith("set_txt_"):
-        key = data.replace("set_txt_", "")
-        USER_STATES[ADMIN_ID] = {"state": f"waiting_text_{key}"}
-        await query.edit_message_text(f"متن جدید برای `{key}` را بفرستید:", parse_mode="Markdown")
-
-    elif data == "menu_toggle_reg":
-        s["registration_open"] = not s.get("registration_open", True)
-        save_data(db)
-        await query.answer(f"ثبت‌نام {'باز' if s['registration_open'] else 'بسته'} شد.", show_alert=True)
-
+        await query.edit_message_text("شماره کارت و نام صاحب کارت رو با این فرمت بفرست:\n`6219861452724577 - یوسف موسوی`", parse_mode="Markdown")
+        
     # --- سفارشات ---
     elif data == "menu_orders":
-        orders = db.get("orders", [])
-        keyboard = []
-        for o in orders[-5:][::-1]:
-            status = "⏳" if o['status'] == 'pending' else ("✅" if o['status'] == 'accepted' else "❌")
-            keyboard.append([InlineKeyboardButton(f"{status} {o['code']} | {o['final_price']:,} ت", callback_data=f"view_{o['id']}")])
-        keyboard.append([InlineKeyboardButton("🔙 بازگشت", callback_data="back")])
-        await query.edit_message_text(f"📦 **سفارشات ({len(orders)}):**", reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="Markdown")
-
+        kb = []
+        for o in db.get("orders", [])[-5:][::-1]:
+            status = "⏳" if o.get('status') == 'pending' else ("✅" if o.get('status') == 'accepted' else "❌")
+            kb.append([InlineKeyboardButton(f"{status} {o['code']} | {o.get('final_price',0):,} ت", callback_data=f"view_{o['id']}")])
+        kb.append([InlineKeyboardButton("🔙 بازگشت", callback_data="back")])
+        await query.edit_message_text("📦 سفارشات اخیر:", reply_markup=InlineKeyboardMarkup(kb))
     elif data.startswith("view_"):
         oid = int(data.split("_")[1])
         order = next((o for o in db["orders"] if o["id"] == oid), None)
         if not order: return
-        text = f"👁️ **سفارش {order['code']}**\n\n📧 {order['email']}\n🔑 {order['pass']}\n💳 {order['sender_card']}\n💰 مبلغ: {order['final_price']:,} ت"
-        keyboard = [[InlineKeyboardButton("✅ تایید", callback_data=f"ok_{oid}"), InlineKeyboardButton("❌ رد", callback_data=f"no_{oid}")], [InlineKeyboardButton("🔙 بازگشت", callback_data="menu_orders")]]
-        await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="Markdown")
-
+        text = f"🔢 {order['code']}\n📧 {order.get('email','ثبت نشده')}\n🔑 {order.get('pass','ثبت نشده')}\n💳 {order.get('sender_card','')}\n💰 مبلغ: {order.get('final_price',0):,} ت"
+        kb = [[InlineKeyboardButton("✅ تایید", callback_data=f"ok_{oid}"), InlineKeyboardButton("❌ رد", callback_data=f"no_{oid}")], [InlineKeyboardButton("🔙 بازگشت", callback_data="menu_orders")]]
+        await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(kb))
     elif data.startswith("ok_") or data.startswith("no_"):
         oid = int(data.split("_")[1])
         status = "accepted" if data.startswith("ok_") else "rejected"
         for o in db["orders"]:
             if o["id"] == oid: o["status"] = status; save_data(db); break
-        await query.answer("وضعیت تغییر کرد.")
+        await query.answer("وضعیت تغییر کرد.", show_alert=True)
         await button_handler(update, ctx)
+    
+    elif data == "menu_toggle_reg":
+        s["registration_open"] = not s.get("registration_open", True)
+        save_data(db)
+        await query.answer("وضعیت ثبت‌نام تغییر کرد.", show_alert=True)
+        await button_handler(update, ctx)
+    
+    elif data == "menu_stats":
+        orders = db.get("orders", [])
+        await query.edit_message_text(f"📊 کل سفارشات: {len(orders)}", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 بازگشت", callback_data="back")]]))
 
-# ================= هندلر متنی =================
+async def show_date_picker(query, state):
+    dt = datetime(state['y'], state['m'], state['d'], state['h'], state['min'])
+    text = f"📅 تاریخ انقضا:\n**{dt.strftime('%Y/%m/%d - %H:%M')}**\n\nبا دکمه‌ها تنظیم کن:"
+    kb = [
+        [InlineKeyboardButton("⬆️ سال", callback_data="dp_y_up"), InlineKeyboardButton("⬇️ سال", callback_data="dp_y_dn")],
+        [InlineKeyboardButton("⬆️ ماه", callback_data="dp_m_up"), InlineKeyboardButton("⬇️ ماه", callback_data="dp_m_dn")],
+        [InlineKeyboardButton("⬆️ روز", callback_data="dp_d_up"), InlineKeyboardButton("⬇️ روز", callback_data="dp_d_dn")],
+        [InlineKeyboardButton("⬆️ ساعت", callback_data="dp_h_up"), InlineKeyboardButton("⬇️ ساعت", callback_data="dp_h_dn")],
+        [InlineKeyboardButton("⬆️ دقیقه", callback_data="dp_min_up"), InlineKeyboardButton("⬇️ دقیقه", callback_data="dp_min_dn")],
+        [InlineKeyboardButton("✅ ثبت تاریخ", callback_data="dp_save")]
+    ]
+    await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
+
 async def handle_text(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ADMIN_ID: return
-    state_data = USER_STATES.get(ADMIN_ID)
-    if not state_data: return
-
-    state = state_data.get("state")
+    st = USER_STATES.get(ADMIN_ID)
+    if not st: return
+    state = st.get("state")
     text = update.message.text.strip()
     db = load_data()
     s = db["settings"]
 
     try:
         if state == "waiting_price_var":
-            s["price_per_1000"] = int(text)
-            save_data(db)
-            USER_STATES.pop(ADMIN_ID)
-            await update.message.reply_text(f"✅ نرخ متغیر تغییر کرد به {int(text):,} تومان.")
-            await show_main_menu(update)
-
-        elif state == "waiting_pkg_price":
-            idx = state_data["idx"]
-            s["custom_packages"][idx]["price"] = int(text)
-            save_data(db)
-            USER_STATES.pop(ADMIN_ID)
-            await update.message.reply_text(f"✅ قیمت پکیج تغییر کرد به {int(text):,} تومان.")
-
-        elif state == "waiting_pkg_cp":
-            cp = int(text)
-            s["custom_packages"].append({"cp": cp, "price": 0})
-            save_data(db)
-            USER_STATES.pop(ADMIN_ID)
-            await update.message.reply_text(f"✅ پکیج {cp:,} CP اضافه شد. حالا قیمتش رو تنظیم کن.")
-
-        elif state == "waiting_extra_antiban":
-            s["price_antiban"] = int(text)
-            save_data(db)
-            USER_STATES.pop(ADMIN_ID)
+            s["price_per_1000"] = int(text); save_data(db)
+            await update.message.reply_text("✅ نرخ متغیر تغییر کرد.")
+        elif state == "waiting_price_antiban":
+            s["price_antiban"] = int(text); save_data(db)
             await update.message.reply_text("✅ قیمت انتی بن تغییر کرد.")
-
+        elif state == "waiting_pkg_cp":
+            st["cp"] = int(text); st["state"] = "waiting_pkg_price"
+            await update.message.reply_text("حالا قیمت این پکیج رو بفرست:")
+            return
+        elif state == "waiting_pkg_price":
+            s["custom_packages"].append({"cp": st["cp"], "price": int(text)}); save_data(db)
+            await update.message.reply_text("✅ پکیج اضافه شد.")
+        elif state == "waiting_card":
+            parts = text.split("-"); s["card_number"] = parts[0].strip()
+            if len(parts) > 1: s["card_holder"] = parts[1].strip()
+            save_data(db); await update.message.reply_text("✅ کارت تغییر کرد.")
+        elif state.startswith("waiting_text_"):
+            key = state.replace("waiting_text_", "")
+            db["texts"][key] = text; save_data(db)
+            await update.message.reply_text("✅ متن تغییر کرد.")
+        elif state == "waiting_sd_code":
+            s["special_coupon_code"] = text.upper(); save_data(db)
+            await update.message.reply_text("✅ کد ویژه تغییر کرد.")
         elif state == "waiting_coupon_code":
-            code = text.upper()
-            USER_STATES[ADMIN_ID] = {"state": "waiting_coupon_type", "code": code}
+            st["code"] = text.upper(); st["state"] = "waiting_coupon_type"
             await update.message.reply_text("نوع تخفیف؟", reply_markup=InlineKeyboardMarkup([
                 [InlineKeyboardButton("درصدی (%)", callback_data="coup_type_percent")],
                 [InlineKeyboardButton("مبلغی (تومان)", callback_data="coup_type_fixed")]
             ]))
-
+            return
         elif state == "waiting_coupon_amount_percent":
-            db["coupons"].append({"code": state_data["code"], "type": "percent", "amount": int(text), "active": True})
-            save_data(db)
-            USER_STATES.pop(ADMIN_ID)
-            await update.message.reply_text(f"✅ کد {state_data['code']} ساخته شد.")
-
+            db["coupons"].append({"code": st["code"], "type": "percent", "amount": int(text), "active": True}); save_data(db)
+            await update.message.reply_text("✅ کد ساخته شد.")
         elif state == "waiting_coupon_amount_fixed":
-            db["coupons"].append({"code": state_data["code"], "type": "fixed", "amount": int(text), "active": True})
-            save_data(db)
-            USER_STATES.pop(ADMIN_ID)
-            await update.message.reply_text(f"✅ کد {state_data['code']} ساخته شد.")
-
-        elif state == "waiting_sd_code":
-            s["special_coupon_code"] = text.upper()
-            save_data(db)
-            USER_STATES.pop(ADMIN_ID)
-            await update.message.reply_text(f"✅ کد ویژه تغییر کرد.")
-
-        elif state == "waiting_sd_time":
-            end_time = (datetime.now() + timedelta(hours=int(text))).timestamp()
-            s["special_coupon_end_time"] = str(int(end_time))
-            save_data(db)
-            USER_STATES.pop(ADMIN_ID)
-            await update.message.reply_text(f"✅ تایمر روی {int(text)} ساعت تنظیم شد.")
-
-        elif state == "waiting_card":
-            parts = text.split("-")
-            s["card_number"] = parts[0].strip()
-            if len(parts) > 1: s["card_holder"] = parts[1].strip()
-            save_data(db)
-            USER_STATES.pop(ADMIN_ID)
-            await update.message.reply_text("✅ کارت تغییر کرد.")
-
-        elif state.startswith("waiting_text_"):
-            key = state.replace("waiting_text_", "")
-            db["texts"][key] = text
-            save_data(db)
-            USER_STATES.pop(ADMIN_ID)
-            await update.message.reply_text(f"✅ متن تغییر کرد.")
-
+            db["coupons"].append({"code": st["code"], "type": "fixed", "amount": int(text), "active": True}); save_data(db)
+            await update.message.reply_text("✅ کد ساخته شد.")
     except ValueError:
-        await update.message.reply_text("❌ لطفا فقط عدد وارد کنید.")
+        await update.message.reply_text("❌ عدد نامعتبر.")
+        return
+    USER_STATES.pop(ADMIN_ID)
+    await update.message.reply_text("🎮 پنل:", reply_markup=InlineKeyboardMarkup(get_main_menu()))
 
-async def coupon_type_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
-    data = query.data
-    state_data = USER_STATES.get(ADMIN_ID, {})
-    
-    if data == "coup_type_percent":
-        USER_STATES[ADMIN_ID] = {"state": "waiting_coupon_amount_percent", "code": state_data.get("code")}
-        await query.edit_message_text("چند درصد تخفیف؟")
-    elif data == "coup_type_fixed":
-        USER_STATES[ADMIN_ID] = {"state": "waiting_coupon_amount_fixed", "code": state_data.get("code")}
-        await query.edit_message_text("چند تومان تخفیف؟")
-
+# ================= اجرای سرور و ربات =================
 def run_flask():
     port = int(os.environ.get("PORT", 5000))
     app_web.run(host="0.0.0.0", port=port, debug=False, use_reloader=False)
@@ -459,14 +469,17 @@ def run_flask():
 def run_bot():
     global bot_app
     bot_app = Application.builder().token(BOT_TOKEN).build()
-    
     bot_app.add_handler(CommandHandler("start", start))
-    bot_app.add_handler(CallbackQueryHandler(coupon_type_handler, pattern="^coup_type_"))
     bot_app.add_handler(CallbackQueryHandler(button_handler))
     bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
-
+    
+    print("🚀 Bot is polling...")
     bot_app.run_polling(drop_pending_updates=True)
 
 if __name__ == "__main__":
+    print("🌐 Starting Web Server...")
     threading.Thread(target=run_flask, daemon=True).start()
+    import time
+    time.sleep(2) 
+    print("🤖 Starting Bot...")
     run_bot()
