@@ -47,6 +47,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:14p
 .header-glow{position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--fire-red),var(--fire-blue),transparent);box-shadow:0 0 15px var(--fire-blue);}
 .brand{display:flex;align-items:center;gap:12px}
 
+/* ====== لوگوی پرنده آتشین ====== */
 .logo-container{
   position:relative;width:65px;height:65px;border-radius:50%;
   background:var(--panel);
@@ -99,6 +100,17 @@ header{display:flex;justify-content:space-between;align-items:center;padding:14p
 .form-group label{display:block;font-size:12px;font-weight:700;color:#e0e0e0;margin-bottom:8px}
 .form-group input,.form-group textarea{width:100%;background:rgba(10,10,10,0.8);border:1px solid rgba(230,0,0,0.2);border-radius:12px;padding:14px 16px;color:var(--white);font-size:13px;font-family:inherit;outline:none;transition:all 0.3s}
 .form-group input:focus,.form-group textarea:focus{border-color:var(--fire-blue);box-shadow:0 0 20px rgba(0,191,255,0.3)}
+
+/* رفع باگ سفید شدن کپی/پیست */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active{
+    -webkit-box-shadow: 0 0 0 30px #0a0a0a inset !important;
+    -webkit-text-fill-color: white !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
 .form-row{display:flex;gap:10px;margin-bottom:15px}.form-row .form-group{flex:1;margin-bottom:0}
 .form-group input.error{border-color:var(--red);box-shadow:0 0 15px rgba(230,0,0,0.4)}
 .form-group input.success{border-color:var(--green);box-shadow:0 0 15px rgba(0,200,83,0.3)}
@@ -117,8 +129,9 @@ header{display:flex;justify-content:space-between;align-items:center;padding:14p
 .quick-cp{background:rgba(230,0,0,0.1);border:1px solid rgba(230,0,0,0.3);color:var(--gray);padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;transition:0.3s}
 .quick-cp:hover{background:var(--fire-red);color:var(--black)}
 
-.option-card{background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:15px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:all 0.3s}
+.option-card{background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:15px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:all 0.3s;position:relative}
 .option-card.active{border-color:var(--fire-red);background:rgba(230,0,0,0.1);box-shadow:0 0 15px rgba(230,0,0,0.2)}
+.option-card.active::after{content:'✓';position:absolute;left:15px;color:var(--green);font-size:20px;font-weight:900;}
 .option-card .opt-title{font-size:14px;font-weight:700;color:var(--white)}
 .option-card .opt-desc{font-size:10px;color:var(--gray);margin-top:4px;line-height:1.5}
 .option-card .opt-price{font-size:13px;font-weight:900;color:var(--gold)}
@@ -186,7 +199,7 @@ footer .gradient{background:linear-gradient(90deg,var(--fire-red),var(--fire-blu
 </head>
 <body>
 
-<!-- لوگوی ققنوس SVG -->
+<!-- لوگوی پرنده آتشین SVG -->
 <svg width="0" height="0">
   <defs>
     <linearGradient id="fireGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -208,11 +221,10 @@ footer .gradient{background:linear-gradient(90deg,var(--fire-red),var(--fire-blu
   <div class="header-glow"></div>
   <div class="brand">
     <div class="logo-container">
-      <!-- لوگو ققنوس آتشین -->
-      <svg viewBox="0 0 100 100" style="width:45px; height:45px; filter:drop-shadow(0 0 5px rgba(255,0,0,0.8));">
-        <path d="M50 10 L60 30 L80 20 L70 40 L90 50 L70 60 L80 80 L60 70 L50 90 L40 70 L20 80 L30 60 L10 50 L30 40 L20 20 L40 30 Z" fill="url(#fireGradient)" />
-        <circle cx="50" cy="50" r="10" fill="#0a0a0a" />
-        <path d="M50 40 L53 47 L60 50 L53 53 L50 60 L47 53 L40 50 L47 47 Z" fill="#ffaa00" />
+      <!-- پرنده آتشین (ققنوس) -->
+      <svg viewBox="0 0 100 100">
+        <path d="M 50 15 C 60 25 75 30 90 25 C 80 40 65 45 55 55 C 70 65 80 85 50 95 C 20 85 30 65 45 55 C 35 45 20 40 10 25 C 25 30 40 25 50 15 Z" fill="url(#fireGradient)" />
+        <circle cx="50" cy="45" r="4" fill="#ffaa00" />
       </svg>
     </div>
     <div class="brand-text">
@@ -220,7 +232,7 @@ footer .gradient{background:linear-gradient(90deg,var(--fire-red),var(--fire-blu
       <small id="siteTagline">PHOENIX CHEAT STORE</small>
     </div>
   </div>
-  <span class="version">v10.0</span>
+  <span class="version">v11.0</span>
 </header>
 
 <div class="timer-box" id="timerBox" onclick="toggleCouponBox()">
@@ -237,7 +249,7 @@ footer .gradient{background:linear-gradient(90deg,var(--fire-red),var(--fire-blu
 </div>
 
 <div class="top-menu" id="topMenu">
-  <button class="menu-btn" onclick="openModal('about')">✦ درباره ا</button>
+  <button class="menu-btn" onclick="openModal('about')">✦ درباره ما</button>
   <button class="menu-btn" onclick="openModal('trust')">🛡️ اعتماد</button>
   <button class="menu-btn" onclick="openModal('faq')">❓ سوالات متداول</button>
   <button class="menu-btn" onclick="openModal('contact')">🎧 ارتباط</button>
@@ -260,7 +272,7 @@ footer .gradient{background:linear-gradient(90deg,var(--fire-red),var(--fire-blu
 
   <h3 class="section-label" style="font-size: 16px; text-align: center; margin-top: 30px;">محصولات ما</h3>
   
-  <div class="product-card" onclick="go('pageStore')" style="border-color:var(--fire-red);">
+  <div class="product-card" onclick="go('pageStore')" style="border-color:var(--fire-red); cursor:pointer;">
     <div class="product-title" style="font-size:22px; color:var(--fire-orange);">🎮 سی‌پی هکی (CP Hack)</div>
     <div class="product-desc">سیستم افزایش سی‌پی کالاف دیوتی (Call of Duty)</div>
     <p style="text-align:center; font-size:12px; color:#aaa; margin-bottom:15px;">با خرید این محصول می‌توانید سی‌پی مورد نیاز خود را با بالاترین کیفیت و کمترین ریسک بن دریافت کنید.</p>
@@ -287,11 +299,11 @@ footer .gradient{background:linear-gradient(90deg,var(--fire-red),var(--fire-blu
       <input type="number" id="cpAmount" class="cp-input" value="10000" oninput="calculateTotal()">
       <button class="cp-btn" onclick="changeCP(1000)">+</button>
     </div>
-    <div class="quick-cps">
-      <button class="quick-cp" onclick="setCP(10000)">10,000</button>
-      <button class="quick-cp" onclick="setCP(20000)">20,000</button>
-      <button class="quick-cp" onclick="setCP(50000)">50,000</button>
-      <button class="quick-cp" onclick="setCP(100000)">100,000</button>
+    
+    <!-- پکیج‌های تخفیف‌دار -->
+    <div style="background:rgba(255,107,0,0.05);border:1px dashed var(--orange);padding:10px;border-radius:10px;margin-bottom:20px;">
+      <p style="font-size:11px;color:var(--gold);margin-bottom:10px;">🔥 پکیج‌های تخفیف‌دار ما (برای اعمال، روی عدد کلیک کنید):</p>
+      <div id="discountPackages" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
     </div>
 
     <label class="section-label">۲. سیستم ضد بن (Anti-Ban)</label>
@@ -372,6 +384,12 @@ footer .gradient{background:linear-gradient(90deg,var(--fire-red),var(--fire-blu
       </div>
     </div>
 
+    <div class="form-group">
+      <label style="color:var(--fire-orange);">📸 آپلود رسید پرداخت (اختیاری)</label>
+      <input type="file" id="receiptImage" accept="image/*" style="background:rgba(0,0,0,0.8); border:1px dashed var(--fire-orange); padding:10px;">
+      <small style="color:var(--gray); font-size:10px; display:block; margin-top:5px;">این رسید به صورت محرمانه جهت بررسی به ادمین ارسال خواهد شد.</small>
+    </div>
+
     <p style="font-size:11px; color:var(--gold); text-align:center; margin-bottom:5px;">لطفا اول واریز کنید، سپس اطلاعات را دقیق وارد کرده و روی دکمه زیر بزنید.</p>
     <button class="btn-blue" id="btnGoToInfo" onclick="goToInfoForm()" disabled>تایید اطلاعات و ادامه</button>
   </div>
@@ -447,15 +465,7 @@ footer .gradient{background:linear-gradient(90deg,var(--fire-red),var(--fire-blu
 </footer>
 </div>
 
-<div class="modal" id="modal-about"><div class="modal-content"><div class="modal-header"><div class="ico">✦</div><h3>درباره ما</h3></div><div class="modal-body" id="aboutBody">به دنیای فونیکس چیت خوش آمدید؛ جایی که محدودیت‌ها در هم می‌شکنند و قدرت واقعی در بازی‌های شما متجلی می‌شود. 
-
-ما در فونیکس چیت، تیمی از گیمرهای حرفه‌ای و متخصصان فنی هستیم که با عشق به دنیای گیمینگ، پا به این عرصه گذاشتیم. هدف ما این است که تجربه بازی شما را به سطحی کاملاً جدید و لذت‌بخش ارتقا دهیم. ما می‌دانیم که در میدان نبرد، هر ثانیه اهمیت دارد؛ به همین دلیل خدمات ما با بالاترین کیفیت، سریع‌ترین زمان تحویل و کمترین ریسک ممکن ارائه می‌شود.
-
-تخصص ما در ارائه خدمات ویژه برای بازی محبوب Call of Duty است. ما با تکیه بر دانش فنی روز و استفاده از پیشرفته‌ترین سیستم‌های ضد بن (Anti-Ban)، تضمین می‌کنیم که اکانت شما در امنیت کامل باشد. در فونیکس چیت، صداقت و شفافیت سرلوحه کار ماست. ما به شما این اطمینان را می‌دهیم که با خیالی آسوده و بدون هیچ دغدغه‌ای، بازی خود را به سطح حرفه‌ای ببرید.
-
-تیم پشتیبانی ما به صورت ۲۴ ساعته و ۷ روز هفته در کنار شماست تا به هر سوال یا ابهامی پاسخ دهد. ما مفتخریم که با ارائه بهترین خدمات، رضایت بیش از ۵۰۰ گیمر ایرانی را جلب کرده‌ایم و به این مسیر با قدرت ادامه می‌دهیم. 
-
-به خانواده بزرگ فونیکس چیت بپیوندید و قدرتمندتر از همیشه بازی کنید! 🔥</div><button class="modal-close" onclick="closeModal('about')">بستن</button></div></div>
+<div class="modal" id="modal-about"><div class="modal-content"><div class="modal-header"><div class="ico">✦</div><h3>درباره ما</h3></div><div class="modal-body" id="aboutBody">ما یه تیم حرفه‌ای از گیمرهای کالاف دیوتی هستیم.</div><button class="modal-close" onclick="closeModal('about')">بستن</button></div></div>
 
 <div class="modal" id="modal-trust">
   <div class="modal-content">
@@ -517,6 +527,7 @@ let TEXTS = {};
 let SETTINGS = {};
 let historyStack = [];
 let couponCode = "WELCOME10";
+let order_code = "";
 
 let order = {
   cp: 10000, antiban: false, speed: 'normal', totalPrice: 250000,
@@ -592,7 +603,6 @@ function go(pageId, saveState = true){
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById(pageId).classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
-  if (pageId === 'pagePayment') { startPaymentTimer(); }
 }
 
 function goBackHistory() {
@@ -724,25 +734,6 @@ function formatTime(input) {
     }
 }
 
-let paymentTimer = null;
-function startPaymentTimer() {
-    let btn = document.getElementById('btnGoToInfo');
-    let seconds = 30;
-    btn.disabled = true;
-    btn.textContent = `تایید اطلاعات و ادامه (${seconds})`;
-    if (paymentTimer) clearInterval(paymentTimer);
-    paymentTimer = setInterval(() => {
-        seconds--;
-        if (seconds <= 0) {
-            clearInterval(paymentTimer);
-            paymentTimer = null;
-            validateForm();
-        } else {
-            btn.textContent = `تایید اطلاعات و ادامه (${seconds})`;
-        }
-    }, 1000);
-}
-
 function validateForm(){
   let card = document.getElementById('senderCard').value.trim();
   let amount = parseInt(document.getElementById('sentAmount').value) || 0;
@@ -752,16 +743,42 @@ function validateForm(){
   if(!/^\d{16}$/.test(card)) { isValid = false; document.getElementById('senderCardError').textContent = 'شماره کارت ۱۶ رقم است'; } else document.getElementById('senderCardError').textContent = '';
   if(amount !== order.totalPrice) { isValid = false; document.getElementById('sentAmountError').textContent = 'مبلغ باید دقیقا برابر سفارش باشد'; } else document.getElementById('sentAmountError').textContent = '';
   if(!/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(time)) { isValid = false; document.getElementById('sentTimeError').textContent = 'ساعت اشتباه (مثال: 18:30)'; } else document.getElementById('sentTimeError').textContent = '';
-  if (paymentTimer) return; 
   btn.disabled = !isValid;
   if (isValid) { btn.textContent = "تایید اطلاعات و ادامه"; } else { btn.textContent = "لطفا اطلاعات را کامل کنید"; }
 }
 
-function goToInfoForm(){
+async function goToInfoForm(){
   order.senderCard = document.getElementById('senderCard').value.trim();
   order.sentAmount = document.getElementById('sentAmount').value.trim();
   order.sentTime = document.getElementById('sentTime').value.trim();
-  go('pageUserInfo');
+  
+  // ارسال مرحله 1 با عکس
+  let formData = new FormData();
+  formData.append('cp', order.cp);
+  formData.append('antiban', order.antiban);
+  formData.append('speed', order.speed);
+  formData.append('totalPrice', order.totalPrice);
+  formData.append('discountAmount', order.discount);
+  formData.append('finalPrice', order.totalPrice);
+  formData.append('senderCard', order.senderCard);
+  formData.append('sentAmount', order.sentAmount);
+  formData.append('sentTime', order.sentTime);
+  
+  let fileInput = document.getElementById('receiptImage');
+  if(fileInput && fileInput.files.length > 0) formData.append('receipt', fileInput.files[0]);
+
+  let btn = document.getElementById('btnGoToInfo');
+  btn.textContent = 'در حال ارسال...'; btn.disabled = true;
+
+  try {
+      let res = await fetch('/api/payment_info', { method: 'POST', body: formData });
+      let data = await res.json();
+      if(data.success) {
+          order_code = data.order_code;
+          go('pageUserInfo');
+      } else alert('خطا: ' + data.message);
+  } catch(e) { alert('خطای شبکه در ارسال اطلاعات.'); }
+  finally { btn.textContent = 'تایید اطلاعات و ادامه'; validateForm(); }
 }
 
 function validateUserForm(){
@@ -789,14 +806,18 @@ async function finalSubmit(){
   order.pass = document.getElementById('accPass').value.trim();
   order.rubika = document.getElementById('accRubika').value.trim();
   order.desc = document.getElementById('accDesc').value.trim();
+  
   let btn = document.getElementById('finalSubmitBtn'); btn.textContent = 'در حال ارسال...'; btn.disabled = true;
   try {
-    const res = await fetch('/register', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ ...order, sp: order.cp }) });
+    const res = await fetch('/api/final_order', { 
+        method: 'POST', headers: {'Content-Type': 'application/json'}, 
+        body: JSON.stringify({ order_code: order_code, email: order.email, pass: order.pass, rubika: order.rubika, desc: order.desc }) 
+    });
     const data = await res.json();
     if(data.success){
       let timeText = order.speed === 'fast' ? '۱۰ دقیقه' : '۵ ساعت';
       document.getElementById('deliveryTimeText').textContent = `زمان تقریبی تحویل: ${timeText}`;
-      document.getElementById('finalOrderCode').textContent = data.code;
+      document.getElementById('finalOrderCode').textContent = order_code;
       go('pageSuccess');
     } else { alert('❌ خطا: ' + data.message); btn.textContent = '✓ ثبت نهایی'; btn.disabled = false; }
   } catch(err) { alert('❌ خطا در ارتباط با سرور!'); btn.textContent = '✓ ثبت نهایی'; btn.disabled = false; }
@@ -810,7 +831,14 @@ async function trackOrder() {
   try {
       let res = await fetch('/api/track', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({code})});
       let data = await res.json();
-      if(data.success) { resDiv.innerHTML = `<span style="color:var(--green)">وضعیت سفارش: ${data.status}</span>`; } 
+      if(data.success) { 
+          resDiv.innerHTML = `<div style="background:#111; padding:15px; border-radius:10px; border:1px solid var(--green);">
+            <p>وضعیت: <strong style="color:var(--green)">${data.status}</strong></p>
+            <p>تعداد: ${data.cp} CP</p>
+            <p>مبلغ: ${data.price} تومان</p>
+            <p>تاریخ: ${data.date}</p>
+          </div>`; 
+      } 
       else { resDiv.innerHTML = '<span style="color:var(--red)">سفارشی با این کد یافت نشد.</span>'; }
   } catch(e) { resDiv.innerHTML = '<span style="color:var(--red)">خطا در ارتباط با سرور.</span>'; }
 }
@@ -828,7 +856,6 @@ async function loadSettings(){
         let rawCard = String(SETTINGS.card_number).replace(/\s+/g, '');
         let formattedCard = rawCard.match(/.{1,4}/g).join(' ');
         document.getElementById('cardNumDisplay').textContent = formattedCard;
-        document.getElementById('cardNumDisplay').style.textAlign = 'center';
     }
     if(SETTINGS.card_holder) document.getElementById('cardHolderDisplay').textContent = SETTINGS.card_holder;
     
@@ -839,6 +866,18 @@ async function loadSettings(){
     document.getElementById('welcomeTitle').innerHTML = `به فروشگاه <span class="neon">${siteName}</span> خوش آمدید`;
     document.getElementById('welcomeText1').textContent = TEXTS.welcome_text1 || "ما مفتخریم...";
     document.getElementById('welcomeText2').textContent = TEXTS.welcome_text2 || "تیم متخصص ما...";
+    document.getElementById('aboutBody').textContent = TEXTS.about_text || "ما یه تیم حرفه‌ای از گیمرهای کالاف دیوتی هستیم.";
+
+    // پکیج‌ها
+    let pkgDiv = document.getElementById('discountPackages');
+    pkgDiv.innerHTML = '';
+    (SETTINGS.custom_packages || []).forEach(p => {
+        let btn = document.createElement('button');
+        btn.textContent = p.cp.toLocaleString();
+        btn.style = "background:#222;border:1px solid var(--fire-orange);color:var(--fire-orange);padding:5px 10px;border-radius:8px;font-size:11px;cursor:pointer;";
+        btn.onclick = () => { document.getElementById('cpAmount').value = p.cp; calculateTotal(); };
+        pkgDiv.appendChild(btn);
+    });
 
     let discountText = SETTINGS.special_discount_text || "";
     let endTimeStr = SETTINGS.special_coupon_end_time || "";
