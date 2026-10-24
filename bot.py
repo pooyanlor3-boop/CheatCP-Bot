@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-# PhoenixCheat Bot - Final Stable Version
-# JSONBin + Fixed Event Loop + Better Error Handling
+# PhoenixCheat Bot - Final Stable + Fixed Toggle & Confirm
+# JSONBin + Robust Event Loop + Better Error Handling
 
 import json
 import os
@@ -10,7 +10,6 @@ import threading
 import asyncio
 import time
 from datetime import datetime, timedelta
-from functools import wraps
 
 import requests
 from flask import Flask, request, jsonify, send_from_directory
@@ -125,10 +124,9 @@ def make_code():
 
 
 # ==========================================
-# کمک‌کننده برای اجرای async از داخل Flask
+# کمک‌کننده برای اجرای async
 # ==========================================
 def run_async(coro):
-    """اجرای امن کوروتین از ترد Flask"""
     try:
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
@@ -174,7 +172,7 @@ def track_order():
         for o in db.get("orders", []):
             if o.get("code") == code:
                 status = o.get("status", "pending")
-                if status == "pending" or status == "pending_payment":
+                if status in ("pending", "pending_payment"):
                     status_fa = "⏳ در انتظار بررسی"
                 elif status == "accepted":
                     status_fa = "✅ تایید شده"
@@ -223,14 +221,12 @@ def payment_info():
         db = load_data()
         settings = db.get("settings", {})
 
-        # چک باز بودن سایت
         if not settings.get("registration_open", True):
             return jsonify({"success": False, "message": "سایت فعلاً بسته است"}), 403
 
         data = request.form
         oid = db.get("next_order_id", 1)
 
-        # عکس رسید
         receipt = request.files.get("receipt")
         receipt_path = None
         if receipt and receipt.filename:
@@ -261,10 +257,8 @@ def payment_info():
         db["next_order_id"] = oid + 1
         save_data(db)
 
-        # ارسال به گروه
         send_payment_msg(order, receipt_path)
 
-        # پاک کردن فایل موقت
         if receipt_path and os.path.exists(receipt_path):
             try:
                 os.remove(receipt_path)
@@ -397,7 +391,12 @@ def send_account_msg(code):
 # ==========================================
 # پنل ادمین
 # ==========================================
-def get_main_menu():
+def get_main_menu(db=None):
+    if db is None:
+        db = load_data()
+    is_open = db.get("settings", {}).get("registration_open", True)
+    status_text = "🟢 سایت باز است" if is_open else "🔴 سایت بسته است"
+
     return [
         [InlineKeyboardButton("📦 سفارشات", callback_data="menu_orders"),
          InlineKeyboardButton("📊 آمار", callback_data="menu_stats")],
@@ -405,8 +404,8 @@ def get_main_menu():
         [InlineKeyboardButton("💰 تنظیم قیمت‌ها", callback_data="menu_prices"),
          InlineKeyboardButton("🎟️ کد تخفیف", callback_data="menu_coupons")],
         [InlineKeyboardButton("🎁 تخفیف ویژه", callback_data="menu_special")],
-        [InlineKeyboardButton("💳 تنظیم کارت", callback_data="menu_card"),
-         InlineKeyboardButton("🔐 باز/بسته", callback_data="menu_toggle_reg")],
+        [InlineKeyboardButton("💳 تنظیم کارت", callback_data="menu_card")],
+        [InlineKeyboardButton(status_text, callback_data="menu_toggle_reg")],
     ]
 
 
@@ -414,9 +413,10 @@ async def start(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ADMIN_ID:
         return
     USER_STATES.pop(ADMIN_ID, None)
+    db = load_data()
     await update.message.reply_text(
         "🎮 **پنل مدیریت PhoenixCheat**",
-        reply_markup=InlineKeyboardMarkup(get_main_menu()),
+        reply_markup=InlineKeyboardMarkup(get_main_menu(db)),
         parse_mode="Markdown"
     )
 
@@ -433,7 +433,7 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             USER_STATES.pop(ADMIN_ID, None)
             await query.edit_message_text(
                 "🎮 **پنل مدیریت PhoenixCheat**",
-                reply_markup=InlineKeyboardMarkup(get_main_menu()),
+                reply_markup=InlineKeyboardMarkup(get_main_menu(db)),
                 parse_mode="Markdown"
             )
 
@@ -518,8 +518,18 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
                 await query.answer("✅ پکیج حذف شد", show_alert=True)
             except:
                 await query.answer("❌ خطا در حذف", show_alert=True)
-            # برگشت به لیست
-            await button_handler(update, ctx)
+            # برگشت به لیست پکیج
+            text = "📦 **مدیریت پکیج‌ها**\n\n"
+            kb = []
+            for i, pkg in enumerate(s.get("custom_packages", [])):
+                text += f"🔹 {pkg['cp']:,} CP = {pkg['price']:,} ت\n"
+                kb.append([
+                    InlineKeyboardButton(f"✏️ {pkg['cp']:,}", callback_data=f"edit_pkg_{i}"),
+                    InlineKeyboardButton("🗑️", callback_data=f"del_pkg_{i}")
+                ])
+            kb.append([InlineKeyboardButton("➕ افزودن پکیج", callback_data="add_pkg")])
+            kb.append([InlineKeyboardButton("🔙 بازگشت", callback_data="menu_prices")])
+            await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
 
         elif data == "add_pkg":
             USER_STATES[ADMIN_ID] = {"state": "waiting_pkg_cp"}
@@ -570,7 +580,10 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             s["special_discount_text"] = ""
             save_data(db)
             await query.answer("✅ حذف شد", show_alert=True)
-            await button_handler(update, ctx)
+            await query.edit_message_text(
+                "🎁 کد ویژه حذف شد.",
+                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 بازگشت", callback_data="back")]])
+            )
 
         elif data.startswith("dp_"):
             parts = data.split("_")
@@ -635,7 +648,15 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             db["coupons"] = [c for c in db.get("coupons", []) if c.get("code") != code]
             save_data(db)
             await query.answer("✅ حذف شد", show_alert=True)
-            await button_handler(update, ctx)
+            # رفرش لیست
+            kb = [[InlineKeyboardButton("➕ ساخت کد تخفیف", callback_data="add_coup")]]
+            text = "🎟️ **کدهای تخفیف:**\n\n"
+            for c in db.get("coupons", []):
+                type_str = f"{c['amount']}%" if c.get("type") == "percent" else f"{c['amount']:,} تومان"
+                text += f"`{c['code']}` → {type_str}\n"
+                kb.insert(0, [InlineKeyboardButton(f"🗑️ حذف {c['code']}", callback_data=f"del_coup_{c['code']}")])
+            kb.append([InlineKeyboardButton("🔙 بازگشت", callback_data="back")])
+            await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
 
         elif data == "add_coup":
             USER_STATES[ADMIN_ID] = {"state": "waiting_coupon_code"}
@@ -689,23 +710,56 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             ], [InlineKeyboardButton("🔙 بازگشت", callback_data="menu_orders")]]
             await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
 
+        # تایید / رد سفارش (بهبود یافته)
         elif data.startswith("ok_") or data.startswith("no_"):
-            oid = int(data.split("_")[1])
-            new_status = "accepted" if data.startswith("ok_") else "rejected"
-            for o in db.get("orders", []):
-                if o.get("id") == oid:
-                    o["status"] = new_status
-                    break
-            save_data(db)
-            await query.answer("✅ وضعیت تغییر کرد", show_alert=True)
-            await button_handler(update, ctx)
+            try:
+                oid = int(data.split("_")[1])
+                new_status = "accepted" if data.startswith("ok_") else "rejected"
 
+                for o in db.get("orders", []):
+                    if o.get("id") == oid:
+                        o["status"] = new_status
+                        break
+
+                save_data(db)
+
+                status_text = "تایید شد ✅" if new_status == "accepted" else "رد شد ❌"
+                await query.answer(status_text, show_alert=True)
+
+                # برگشت به لیست سفارشات بدون کرش
+                kb = []
+                for o in db.get("orders", [])[-8:][::-1]:
+                    status = o.get("status", "pending")
+                    icon = "⏳" if status in ("pending", "pending_payment") else ("✅" if status == "accepted" else "❌")
+                    kb.append([InlineKeyboardButton(
+                        f"{icon} {o.get('code')} | {o.get('final_price', 0):,} ت",
+                        callback_data=f"view_{o['id']}"
+                    )])
+                kb.append([InlineKeyboardButton("🔙 بازگشت", callback_data="back")])
+                await query.edit_message_text("📦 سفارشات اخیر:", reply_markup=InlineKeyboardMarkup(kb))
+
+            except Exception as e:
+                print(f"Confirm/Reject Error: {e}")
+                await query.answer("❌ خطا در تغییر وضعیت", show_alert=True)
+
+        # باز / بسته کردن سایت (نسخه کاملاً درست شده)
         elif data == "menu_toggle_reg":
-            s["registration_open"] = not s.get("registration_open", True)
-            save_data(db)
-            status = "باز" if s["registration_open"] else "بسته"
-            await query.answer(f"سایت الان {status} است", show_alert=True)
-            await button_handler(update, ctx)
+            current = s.get("registration_open", True)
+            s["registration_open"] = not current
+            success = save_data(db)
+
+            if success:
+                new_status = "باز 🟢" if s["registration_open"] else "بسته 🔴"
+                await query.answer(f"سایت الان {new_status} شد", show_alert=True)
+            else:
+                await query.answer("❌ خطا در ذخیره وضعیت", show_alert=True)
+
+            # آپدیت منو با وضعیت جدید
+            await query.edit_message_text(
+                "🎮 **پنل مدیریت PhoenixCheat**",
+                reply_markup=InlineKeyboardMarkup(get_main_menu(db)),
+                parse_mode="Markdown"
+            )
 
     except Exception as e:
         print(f"button_handler Error: {e}")
@@ -770,9 +824,9 @@ async def handle_text(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             return
 
         elif state == "waiting_pkg_price":
-            if "idx" in st:  # ویرایش
+            if "idx" in st:
                 s["custom_packages"][st["idx"]]["price"] = int(text)
-            else:  # جدید
+            else:
                 s["custom_packages"].append({"cp": st["cp"], "price": int(text)})
             save_data(db)
             await update.message.reply_text("✅ پکیج ذخیره شد.")
@@ -844,7 +898,7 @@ async def handle_text(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     USER_STATES.pop(ADMIN_ID, None)
     await update.message.reply_text(
         "🎮 پنل مدیریت:",
-        reply_markup=InlineKeyboardMarkup(get_main_menu())
+        reply_markup=InlineKeyboardMarkup(get_main_menu(db))
     )
 
 
@@ -866,7 +920,7 @@ def run_bot():
     bot_app = Application.builder().token(BOT_TOKEN).build()
     bot_app.add_handler(CommandHandler("start", start))
     bot_app.add_handler(CallbackQueryHandler(button_handler))
-    bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
+    bot_app.add_handler(MessageHandler(filters.TEXT & \~filters.COMMAND, handle_text))
 
     print("🚀 Bot is polling...")
     bot_app.run_polling(drop_pending_updates=True)
