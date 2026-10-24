@@ -17,9 +17,9 @@ from telegram.ext import Application, CommandHandler, CallbackQueryHandler, Mess
 # ==========================================
 # 🔐 تنظیمات
 # ==========================================
-BOT_TOKEN = os.environ.get("BOT_TOKEN", "8699196899:AAGaY7pFzU2OzBxwcF8_E-LqUbQZk4UUDgo")
-ADMIN_ID = int(os.environ.get("ADMIN_ID", "8113206201"))
-GROUP_ID = int(os.environ.get("GROUP_ID", "-1004335107809"))
+BOT_TOKEN = os.environ.get("BOT_TOKEN")
+ADMIN_ID = int(os.environ.get("ADMIN_ID", "0"))
+GROUP_ID = int(os.environ.get("GROUP_ID", "0"))
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "data.json")
