@@ -1182,10 +1182,17 @@ def run_bot():
     bot_app = Application.builder().token(BOT_TOKEN).build()
     bot_app.add_handler(CommandHandler("start", start))
     bot_app.add_handler(CallbackQueryHandler(button_handler))
-    bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
+    bot_app.add_handler(MessageHandler(filters.TEXT & \~filters.COMMAND, handle_text))
 
     print("🚀 Bot is polling...")
-    main_loop = asyncio.get_event_loop()
+
+    # درست کردن event loop برای پایتون ۳.۱۲
+    try:
+        main_loop = asyncio.get_running_loop()
+    except RuntimeError:
+        main_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(main_loop)
+
     bot_app.run_polling(drop_pending_updates=True)
 
 
