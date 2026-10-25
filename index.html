@@ -440,7 +440,7 @@ body{
 </div>
 
 <script>
-(function(){const c=document.getElementById('particles');for(let i=0;i=32;i++){const p=document.createElement('div');p.className='particle';p.style.left=Math.random()*100+'%';p.style.width=p.style.height=(2+Math.random()*5)+'px';p.style.background=['#ffaa00','#ff4500','#00bfff','#ff0000'][i%4];p.style.boxShadow='0 0 12px currentColor';p.style.animationDuration=(11+Math.random()*16)+'s';p.style.animationDelay=Math.random()*10+'s';c.appendChild(p);}})();
+(function(){const c=document.getElementById('particles');const p=document.createElement('div');p.className='particle';p.style.left=Math.random()*100+'%';p.style.width=p.style.height=(2+Math.random()*5)+'px';p.style.background=['#ffaa00','#ff4500','#00bfff','#ff0000'][i%4];p.style.boxShadow='0 0 12px currentColor';p.style.animationDuration=(11+Math.random()*16)+'s';p.style.animationDelay=Math.random()*10+'s';c.appendChild(p);}})();
 document.addEventListener('click',e=>{const s=document.createElement('div');s.className='sparkle';s.style.left=e.clientX+'px';s.style.top=e.clientY+'px';s.style.color=['#ff4500','#00bfff','#ffaa00','#ff0000'][Math.floor(Math.random()*4)];document.body.appendChild(s);setTimeout(()=>s.remove(),750);});
 
 let SETTINGS={},TEXTS={},currentUser=null;
@@ -1090,7 +1090,7 @@ body{
 </div>
 
 <script>
-(function(){const c=document.getElementById('particles');for(let i=0;i=32;i++){const p=document.createElement('div');p.className='particle';p.style.left=Math.random()*100+'%';p.style.width=p.style.height=(2+Math.random()*5)+'px';p.style.background=['#ffaa00','#ff4500','#00bfff','#ff0000'][i%4];p.style.boxShadow='0 0 12px currentColor';p.style.animationDuration=(11+Math.random()*16)+'s';p.style.animationDelay=Math.random()*10+'s';c.appendChild(p);}})();
+(function(){const c=document.getElementById('particles');for(let i=0;i<32;i++){const p=document.createElement('div');p.className='particle';p.style.left=Math.random()*100+'%';p.style.width=p.style.height=(2+Math.random()*5)+'px';p.style.background=['#ffaa00','#ff4500','#00bfff','#ff0000'][i%4];p.style.boxShadow='0 0 12px currentColor';p.style.animationDuration=(11+Math.random()*16)+'s';p.style.animationDelay=Math.random()*10+'s';c.appendChild(p);}})();
 document.addEventListener('click',e=>{const s=document.createElement('div');s.className='sparkle';s.style.left=e.clientX+'px';s.style.top=e.clientY+'px';s.style.color=['#ff4500','#00bfff','#ffaa00','#ff0000'][Math.floor(Math.random()*4)];document.body.appendChild(s);setTimeout(()=>s.remove(),750);});
 
 let SETTINGS={},TEXTS={},currentUser=null;
