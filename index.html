@@ -16,58 +16,54 @@
 html,body{min-height:100%;overflow-x:hidden}
 body{
   background:var(--black);
-  background-image: radial-gradient(ellipse at top, rgba(230,0,0,0.18), transparent 55%),
-                    radial-gradient(ellipse at bottom, rgba(255,107,0,0.12), transparent 50%);
+  background-image: radial-gradient(ellipse at top, rgba(230,0,0,0.2), transparent 55%),
+                    radial-gradient(ellipse at bottom, rgba(255,107,0,0.14), transparent 50%);
   color:var(--white); font-family:'Vazirmatn',Tahoma,sans-serif; min-height:100vh; position:relative;
 }
 
-/* ===== ذرات و ستاره‌ها ===== */
+/* ذرات و ستاره‌ها */
 .particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
 .particle{
-  position:absolute;border-radius:50%;opacity:0.6;
-  animation:floatUp 16s infinite ease-in-out;
+  position:absolute;border-radius:50%;opacity:0.7;
+  animation:floatUp linear infinite;
 }
-.particle:nth-child(odd){background:var(--gold);box-shadow:0 0 12px var(--gold);width:4px;height:4px}
-.particle:nth-child(even){background:var(--fire-red);box-shadow:0 0 14px var(--fire-red);width:6px;height:6px;animation-duration:22s}
-.particle:nth-child(3n){background:var(--fire-blue);box-shadow:0 0 10px var(--fire-blue);width:3px;height:3px;animation-duration:13s}
 @keyframes floatUp{
-  0%{transform:translateY(100vh) scale(0);opacity:0}
-  15%{opacity:0.8}
-  85%{opacity:0.6}
-  100%{transform:translateY(-15vh) scale(1.4);opacity:0}
+  0%{transform:translateY(110vh) scale(0);opacity:0}
+  10%{opacity:0.85}
+  90%{opacity:0.6}
+  100%{transform:translateY(-20vh) scale(1.5);opacity:0}
 }
 .stars-bg{
-  position:fixed;inset:0;z-index:0;opacity:0.35;
+  position:fixed;inset:0;z-index:0;opacity:0.4;
   background-image:
-    radial-gradient(1.5px 1.5px at 10% 20%, white, transparent),
-    radial-gradient(1px 1px at 30% 60%, rgba(255,255,255,0.7), transparent),
-    radial-gradient(2px 2px at 70% 30%, var(--fire-blue), transparent),
-    radial-gradient(1px 1px at 90% 80%, var(--gold), transparent),
-    radial-gradient(1.5px 1.5px at 50% 10%, white, transparent);
-  background-size:220px 220px;
-  animation:twinkle 5s infinite alternate;
+    radial-gradient(1.5px 1.5px at 8% 15%, #fff, transparent),
+    radial-gradient(1px 1px at 25% 55%, rgba(255,255,255,0.8), transparent),
+    radial-gradient(2px 2px at 65% 25%, var(--fire-blue), transparent),
+    radial-gradient(1.5px 1.5px at 85% 75%, var(--gold), transparent),
+    radial-gradient(1px 1px at 45% 5%, #fff, transparent),
+    radial-gradient(2px 2px at 15% 80%, var(--fire-orange), transparent);
+  background-size:250px 250px;
+  animation:twinkle 4.5s infinite alternate;
 }
-@keyframes twinkle{0%{opacity:0.25}100%{opacity:0.5}}
+@keyframes twinkle{0%{opacity:0.28}100%{opacity:0.55}}
 
-/* کلیک افکت */
 .sparkle{
-  position:fixed;pointer-events:none;width:10px;height:10px;border-radius:50%;
-  animation:sparkleAnim 0.7s ease-out forwards;z-index:9999;
-  box-shadow:0 0 18px currentColor;
+  position:fixed;pointer-events:none;width:11px;height:11px;border-radius:50%;
+  animation:sparkleAnim 0.75s ease-out forwards;z-index:9999;
+  box-shadow:0 0 20px currentColor;
 }
 @keyframes sparkleAnim{0%{transform:scale(1);opacity:1}100%{transform:scale(0);opacity:0}}
 
 .app{max-width:520px;margin:0 auto;padding:16px;position:relative;z-index:2}
 .view{display:none !important}
 .view.active{display:block !important;animation:fadeIn 0.45s ease-out}
-@keyframes fadeIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 
-/* هدر */
 .header{display:flex;justify-content:space-between;align-items:center;padding:14px 0;margin-bottom:20px;position:relative}
 .header::after{
   content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
   background:linear-gradient(90deg,transparent,var(--fire-red),var(--fire-blue),transparent);
-  box-shadow:0 0 12px var(--fire-blue);
+  box-shadow:0 0 14px var(--fire-blue);
 }
 .brand{display:flex;align-items:center;gap:12px}
 .logo{
@@ -76,108 +72,99 @@ body{
   border:2px solid transparent;
   background-image:linear-gradient(var(--panel),var(--panel)),radial-gradient(circle,var(--fire-blue),var(--fire-red),var(--fire-orange));
   background-origin:border-box;background-clip:padding-box,border-box;
-  box-shadow:0 0 20px var(--fire-red);animation:pulseLogo 2.5s infinite alternate;
+  box-shadow:0 0 22px var(--fire-red);animation:pulseLogo 2.4s infinite alternate;
 }
-@keyframes pulseLogo{0%{box-shadow:0 0 12px var(--fire-red)}100%{box-shadow:0 0 28px var(--fire-blue)}}
+@keyframes pulseLogo{0%{box-shadow:0 0 14px var(--fire-red)}100%{box-shadow:0 0 32px var(--fire-blue)}}
 .brand-text h1{font-size:21px;font-weight:900;background:linear-gradient(90deg,var(--fire-blue),var(--fire-red),var(--fire-orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .brand-text small{font-size:11px;color:var(--gray);letter-spacing:1px}
 
-/* دکمه لاگین */
 .login-btn{
   background:linear-gradient(90deg,#0d0d0d,#1a1a1a);border:1px solid var(--fire-blue);
   color:var(--fire-blue);padding:9px 18px;border-radius:22px;font-size:13px;font-weight:700;
-  cursor:pointer;box-shadow:0 0 18px rgba(0,191,255,0.35);animation:glowPulse 2.2s infinite;
-  transition:0.3s;
+  cursor:pointer;box-shadow:0 0 18px rgba(0,191,255,0.4);animation:glowPulse 2.2s infinite;transition:0.3s;
 }
-.login-btn:hover{transform:scale(1.05);box-shadow:0 0 28px rgba(0,191,255,0.7)}
-@keyframes glowPulse{0%,100%{box-shadow:0 0 12px rgba(0,191,255,0.3)}50%{box-shadow:0 0 26px rgba(0,191,255,0.75)}}
+.login-btn:hover{transform:scale(1.06);box-shadow:0 0 30px rgba(0,191,255,0.8)}
+@keyframes glowPulse{0%,100%{box-shadow:0 0 12px rgba(0,191,255,0.35)}50%{box-shadow:0 0 28px rgba(0,191,255,0.8)}}
 
-/* کارت‌ها و دکمه‌ها */
 .card{
   background:linear-gradient(145deg,rgba(26,26,26,0.97),rgba(10,10,10,0.97));
-  border:1px solid rgba(230,0,0,0.28);border-radius:20px;padding:24px;margin-bottom:18px;
-  box-shadow:0 10px 35px rgba(0,0,0,0.5);position:relative;overflow:hidden;
-}
-.card::before{
-  content:'';position:absolute;inset:0;border-radius:inherit;
-  box-shadow:inset 0 0 25px rgba(230,0,0,0.08);pointer-events:none;
+  border:1px solid rgba(230,0,0,0.3);border-radius:20px;padding:24px;margin-bottom:18px;
+  box-shadow:0 12px 40px rgba(0,0,0,0.55);position:relative;overflow:hidden;
 }
 .btn-main,.btn-orange,.btn-blue,.btn-green{
   display:flex;align-items:center;justify-content:center;gap:10px;width:100%;
   color:#0a0a0a;font-weight:900;font-size:15px;border:0;border-radius:14px;
   padding:16px;margin-top:12px;cursor:pointer;font-family:inherit;transition:0.3s;
-  position:relative;overflow:hidden;
 }
-.btn-main,.btn-orange{background:linear-gradient(100deg,var(--fire-red),var(--fire-orange));box-shadow:0 0 28px rgba(230,0,0,0.5)}
-.btn-blue{background:linear-gradient(100deg,var(--fire-blue),#0052d4);color:white;box-shadow:0 0 22px rgba(0,191,255,0.4)}
-.btn-green{background:linear-gradient(100deg,#00c853,#009624);color:white}
-.btn-main:hover,.btn-orange:hover{transform:translateY(-3px);box-shadow:0 0 40px rgba(230,0,0,0.85)}
+.btn-main,.btn-orange{background:linear-gradient(100deg,var(--fire-red),var(--fire-orange));box-shadow:0 0 28px rgba(230,0,0,0.55)}
+.btn-blue{background:linear-gradient(100deg,var(--fire-blue),#0052d4);color:white;box-shadow:0 0 22px rgba(0,191,255,0.45)}
+.btn-main:hover{transform:translateY(-3px);box-shadow:0 0 42px rgba(230,0,0,0.9)}
 .btn-outline{
   background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.15);color:var(--white);
   border-radius:12px;padding:13px;width:100%;font-family:inherit;font-size:14px;cursor:pointer;margin-top:9px;transition:0.3s;
 }
-.btn-outline:hover{border-color:var(--fire-red);background:rgba(230,0,0,0.1)}
+.btn-outline:hover{border-color:var(--fire-red);background:rgba(230,0,0,0.12)}
 
-/* فرم */
 .form-group{margin-bottom:16px}
 .form-group label{display:block;font-size:12px;font-weight:700;color:#e0e0e0;margin-bottom:8px}
 .form-group input,.form-group textarea{
-  width:100%;background:rgba(8,8,8,0.85);border:1px solid rgba(230,0,0,0.22);
+  width:100%;background:rgba(8,8,8,0.85);border:1px solid rgba(230,0,0,0.25);
   border-radius:12px;padding:14px 16px;color:var(--white);font-size:14px;font-family:inherit;outline:none;transition:0.3s;
 }
 .form-group input:focus{border-color:var(--fire-blue);box-shadow:0 0 18px rgba(0,191,255,0.3)}
-.form-group input.success{border-color:var(--green);box-shadow:0 0 12px rgba(0,200,83,0.25)}
-.form-group input.error{border-color:var(--red)}
+.form-group input.success{border-color:var(--green)!important;box-shadow:0 0 14px rgba(0,200,83,0.3)}
+.form-group input.error{border-color:var(--red)!important}
 .error-text{font-size:11px;color:var(--red);margin-top:5px;min-height:16px}
 .success-text{font-size:11px;color:var(--green);margin-top:5px}
 
-/* گزینه‌ها */
 .option-card{
-  background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:14px;
+  background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.12);border-radius:14px;
   padding:18px;margin-bottom:12px;cursor:pointer;transition:0.35s;position:relative;
 }
-.option-card:hover{border-color:rgba(230,0,0,0.5);transform:translateY(-2px)}
-.option-card.active{border-color:var(--fire-red);background:rgba(230,0,0,0.13);box-shadow:0 0 20px rgba(230,0,0,0.2)}
+.option-card:hover{border-color:rgba(230,0,0,0.55);transform:translateY(-2px)}
+.option-card.active{border-color:var(--fire-red);background:rgba(230,0,0,0.14);box-shadow:0 0 22px rgba(230,0,0,0.25)}
 .option-card.active::after{content:'✓';position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--green);font-size:22px;font-weight:900}
 .option-card .title{font-size:16px;font-weight:800;margin-bottom:6px}
 .option-card .desc{font-size:12px;color:var(--gray);line-height:1.7}
 
-/* موجودی */
 .balance-box{
-  background:linear-gradient(90deg,rgba(0,200,83,0.12),rgba(0,200,83,0.05));
-  border:1px solid rgba(0,200,83,0.4);border-radius:14px;padding:13px 18px;
+  background:linear-gradient(90deg,rgba(0,200,83,0.14),rgba(0,200,83,0.05));
+  border:1px solid rgba(0,200,83,0.45);border-radius:14px;padding:13px 18px;
   display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;font-size:14px;
 }
 .balance-box .val{font-weight:900;color:var(--green);font-size:17px}
 
-/* هشدار */
 .warn-box{
-  background:rgba(230,0,0,0.13);border:1px solid rgba(230,0,0,0.45);
+  background:rgba(230,0,0,0.14);border:1px solid rgba(230,0,0,0.5);
   padding:15px;border-radius:13px;font-size:13px;line-height:1.85;margin:15px 0;color:#ff9a9a;
 }
 .notice-box{
-  background:rgba(255,170,0,0.1);border:1px solid rgba(255,170,0,0.35);
+  background:rgba(255,170,0,0.11);border:1px solid rgba(255,170,0,0.4);
   padding:13px;border-radius:12px;font-size:12px;color:#ffcc80;margin:13px 0;line-height:1.8;
 }
 
-/* صفحه بسته */
 .closed-page{text-align:center;padding:70px 20px}
-.closed-page .icon{font-size:70px;margin-bottom:22px;animation:pulseLogo 2s infinite alternate}
+.closed-page .icon{font-size:72px;margin-bottom:22px;animation:pulseLogo 2s infinite alternate}
 .closed-page h2{font-size:24px;margin-bottom:18px;color:var(--fire-orange);font-weight:900}
 .closed-page p{font-size:14px;line-height:2.1;color:#ccc;margin-bottom:32px}
 
 .copy-btn{
-  background:rgba(0,168,255,0.12);border:1px solid var(--fire-blue);color:var(--fire-blue);
+  background:rgba(0,168,255,0.14);border:1px solid var(--fire-blue);color:var(--fire-blue);
   padding:9px 16px;border-radius:10px;font-size:12px;cursor:pointer;margin-top:10px;transition:0.3s;
 }
 .copy-btn:hover{background:var(--fire-blue);color:#000}
-
 .hidden{display:none !important}
+
+.menu-btn{
+  background:rgba(26,26,26,0.9);border:1px solid rgba(230,0,0,0.4);border-radius:12px;
+  padding:11px 14px;color:var(--white);font-size:12px;font-weight:700;cursor:pointer;
+  transition:0.3s;flex:1;text-align:center;
+}
+.menu-btn:hover{background:rgba(230,0,0,0.18);border-color:var(--red);transform:translateY(-2px)}
 </style>
 </head>
 <body>
 
-<!-- ذرات و ستاره‌ها -->
 <div class="stars-bg"></div>
 <div class="particles" id="particles"></div>
 
@@ -189,9 +176,7 @@ body{
       <div class="icon">🔒</div>
       <h2>سایت موقتاً بسته است</h2>
       <p id="closedMessageText">سایت در حال بروزرسانی است.<br>لطفاً برای اطلاع از زمان بازگشایی در کانال عضو شوید.</p>
-      <a id="closedChannelBtn" href="https://rubika.ir/PhoenixCheat" target="_blank" class="btn-main" style="text-decoration:none">
-        عضویت در کانال فونیکس چیت
-      </a>
+      <a id="closedChannelBtn" href="https://rubika.ir/PhoenixCheat" target="_blank" class="btn-main" style="text-decoration:none">عضویت در کانال فونیکس چیت</a>
     </div>
   </div>
 
@@ -214,15 +199,25 @@ body{
     </div>
 
     <div class="card">
-      <div style="display:inline-block;background:linear-gradient(90deg,var(--fire-red),var(--fire-orange));color:#000;padding:6px 14px;border-radius:20px;font-size:11px;font-weight:900;margin-bottom:14px;box-shadow:0 0 15px rgba(230,0,0,0.5)">🔥 PHOENIXCHEAT</div>
-      <h2 style="font-size:21px;font-weight:900;margin-bottom:14px;line-height:1.6" id="welcomeTitle">به فروشگاه فونیکس چیت خوش آمدید</h2>
-      <p style="font-size:13px;line-height:2.1;color:#ccc" id="welcomeText1">ما مفتخریم که به عنوان یکی از پیشگامان خدمات گیمینگ در خدمت شما هستیم.</p>
-      <p style="font-size:13px;line-height:2.1;color:#ccc;margin-top:12px" id="welcomeText2">تیم متخصص ما بستری امن و سریع برای ارتقاء تجربه بازی شما فراهم کرده است.</p>
+      <div style="display:inline-block;background:linear-gradient(90deg,var(--fire-red),var(--fire-orange));color:#000;padding:6px 14px;border-radius:20px;font-size:11px;font-weight:900;margin-bottom:14px;box-shadow:0 0 18px rgba(230,0,0,0.55)">🔥 PHOENIXCHEAT</div>
+      <h2 style="font-size:21px;font-weight:900;margin-bottom:14px;line-height:1.65" id="welcomeTitle">به خانواده فونیکس چیت خوش اومدی</h2>
+      <p style="font-size:13.5px;line-height:2.15;color:#d0d0d0" id="welcomeText1">
+        اینجا فقط یه فروشگاه ساده نیست. ما یه تیم واقعی از گیمرهای عاشق کالاف دیوتی هستیم که با خون دل و تجربه چندساله، بهترین و امن‌ترین سرویس سی‌پی رو برات آماده کردیم. هدف ما فقط فروش نیست؛ می‌خوایم تو با آرامش کامل بازی کنی و از لحظه‌لحظه‌ش لذت ببری.
+      </p>
+      <p style="font-size:13.5px;line-height:2.15;color:#d0d0d0;margin-top:12px" id="welcomeText2">
+        با فونیکس چیت دیگه نگران بن و ریسک نباش. ما کنارتیم تا تجربه بازیت به سطح دیگه‌ای برسه. آماده‌ای قدرتت رو چند برابر کنی؟
+      </p>
     </div>
 
     <button class="btn-main" onclick="startBuy()">🛒 خرید سی‌پی</button>
-    <button class="btn-outline" onclick="go('pageTrack')">رهگیری سفارش</button>
-    <button class="btn-outline" onclick="openAbout()">درباره ما</button>
+
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="menu-btn" onclick="openAbout()">درباره ما</button>
+      <button class="menu-btn" onclick="openTrust()">اعتماد</button>
+      <button class="menu-btn" onclick="openDesc()">توضیحات</button>
+    </div>
+
+    <button class="btn-outline" style="margin-top:10px" onclick="go('pageTrack')">رهگیری سفارش</button>
   </div>
 
   <!-- صفحه لاگین -->
@@ -242,9 +237,7 @@ body{
       <button class="btn-outline" onclick="go('pageRegister')">ساخت اکانت جدید</button>
       <div style="text-align:center;margin-top:24px">
         <p style="font-size:13px;color:var(--gray);margin-bottom:10px">کد ورود را فراموش کرده‌اید؟</p>
-        <a href="https://rubika.ir/My_HINATA" target="_blank" style="color:var(--fire-blue);font-size:16px;font-weight:800;text-decoration:none;text-shadow:0 0 12px rgba(0,191,255,0.5)">
-          Rubika.ir/My_HINATA
-        </a>
+        <a href="https://rubika.ir/My_HINATA" target="_blank" style="color:var(--fire-blue);font-size:16px;font-weight:800;text-decoration:none;text-shadow:0 0 12px rgba(0,191,255,0.5)">Rubika.ir/My_HINATA</a>
       </div>
     </div>
   </div>
@@ -259,14 +252,14 @@ body{
     <div class="card">
       <div class="form-group">
         <label>آیدی روبیکا</label>
-        <input type="text" id="regRubika" placeholder="@username" dir="ltr" oninput="validateRubika()">
+        <input type="text" id="regRubika" placeholder="@username" dir="ltr" oninput="checkRegisterForm()">
         <div class="error-text" id="rubikaError"></div>
       </div>
       <div class="form-group">
-        <label>کد ورود (۵ تا ۱۸ کاراکتر)</label>
+        <label>کد ورود (۵ تا ۱۸ کاراکتر انگلیسی یا عدد)</label>
         <div style="display:flex;gap:8px">
-          <input type="text" id="regCode" placeholder="کد دلخواه" style="flex:1;text-align:center;letter-spacing:1px" dir="ltr" oninput="validateCode()">
-          <button class="btn-blue" style="width:auto;padding:0 16px;margin:0;font-size:13px" onclick="generateCode()">خودکار</button>
+          <input type="text" id="regCode" placeholder="کد دلخواه" style="flex:1;text-align:center;letter-spacing:1px" dir="ltr" oninput="checkRegisterForm()">
+          <button type="button" class="btn-blue" style="width:auto;padding:0 16px;margin:0;font-size:13px" onclick="generateCode()">خودکار</button>
         </div>
         <div class="error-text" id="codeError"></div>
         <div class="success-text" id="codeSuccess"></div>
@@ -276,7 +269,7 @@ body{
         کد ورود خود را حتماً در جایی امن ذخیره کنید.<br>
         در صورت فراموشی فقط از طریق پشتیبانی قابل بازیابی است.
       </div>
-      <button class="btn-main" id="btnRegister" onclick="doRegister()" disabled>ساخت اکانت</button>
+      <button class="btn-main" id="btnRegister" onclick="doRegister()">ساخت اکانت</button>
     </div>
   </div>
 
@@ -312,14 +305,12 @@ body{
       <p style="font-size:13px;line-height:1.95;color:#ccc;margin-bottom:18px" id="refDescription">
         لینک اختصاصی خودت رو بساز و برای دوستات بفرست. هر نفری که با لینک تو وارد سایت بشه و اکانت بسازه، موجودی به حسابت اضافه می‌شه.
       </p>
-      <div style="background:rgba(0,0,0,0.45);border-radius:14px;padding:16px;text-align:center;margin-bottom:14px;border:1px solid rgba(0,191,255,0.2)">
+      <div style="background:rgba(0,0,0,0.45);border-radius:14px;padding:16px;text-align:center;margin-bottom:14px;border:1px solid rgba(0,191,255,0.25)">
         <div style="font-size:12px;color:var(--gray);margin-bottom:8px">لینک اختصاصی شما</div>
         <div id="refLink" style="font-size:13px;word-break:break-all;color:var(--fire-blue);direction:ltr;text-shadow:0 0 10px rgba(0,191,255,0.4)" dir="ltr">در حال آماده‌سازی...</div>
         <button class="copy-btn" onclick="copyRefLink()">کپی لینک</button>
       </div>
-      <div class="notice-box">
-        هر معرفی موفق = <strong id="refRewardText">۲۵,۰۰۰</strong> تومان موجودی رایگان
-      </div>
+      <div class="notice-box">هر معرفی موفق = <strong id="refRewardText">۲۵,۰۰۰</strong> تومان موجودی رایگان</div>
     </div>
     <button class="btn-main" onclick="go('pageProduct')">ادامه و خرید سی‌پی</button>
   </div>
@@ -387,9 +378,9 @@ body{
       <h3 style="font-size:18px;font-weight:800">اطلاعات پرداخت</h3>
       <div style="width:28px"></div>
     </div>
-    <div class="card" style="background:linear-gradient(135deg,#0052d4,#4364f7,#6fb1fc);text-align:center;box-shadow:0 12px 30px rgba(0,82,212,0.4)">
+    <div class="card" style="background:linear-gradient(135deg,#0052d4,#4364f7,#6fb1fc);text-align:center;box-shadow:0 12px 30px rgba(0,82,212,0.45)">
       <div style="font-size:13px;opacity:0.9;margin-bottom:10px">شماره کارت</div>
-      <div id="cardNumDisplay" style="font-size:21px;font-weight:700;letter-spacing:2px;direction:ltr;margin-bottom:12px;text-shadow:0 2px 8px rgba(0,0,0,0.3)">----</div>
+      <div id="cardNumDisplay" style="font-size:21px;font-weight:700;letter-spacing:2px;direction:ltr;margin-bottom:12px">----</div>
       <div id="cardHolderDisplay" style="font-size:15px;font-weight:600">----</div>
       <button class="copy-btn" style="margin-top:14px;background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.4);color:white" onclick="copyCard()">کپی شماره کارت</button>
     </div>
@@ -431,17 +422,14 @@ body{
       <div class="form-group">
         <label>ایمیل اکانت</label>
         <input type="email" id="accEmail" dir="ltr">
-        <div class="error-text" id="accEmailError"></div>
       </div>
       <div class="form-group">
         <label>رمز عبور اکانت</label>
         <input type="text" id="accPass" dir="ltr">
-        <div class="error-text" id="accPassError"></div>
       </div>
       <div class="form-group">
         <label>آیدی روبیکا</label>
         <input type="text" id="accRubika" placeholder="@username" dir="ltr">
-        <div class="error-text" id="accRubikaError"></div>
       </div>
       <div class="form-group">
         <label>توضیحات (اختیاری)</label>
@@ -480,70 +468,64 @@ body{
 </div>
 
 <script>
-// ساخت ذرات
-(function createParticles(){
-  const container = document.getElementById('particles');
-  for(let i=0;i<28;i++){
+// ذرات
+(function(){
+  const c = document.getElementById('particles');
+  for(let i=0;i<32;i++){
     const p = document.createElement('div');
     p.className = 'particle';
     p.style.left = Math.random()*100 + '%';
-    p.style.animationDelay = (Math.random()*12) + 's';
-    p.style.animationDuration = (12 + Math.random()*14) + 's';
-    container.appendChild(p);
+    p.style.width = p.style.height = (2 + Math.random()*5) + 'px';
+    p.style.background = ['#ffaa00','#ff4500','#00bfff','#ff0000'][i%4];
+    p.style.boxShadow = '0 0 12px currentColor';
+    p.style.animationDuration = (11 + Math.random()*16) + 's';
+    p.style.animationDelay = (Math.random()*10) + 's';
+    c.appendChild(p);
   }
 })();
 
 // افکت کلیک
-document.addEventListener('click', function(e){
+document.addEventListener('click',e=>{
   const s = document.createElement('div');
   s.className = 'sparkle';
-  s.style.left = e.clientX + 'px';
-  s.style.top = e.clientY + 'px';
+  s.style.left = e.clientX+'px';
+  s.style.top = e.clientY+'px';
   s.style.color = ['#ff4500','#00bfff','#ffaa00','#ff0000'][Math.floor(Math.random()*4)];
   document.body.appendChild(s);
-  setTimeout(()=>s.remove(),700);
+  setTimeout(()=>s.remove(),750);
 });
 
-// ==================== بقیه منطق (همان قبلی) ====================
-let SETTINGS = {};
-let TEXTS = {};
-let currentUser = null;
-let order = {cp:10000, antiban:false, speed:'normal', discount:0, discountType:'', totalPrice:0, balanceUsed:0};
-let order_code = '';
-let fingerprint = localStorage.getItem('fp') || (Math.random().toString(36).substring(2) + Date.now().toString(36));
-localStorage.setItem('fp', fingerprint);
+let SETTINGS={}, TEXTS={}, currentUser=null;
+let order={cp:10000,antiban:false,speed:'normal',discount:0,discountType:'',totalPrice:0,balanceUsed:0};
+let order_code='';
+let fingerprint = localStorage.getItem('fp') || (Math.random().toString(36).slice(2)+Date.now().toString(36));
+localStorage.setItem('fp',fingerprint);
 
 const urlParams = new URLSearchParams(window.location.search);
-const refFromUrl = urlParams.get('ref');
-if(refFromUrl) localStorage.setItem('ref', refFromUrl.toUpperCase());
+if(urlParams.get('ref')) localStorage.setItem('ref', urlParams.get('ref').toUpperCase());
 
-function go(pageId){
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.getElementById(pageId).classList.add('active');
+function go(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
 }
-function getRef(){ return localStorage.getItem('ref') || ''; }
+function getRef(){return localStorage.getItem('ref')||'';}
 
 async function loadSettings(){
   try{
     const res = await fetch('/api/settings');
     const data = await res.json();
-    SETTINGS = data.settings || {};
-    TEXTS = data.texts || {};
+    SETTINGS = data.settings||{};
+    TEXTS = data.texts||{};
 
-    if(SETTINGS.registration_open === false){
-      document.getElementById('closedMessageText').innerHTML = (SETTINGS.closed_message || 'سایت در حال بروزرسانی است').replace(/\n/g,'<br>');
-      document.getElementById('closedChannelBtn').href = SETTINGS.closed_channel || 'https://rubika.ir/PhoenixCheat';
-      document.getElementById('closedChannelBtn').textContent = SETTINGS.closed_channel_text || 'عضویت در کانال';
-      go('pageClosed');
-      return;
+    if(SETTINGS.registration_open===false){
+      document.getElementById('closedMessageText').innerHTML = (SETTINGS.closed_message||'سایت در حال بروزرسانی است').replace(/\n/g,'<br>');
+      document.getElementById('closedChannelBtn').href = SETTINGS.closed_channel||'https://rubika.ir/PhoenixCheat';
+      document.getElementById('closedChannelBtn').textContent = SETTINGS.closed_channel_text||'عضویت در کانال';
+      go('pageClosed'); return;
     }
 
     if(TEXTS.site_name) document.getElementById('siteName').textContent = TEXTS.site_name;
-    if(TEXTS.welcome_title) document.getElementById('welcomeTitle').textContent = TEXTS.welcome_title;
-    if(TEXTS.welcome_text1) document.getElementById('welcomeText1').textContent = TEXTS.welcome_text1;
-    if(TEXTS.welcome_text2) document.getElementById('welcomeText2').textContent = TEXTS.welcome_text2;
-
     document.getElementById('lblAntibanPrice').textContent = (SETTINGS.price_antiban||50000).toLocaleString('fa-IR');
     document.getElementById('lblFastPrice').textContent = (SETTINGS.price_fast||20000).toLocaleString('fa-IR');
     document.getElementById('refRewardText').textContent = (SETTINGS.referral_reward||25000).toLocaleString('fa-IR');
@@ -567,8 +549,8 @@ async function loadSettings(){
 
     if(!SETTINGS.referral_enabled) document.getElementById('referralOption').classList.add('hidden');
 
-    let savedCode = localStorage.getItem('user_code');
-    if(savedCode) await tryAutoLogin(savedCode);
+    let saved = localStorage.getItem('user_code');
+    if(saved) await tryAutoLogin(saved);
     calculateTotal();
   }catch(e){console.log(e)}
 }
@@ -577,162 +559,229 @@ async function tryAutoLogin(code){
   try{
     const res = await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code,fingerprint})});
     const data = await res.json();
-    if(data.success){ currentUser = data; localStorage.setItem('user_code',data.code); updateUserUI(); }
+    if(data.success){currentUser=data;localStorage.setItem('user_code',data.code);updateUserUI();}
     else localStorage.removeItem('user_code');
   }catch(e){}
 }
 
 function updateUserUI(){
-  if(currentUser){
-    document.getElementById('headerLoginBtn').textContent = currentUser.code;
-    document.getElementById('userBalanceBox').classList.remove('hidden');
-    document.getElementById('headerBalance').textContent = currentUser.balance.toLocaleString('fa-IR')+' تومان';
-    document.getElementById('productBalanceBox').classList.remove('hidden');
-    document.getElementById('productBalance').textContent = currentUser.balance.toLocaleString('fa-IR')+' تومان';
-    document.getElementById('refBalance').textContent = currentUser.balance.toLocaleString('fa-IR')+' تومان';
-    if(currentUser.balance > 0) document.getElementById('balanceUseBox').classList.remove('hidden');
-  }
+  if(!currentUser) return;
+  document.getElementById('headerLoginBtn').textContent = currentUser.code;
+  document.getElementById('userBalanceBox').classList.remove('hidden');
+  document.getElementById('headerBalance').textContent = currentUser.balance.toLocaleString('fa-IR')+' تومان';
+  document.getElementById('productBalanceBox').classList.remove('hidden');
+  document.getElementById('productBalance').textContent = currentUser.balance.toLocaleString('fa-IR')+' تومان';
+  document.getElementById('refBalance').textContent = currentUser.balance.toLocaleString('fa-IR')+' تومان';
+  if(currentUser.balance>0) document.getElementById('balanceUseBox').classList.remove('hidden');
 }
 
-function validateRubika(){
-  let v = document.getElementById('regRubika').value.trim();
-  let err = document.getElementById('rubikaError');
-  if(!v){err.textContent='';return false}
-  if(!v.startsWith('@')){err.textContent='باید با @ شروع شود';return false}
-  if(!/^@[a-zA-Z0-9_]{3,32}$/.test(v)){err.textContent='فقط حروف انگلیسی، عدد و _';return false}
-  err.textContent=''; document.getElementById('regRubika').classList.add('success'); checkRegisterReady(); return true;
+function checkRegisterForm(){
+  const rubika = document.getElementById('regRubika').value.trim();
+  const code = document.getElementById('regCode').value.trim();
+  let ok = true;
+
+  // روبیکا
+  if(!rubika){
+    document.getElementById('rubikaError').textContent = '';
+    document.getElementById('regRubika').classList.remove('success','error');
+    ok = false;
+  } else if(!rubika.startsWith('@') || !/^@[a-zA-Z0-9_]{3,32}$/.test(rubika)){
+    document.getElementById('rubikaError').textContent = 'باید با @ شروع شود و فقط حروف انگلیسی و عدد باشد';
+    document.getElementById('regRubika').classList.add('error');
+    document.getElementById('regRubika').classList.remove('success');
+    ok = false;
+  } else {
+    document.getElementById('rubikaError').textContent = '';
+    document.getElementById('regRubika').classList.add('success');
+    document.getElementById('regRubika').classList.remove('error');
+  }
+
+  // کد
+  if(!code){
+    document.getElementById('codeError').textContent = '';
+    document.getElementById('codeSuccess').textContent = '';
+    document.getElementById('regCode').classList.remove('success','error');
+    ok = false;
+  } else if(code.length<5 || code.length>18 || !/^[a-zA-Z0-9]+$/.test(code)){
+    document.getElementById('codeError').textContent = 'بین ۵ تا ۱۸ کاراکتر و فقط حروف انگلیسی یا عدد';
+    document.getElementById('codeSuccess').textContent = '';
+    document.getElementById('regCode').classList.add('error');
+    document.getElementById('regCode').classList.remove('success');
+    ok = false;
+  } else {
+    document.getElementById('codeError').textContent = '';
+    document.getElementById('codeSuccess').textContent = '✓ کد معتبر است';
+    document.getElementById('regCode').classList.add('success');
+    document.getElementById('regCode').classList.remove('error');
+  }
+
+  document.getElementById('btnRegister').disabled = !ok;
 }
-function validateCode(){
-  let v = document.getElementById('regCode').value.trim();
-  let err = document.getElementById('codeError'); let suc = document.getElementById('codeSuccess');
-  if(!v){err.textContent='';suc.textContent='';return false}
-  if(v.length<5||v.length>18){err.textContent='بین ۵ تا ۱۸ کاراکتر';suc.textContent='';return false}
-  if(!/^[a-zA-Z0-9]+$/.test(v)){err.textContent='فقط حروف انگلیسی و عدد';suc.textContent='';return false}
-  err.textContent=''; suc.textContent='✓ کد معتبر است'; document.getElementById('regCode').classList.add('success'); checkRegisterReady(); return true;
-}
-function checkRegisterReady(){
-  document.getElementById('btnRegister').disabled = !(validateRubika() && validateCode());
-}
+
 async function generateCode(){
   try{
     const res = await fetch('/api/generate_code');
     const data = await res.json();
-    if(data.success){ document.getElementById('regCode').value = data.code; validateCode(); }
-  }catch(e){alert('خطا')}
+    if(data.success){
+      document.getElementById('regCode').value = data.code;
+      checkRegisterForm();
+    }
+  }catch(e){alert('خطا در ساخت کد');}
 }
+
 async function doRegister(){
-  if(!validateRubika()||!validateCode()) return;
-  let btn = document.getElementById('btnRegister'); btn.disabled=true; btn.textContent='در حال ساخت...';
+  checkRegisterForm();
+  if(document.getElementById('btnRegister').disabled) return;
+
+  const btn = document.getElementById('btnRegister');
+  btn.disabled = true;
+  btn.textContent = 'در حال ساخت...';
+
   try{
-    const res = await fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({rubika:document.getElementById('regRubika').value.trim(), code:document.getElementById('regCode').value.trim().toUpperCase(), fingerprint, ref:getRef()})});
+    const res = await fetch('/api/register',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        rubika: document.getElementById('regRubika').value.trim(),
+        code: document.getElementById('regCode').value.trim().toUpperCase(),
+        fingerprint,
+        ref: getRef()
+      })
+    });
     const data = await res.json();
     if(data.success){
       currentUser = {code:data.code, balance:data.balance||0};
       localStorage.setItem('user_code', data.code);
-      alert('✅ اکانت ساخته شد!\n\nکد ورود شما: '+data.code+'\n\nحتماً ذخیره کنید!');
-      updateUserUI(); go('page1');
-    }else alert(data.message||'خطا');
-  }catch(e){alert('خطای شبکه')}
-  btn.disabled=false; btn.textContent='ساخت اکانت';
+      alert('✅ اکانت با موفقیت ساخته شد!\n\nکد ورود شما:\n' + data.code + '\n\nحتماً آن را ذخیره کنید!');
+      updateUserUI();
+      go('page1');
+    }else{
+      alert(data.message || 'خطا در ساخت اکانت');
+    }
+  }catch(e){
+    alert('خطای شبکه، دوباره تلاش کنید');
+  }
+  btn.disabled = false;
+  btn.textContent = 'ساخت اکانت';
+  checkRegisterForm();
 }
+
 async function doLogin(){
-  let code = document.getElementById('loginCode').value.trim().toUpperCase();
-  if(!code){document.getElementById('loginError').textContent='کد را وارد کنید';return}
+  const code = document.getElementById('loginCode').value.trim().toUpperCase();
+  if(!code){document.getElementById('loginError').textContent='کد را وارد کنید';return;}
   document.getElementById('loginError').textContent='';
   try{
     const res = await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code,fingerprint})});
     const data = await res.json();
-    if(data.success){ currentUser=data; localStorage.setItem('user_code',data.code); updateUserUI(); go('page1'); }
-    else document.getElementById('loginError').textContent = data.message||'کد اشتباه است';
-  }catch(e){document.getElementById('loginError').textContent='خطای شبکه'}
+    if(data.success){
+      currentUser = data;
+      localStorage.setItem('user_code', data.code);
+      updateUserUI();
+      go('page1');
+    }else{
+      document.getElementById('loginError').textContent = data.message || 'کد اشتباه است';
+    }
+  }catch(e){document.getElementById('loginError').textContent='خطای شبکه';}
 }
 
-function startBuy(){ if(!currentUser){go('pageLogin');return;} go('pageMethod'); }
-function chooseMethod(method){
-  if(method==='referral'){
-    document.getElementById('refLink').textContent = window.location.origin + '/?ref=' + currentUser.code;
-    go('pageReferral');
-  } else go('pageProduct');
+function startBuy(){
+  if(!currentUser){go('pageLogin');return;}
+  go('pageMethod');
 }
-function copyRefLink(){ navigator.clipboard.writeText(document.getElementById('refLink').textContent).then(()=>alert('لینک کپی شد!')); }
+function chooseMethod(m){
+  if(m==='referral'){
+    document.getElementById('refLink').textContent = location.origin + '/?ref=' + currentUser.code;
+    go('pageReferral');
+  }else go('pageProduct');
+}
+function copyRefLink(){
+  navigator.clipboard.writeText(document.getElementById('refLink').textContent).then(()=>alert('لینک کپی شد!'));
+}
 
 function calculateTotal(){
   let val = parseInt(document.getElementById('cpAmount').value)||0;
-  if(val<10000) val=10000; order.cp=val;
-  let base=0; let packages=SETTINGS.custom_packages||[];
-  let match=packages.find(p=>p.cp===val);
-  if(match) base=match.price; else base=Math.ceil(val/1000)*(SETTINGS.price_per_1000||25000);
+  if(val<10000) val=10000;
+  order.cp = val;
+  let base=0;
+  let pkgs = SETTINGS.custom_packages||[];
+  let match = pkgs.find(p=>p.cp===val);
+  if(match) base=match.price;
+  else base = Math.ceil(val/1000)*(SETTINGS.price_per_1000||25000);
   let extra=0;
-  if(order.antiban) extra+=(SETTINGS.price_antiban||50000);
-  if(order.speed==='fast') extra+=(SETTINGS.price_fast||20000);
-  let total=base+extra;
-  if(order.discount>0){ if(order.discountType==='percent') total-=total*order.discount/100; else total-=order.discount; }
+  if(order.antiban) extra += (SETTINGS.price_antiban||50000);
+  if(order.speed==='fast') extra += (SETTINGS.price_fast||20000);
+  let total = base+extra;
+  if(order.discount>0){
+    if(order.discountType==='percent') total -= total*order.discount/100;
+    else total -= order.discount;
+  }
   if(total<0) total=0;
   order.balanceUsed=0;
   if(document.getElementById('useBalance')?.checked && currentUser){
     order.balanceUsed = Math.min(currentUser.balance, total);
     total -= order.balanceUsed;
   }
-  order.totalPrice = Math.max(0, Math.round(total));
+  order.totalPrice = Math.max(0,Math.round(total));
   document.getElementById('totalPriceDisplay').textContent = order.totalPrice.toLocaleString('fa-IR');
   if(document.getElementById('balanceUsedDisplay')) document.getElementById('balanceUsedDisplay').textContent = order.balanceUsed.toLocaleString('fa-IR');
 }
-function toggleAntiBan(){ order.antiban=!order.antiban; document.getElementById('optAntiBan').classList.toggle('active',order.antiban); calculateTotal(); }
-function toggleSpeed(s){ order.speed=s; document.getElementById('optNormal').classList.toggle('active',s==='normal'); document.getElementById('optFast').classList.toggle('active',s==='fast'); calculateTotal(); }
+function toggleAntiBan(){order.antiban=!order.antiban;document.getElementById('optAntiBan').classList.toggle('active',order.antiban);calculateTotal();}
+function toggleSpeed(s){order.speed=s;document.getElementById('optNormal').classList.toggle('active',s==='normal');document.getElementById('optFast').classList.toggle('active',s==='fast');calculateTotal();}
 
 async function checkCoupon(){
-  let code=document.getElementById('couponInput').value.trim().toUpperCase(); if(!code) return;
+  let code=document.getElementById('couponInput').value.trim().toUpperCase();
+  if(!code) return;
   try{
     const res=await fetch('/api/check_coupon',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});
     const data=await res.json();
-    if(data.success){ order.discount=data.amount; order.discountType=data.type; document.getElementById('couponStatus').innerHTML='<span style="color:var(--green)">✓ کد اعمال شد</span>'; calculateTotal(); }
+    if(data.success){order.discount=data.amount;order.discountType=data.type;document.getElementById('couponStatus').innerHTML='<span style="color:var(--green)">✓ کد اعمال شد</span>';calculateTotal();}
     else document.getElementById('couponStatus').innerHTML='<span style="color:var(--red)">کد نامعتبر</span>';
   }catch(e){}
 }
 function goToPayment(){
-  document.getElementById('payAmountText').textContent = order.totalPrice.toLocaleString('fa-IR');
-  document.getElementById('sentAmount').value = order.totalPrice;
-  validatePayment(); go('pagePayment');
+  document.getElementById('payAmountText').textContent=order.totalPrice.toLocaleString('fa-IR');
+  document.getElementById('sentAmount').value=order.totalPrice;
+  validatePayment();go('pagePayment');
 }
-function copyCard(){ let num=(SETTINGS.card_number||'').replace(/\s/g,''); navigator.clipboard.writeText(num).then(()=>alert('شماره کارت کپی شد')); }
+function copyCard(){navigator.clipboard.writeText((SETTINGS.card_number||'').replace(/\s/g,'')).then(()=>alert('شماره کارت کپی شد'));}
 function validatePayment(){
   let card=document.getElementById('senderCard').value.trim();
   let amount=parseInt(document.getElementById('sentAmount').value)||0;
-  let time=document.getElementById('sentTime').value.trim(); let ok=true;
-  if(!/^\d{16}$/.test(card)){document.getElementById('senderCardError').textContent='۱۶ رقم باشد';ok=false} else document.getElementById('senderCardError').textContent='';
-  if(amount!==order.totalPrice){document.getElementById('sentAmountError').textContent='مبلغ باید دقیقاً برابر باشد';ok=false} else document.getElementById('sentAmountError').textContent='';
-  if(!/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(time)){document.getElementById('sentTimeError').textContent='فرمت ساعت اشتباه';ok=false} else document.getElementById('sentTimeError').textContent='';
+  let time=document.getElementById('sentTime').value.trim();
+  let ok=true;
+  if(!/^\d{16}$/.test(card)){document.getElementById('senderCardError').textContent='۱۶ رقم باشد';ok=false;}else document.getElementById('senderCardError').textContent='';
+  if(amount!==order.totalPrice){document.getElementById('sentAmountError').textContent='مبلغ باید دقیقاً برابر باشد';ok=false;}else document.getElementById('sentAmountError').textContent='';
+  if(!/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(time)){document.getElementById('sentTimeError').textContent='فرمت ساعت اشتباه';ok=false;}else document.getElementById('sentTimeError').textContent='';
   document.getElementById('btnGoToInfo').disabled=!ok;
 }
 async function submitPayment(){
-  let btn=document.getElementById('btnGoToInfo'); btn.disabled=true; btn.textContent='در حال ارسال...';
-  let formData=new FormData();
-  formData.append('cp',order.cp); formData.append('antiban',order.antiban); formData.append('speed',order.speed);
-  formData.append('totalPrice',order.totalPrice+order.balanceUsed); formData.append('discountAmount',order.discount);
-  formData.append('finalPrice',order.totalPrice); formData.append('balance_used',order.balanceUsed);
-  formData.append('senderCard',document.getElementById('senderCard').value.trim());
-  formData.append('sentAmount',document.getElementById('sentAmount').value);
-  formData.append('sentTime',document.getElementById('sentTime').value.trim());
-  formData.append('user_code',currentUser?currentUser.code:'');
-  let file=document.getElementById('receiptImage').files[0]; if(file) formData.append('receipt',file);
+  let btn=document.getElementById('btnGoToInfo');btn.disabled=true;btn.textContent='در حال ارسال...';
+  let fd=new FormData();
+  fd.append('cp',order.cp);fd.append('antiban',order.antiban);fd.append('speed',order.speed);
+  fd.append('totalPrice',order.totalPrice+order.balanceUsed);fd.append('discountAmount',order.discount);
+  fd.append('finalPrice',order.totalPrice);fd.append('balance_used',order.balanceUsed);
+  fd.append('senderCard',document.getElementById('senderCard').value.trim());
+  fd.append('sentAmount',document.getElementById('sentAmount').value);
+  fd.append('sentTime',document.getElementById('sentTime').value.trim());
+  fd.append('user_code',currentUser?currentUser.code:'');
+  let f=document.getElementById('receiptImage').files[0];if(f)fd.append('receipt',f);
   try{
-    const res=await fetch('/api/payment_info',{method:'POST',body:formData});
+    const res=await fetch('/api/payment_info',{method:'POST',body:fd});
     const data=await res.json();
     if(data.success){
       order_code=data.order_code;
-      if(currentUser && order.balanceUsed>0){ currentUser.balance-=order.balanceUsed; updateUserUI(); }
+      if(currentUser&&order.balanceUsed>0){currentUser.balance-=order.balanceUsed;updateUserUI();}
       go('pageUserInfo');
     }else alert(data.message||'خطا');
-  }catch(e){alert('خطای شبکه')}
-  btn.disabled=false; btn.textContent='تایید و ادامه';
+  }catch(e){alert('خطای شبکه');}
+  btn.disabled=false;btn.textContent='تایید و ادامه';
 }
 async function finalSubmit(){
   let email=document.getElementById('accEmail').value.trim();
   let pass=document.getElementById('accPass').value.trim();
   let rubika=document.getElementById('accRubika').value.trim();
-  if(!email||!pass||!rubika){alert('لطفاً همه فیلدها را پر کنید');return}
-  let btn=document.getElementById('finalSubmitBtn'); btn.disabled=true; btn.textContent='در حال ارسال...';
+  if(!email||!pass||!rubika){alert('لطفاً همه فیلدها را پر کنید');return;}
+  let btn=document.getElementById('finalSubmitBtn');btn.disabled=true;btn.textContent='در حال ارسال...';
   try{
     const res=await fetch('/api/final_order',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({order_code,email,pass,rubika,desc:document.getElementById('accDesc').value.trim()})});
@@ -742,11 +791,12 @@ async function finalSubmit(){
       document.getElementById('deliveryTimeText').textContent=order.speed==='fast'?'زمان تقریبی تحویل: ۱۰ دقیقه':'زمان تقریبی تحویل: ۵ ساعت';
       go('pageSuccess');
     }else alert(data.message||'خطا');
-  }catch(e){alert('خطای شبکه')}
-  btn.disabled=false; btn.textContent='ثبت نهایی سفارش';
+  }catch(e){alert('خطای شبکه');}
+  btn.disabled=false;btn.textContent='ثبت نهایی سفارش';
 }
 async function trackOrder(){
-  let code=document.getElementById('trackInput').value.trim().toUpperCase(); if(!code) return;
+  let code=document.getElementById('trackInput').value.trim().toUpperCase();
+  if(!code) return;
   document.getElementById('trackResult').textContent='در حال جستجو...';
   try{
     const res=await fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});
@@ -754,9 +804,35 @@ async function trackOrder(){
     if(data.success){
       document.getElementById('trackResult').innerHTML=`<div style="background:#111;padding:15px;border-radius:12px;border:1px solid var(--green)"><p>وضعیت: <strong style="color:var(--green)">${data.status}</strong></p><p>تعداد: ${data.cp} CP</p><p>مبلغ: ${data.price} تومان</p><p>تاریخ: ${data.date}</p></div>`;
     }else document.getElementById('trackResult').innerHTML='<span style="color:var(--red)">سفارشی یافت نشد</span>';
-  }catch(e){document.getElementById('trackResult').textContent='خطا در ارتباط'}
+  }catch(e){document.getElementById('trackResult').textContent='خطا در ارتباط';}
 }
-function openAbout(){ alert(TEXTS.about_text || 'ما یک تیم حرفه‌ای از گیمرهای کالاف دیوتی هستیم.'); }
+
+function openAbout(){
+  alert(TEXTS.about_text || `ما یه تیم واقعی و حرفه‌ای از گیمرهای کالاف دیوتی هستیم که از سال‌ها پیش عاشق این بازی بودیم و هستیم.
+
+با وجود همه محدودیت‌ها و سختی‌ها، تصمیم گرفتیم بهترین و امن‌ترین سرویس سی‌پی رو با بالاترین کیفیت و کمترین ریسک بن به دست شما برسونیم.
+
+هدف ما فقط فروش نیست. ما می‌خوایم تو با خیال راحت بازی کنی و از هر لحظه‌ش لذت ببری. فونیکس چیت یعنی اعتماد، سرعت و کیفیت.`);
+}
+function openTrust(){
+  alert(TEXTS.trust_text || `✓ بیش از ۵۰۰ مشتری راضی در سراسر ایران
+✓ کانال اعتماد فعال با نظرات واقعی کاربران
+✓ پشتیبانی ۲۴ ساعته و واقعی
+✓ تحویل تضمینی و پیگیری کامل سفارش
+
+ما اعتبارمون رو با رضایت شما ساختیم.`);
+}
+function openDesc(){
+  alert(`چطور خرید کنم؟
+
+۱. اول وارد حسابت شو یا اکانت بساز
+۲. روش پرداختت رو انتخاب کن (کارت به کارت یا رفرال)
+۳. مقدار سی‌پی و گزینه‌های مورد نظرت رو انتخاب کن
+۴. مبلغ رو واریز کن و رسید رو آپلود کن
+۵. اطلاعات اکانت بازیت رو وارد کن
+
+سفارشت در کوتاه‌ترین زمان انجام می‌شه.`);
+}
 
 loadSettings();
 </script>
