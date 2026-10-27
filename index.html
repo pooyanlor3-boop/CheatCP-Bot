@@ -21,8 +21,13 @@ body{
   color:var(--white);font-family:'Vazirmatn',Tahoma,sans-serif;min-height:100vh;position:relative;
 }
 .particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
-.particle{position:absolute;border-radius:50%;opacity:0.7;animation:floatUp linear infinite}
-@keyframes floatUp{0%{transform:translateY(110vh) scale(0);opacity:0}10%{opacity:0.85}90%{opacity:0.6}100%{transform:translateY(-20vh) scale(1.5);opacity:0}}
+.particle{position:absolute;border-radius:50%;opacity:0.75;animation:floatUp linear infinite;will-change:transform,opacity}
+@keyframes floatUp{
+  0%{transform:translateY(0) scale(0.3);opacity:0}
+  8%{opacity:0.9}
+  90%{opacity:0.5}
+  100%{transform:translateY(-120vh) scale(1.4);opacity:0}
+}
 .stars-bg{position:fixed;inset:0;z-index:0;opacity:0.42;background-image:radial-gradient(1.5px 1.5px at 8% 15%,#fff,transparent),radial-gradient(1px 1px at 25% 55%,rgba(255,255,255,0.8),transparent),radial-gradient(2px 2px at 65% 25%,var(--fire-blue),transparent),radial-gradient(1.5px 1.5px at 85% 75%,var(--gold),transparent),radial-gradient(1px 1px at 45% 5%,#fff,transparent),radial-gradient(2px 2px at 15% 80%,var(--fire-orange),transparent);background-size:250px 250px;animation:twinkle 4.5s infinite alternate}
 @keyframes twinkle{0%{opacity:0.28}100%{opacity:0.55}}
 .sparkle{position:fixed;pointer-events:none;width:11px;height:11px;border-radius:50%;animation:sparkleAnim 0.75s ease-out forwards;z-index:9999;box-shadow:0 0 20px currentColor}
@@ -321,12 +326,12 @@ body{
       <span>مبلغ نهایی:</span>
       <span style="font-weight:900;color:var(--green);font-size:18px" id="totalPriceDisplay">۰</span>
     </div>
-    <div id="balanceUseBox" class="hidden" style="margin-top:12px">
-      <label style="font-size:13px;display:flex;align-items:center;gap:8px">
-        <input type="checkbox" id="useBalance" onchange="calculateTotal()" style="width:17px;height:17px">
-        استفاده از موجودی رفرال
+    <div id="balanceUseBox" class="hidden" style="margin-top:16px;background:linear-gradient(90deg,rgba(0,200,83,0.18),rgba(0,200,83,0.06));border:1.5px solid rgba(0,200,83,0.55);border-radius:14px;padding:14px 16px">
+      <label style="font-size:15px;font-weight:800;display:flex;align-items:center;gap:10px;color:#00e676;cursor:pointer">
+        <input type="checkbox" id="useBalance" onchange="calculateTotal()" style="width:20px;height:20px;accent-color:#00c853">
+        🎁 استفاده از موجودی رفرال
       </label>
-      <div style="font-size:12px;color:var(--gray);margin-top:4px">موجودی استفاده شده: <span id="balanceUsedDisplay">۰</span> تومان</div>
+      <div style="font-size:13px;color:#a5d6a7;margin-top:8px">موجودی استفاده شده: <strong id="balanceUsedDisplay" style="color:#00e676">۰</strong> تومان</div>
     </div>
   </div>
   <button class="btn-main" onclick="goToPayment()">ادامه و پرداخت</button>
@@ -349,7 +354,6 @@ body{
     <div style="text-align:center;margin-bottom:14px;font-size:15px">
       مبلغ قابل پرداخت: <strong style="color:var(--green);font-size:19px" id="payAmountText">۰</strong> تومان
     </div>
-    <div class="timer-text" id="paymentTimer">لطفاً ۳۰ ثانیه صبر کنید تا دکمه فعال شود...</div>
     <div class="form-group">
       <label>شماره کارت مبدا (۱۶ رقم)</label>
       <input type="text" id="senderCard" maxlength="16" placeholder="6037..." dir="ltr" oninput="validatePayment()">
@@ -369,7 +373,7 @@ body{
       <label>عکس رسید پرداخت (اختیاری)</label>
       <input type="file" id="receiptImage" accept="image/*">
     </div>
-    <button class="btn-main" id="btnGoToInfo" onclick="submitPayment()" disabled>تایید و ادامه</button>
+    <button class="btn-main" id="btnGoToInfo" onclick="submitPayment()" disabled style="opacity:0.7">صبر کنید ۳۰ ثانیه...</button>
   </div>
 </div>
 
@@ -410,16 +414,24 @@ body{
 
 <!-- صفحه موفقیت -->
 <div id="pageSuccess" class="view">
-  <div class="card" style="text-align:center;padding:40px 20px">
-    <div style="font-size:65px;margin-bottom:16px;animation:pulseLogo 2s infinite">✅</div>
-    <h2 style="font-size:22px;margin-bottom:12px;font-weight:900">سفارش با موفقیت ثبت شد</h2>
-    <p style="color:var(--gray);margin-bottom:6px">کد پیگیری شما:</p>
-    <div style="font-size:23px;font-weight:900;color:var(--fire-orange);letter-spacing:2px;margin-bottom:16px;text-shadow:0 0 15px rgba(255,107,0,0.5)" id="finalOrderCode">ORD-XXXXXX</div>
-    <p style="font-size:13px;color:#ccc;margin-bottom:20px" id="deliveryTimeText">زمان تقریبی تحویل اعلام خواهد شد</p>
-    <a href="https://rubika.ir/PhoenixCheat" target="_blank" class="btn-main" style="text-decoration:none;margin-bottom:10px">عضویت در کانال اصلی</a>
-    <a href="https://rubika.ir/PhoenixCheatTrust" target="_blank" class="btn-outline" style="text-decoration:none;display:block;margin-bottom:10px">مشاهده نظرات مشتریان</a>
-    <a href="https://rubika.ir/My_HINATA" target="_blank" class="btn-outline" style="text-decoration:none;display:block;margin-bottom:14px">ارتباط با پشتیبانی</a>
-    <button class="btn-outline" onclick="go('page1')">بازگشت به صفحه اصلی</button>
+  <div class="card" style="text-align:center;padding:28px 18px;border:1.5px solid rgba(255,107,0,0.45);box-shadow:0 0 30px rgba(255,107,0,0.15)">
+    <h2 style="font-size:21px;margin-bottom:18px;font-weight:900;background:linear-gradient(90deg,#ff4500,#ffaa00);-webkit-background-clip:text;-webkit-text-fill-color:transparent">سفارش شما ثبت شد</h2>
+    
+    <div style="background:linear-gradient(135deg,rgba(255,107,0,0.15),rgba(230,0,0,0.1));border:1px solid rgba(255,107,0,0.4);border-radius:14px;padding:16px;margin-bottom:14px">
+      <div style="font-size:12px;color:#aaa;margin-bottom:6px">کد پیگیری سفارش</div>
+      <div style="font-size:22px;font-weight:900;color:var(--fire-orange);letter-spacing:2px;text-shadow:0 0 12px rgba(255,107,0,0.5)" id="finalOrderCode">ORD-XXXXXX</div>
+    </div>
+
+    <div style="background:rgba(0,168,255,0.1);border:1px solid rgba(0,168,255,0.35);border-radius:14px;padding:14px;margin-bottom:18px">
+      <div style="font-size:13px;color:#90caf9" id="deliveryTimeText">زمان تقریبی تحویل اعلام خواهد شد</div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <a href="https://rubika.ir/PhoenixCheat" target="_blank" class="btn-main" style="text-decoration:none;margin:0">عضویت در کانال اصلی</a>
+      <a href="https://rubika.ir/PhoenixCheatTrust" target="_blank" class="btn-outline" style="text-decoration:none;margin:0;border-color:rgba(0,200,83,0.5);color:#69f0ae">مشاهده نظرات مشتریان</a>
+      <a href="https://rubika.ir/My_HINATA" target="_blank" class="btn-outline" style="text-decoration:none;margin:0;border-color:rgba(0,168,255,0.5);color:#82b1ff">ارتباط با پشتیبانی</a>
+      <button class="btn-outline" style="margin:0" onclick="go('page1')">بازگشت به صفحه اصلی</button>
+    </div>
   </div>
 </div>
 
@@ -440,7 +452,21 @@ body{
 </div>
 
 <script>
-(function(){const c=document.getElementById('particles');for(let i=0;i<32;i++){const p=document.createElement('div');p.className='particle';p.style.left=Math.random()*100+'%';p.style.width=p.style.height=(2+Math.random()*5)+'px';p.style.background=['#ffaa00','#ff4500','#00bfff','#ff0000'][i%4];p.style.boxShadow='0 0 12px currentColor';p.style.animationDuration=(11+Math.random()*16)+'s';p.style.animationDelay=Math.random()*10+'s';c.appendChild(p);}})();
+(function(){
+  const c=document.getElementById('particles');
+  for(let i=0;i<35;i++){
+    const p=document.createElement('div');
+    p.className='particle';
+    p.style.left=Math.random()*100+'%';
+    p.style.bottom='-20px';
+    p.style.width=p.style.height=(2+Math.random()*5)+'px';
+    p.style.background=['#ffaa00','#ff4500','#00bfff','#ff0000','#ff6b00'][i%5];
+    p.style.boxShadow='0 0 14px currentColor';
+    p.style.animationDuration=(10+Math.random()*18)+'s';
+    p.style.animationDelay=(Math.random()*12)+'s';
+    c.appendChild(p);
+  }
+})();
 document.addEventListener('click',e=>{const s=document.createElement('div');s.className='sparkle';s.style.left=e.clientX+'px';s.style.top=e.clientY+'px';s.style.color=['#ff4500','#00bfff','#ffaa00','#ff0000'][Math.floor(Math.random()*4)];document.body.appendChild(s);setTimeout(()=>s.remove(),750);});
 
 let SETTINGS={},TEXTS={},currentUser=null;
@@ -545,7 +571,29 @@ function calculateTotal(){
 function toggleAntiBan(){order.antiban=!order.antiban;document.getElementById('optAntiBan').classList.toggle('active',order.antiban);calculateTotal();}
 function toggleSpeed(s){order.speed=s;document.getElementById('optNormal').classList.toggle('active',s==='normal');document.getElementById('optFast').classList.toggle('active',s==='fast');calculateTotal();}
 async function checkCoupon(){let code=document.getElementById('couponInput').value.trim().toUpperCase();if(!code)return;try{const res=await fetch('/api/check_coupon',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});const data=await res.json();if(data.success){order.discount=data.amount;order.discountType=data.type;document.getElementById('couponStatus').innerHTML='<span style="color:var(--green)">✓ کد اعمال شد</span>';calculateTotal();}else document.getElementById('couponStatus').innerHTML='<span style="color:var(--red)">کد نامعتبر</span>';}catch(e){}}
-function goToPayment(){document.getElementById('payAmountText').textContent=order.totalPrice.toLocaleString('fa-IR');document.getElementById('sentAmount').value=order.totalPrice;paymentReady=false;document.getElementById('btnGoToInfo').disabled=true;document.getElementById('paymentTimer').textContent='لطفاً ۳۰ ثانیه صبر کنید تا دکمه فعال شود...';let t=30;const timer=setInterval(()=>{t--;document.getElementById('paymentTimer').textContent=t>0?`لطفاً ${t} ثانیه صبر کنید...`:'حالا می‌توانید ادامه دهید';if(t<=0){clearInterval(timer);paymentReady=true;validatePayment();}},1000);go('pagePayment');}
+function goToPayment(){
+  document.getElementById('payAmountText').textContent=order.totalPrice.toLocaleString('fa-IR');
+  document.getElementById('sentAmount').value=order.totalPrice;
+  paymentReady=false;
+  const btn=document.getElementById('btnGoToInfo');
+  btn.disabled=true;
+  btn.style.opacity='0.7';
+  let t=30;
+  btn.textContent=`صبر کنید ${t} ثانیه...`;
+  const timer=setInterval(()=>{
+    t--;
+    if(t>0){
+      btn.textContent=`صبر کنید ${t} ثانیه...`;
+    }else{
+      clearInterval(timer);
+      paymentReady=true;
+      btn.textContent='تایید و ادامه';
+      btn.style.opacity='1';
+      validatePayment();
+    }
+  },1000);
+  go('pagePayment');
+}
 function formatTime(el){let v=el.value.replace(/\D/g,'');if(v.length>=3&&v.length<=4&&!v.includes(':')){el.value=v.slice(0,2)+':'+v.slice(2);}validatePayment();}
 function copyCard(){navigator.clipboard.writeText((SETTINGS.card_number||'').replace(/\s/g,'')).then(()=>alert('شماره کارت کپی شد'));}
 function validatePayment(){
@@ -578,72 +626,94 @@ async function finalSubmit(){
 }
 async function trackOrder(){let code=document.getElementById('trackInput').value.trim().toUpperCase();if(!code)return;document.getElementById('trackResult').textContent='در حال جستجو...';try{const res=await fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});const data=await res.json();if(data.success){document.getElementById('trackResult').innerHTML=`<div style="background:#111;padding:14px;border-radius:12px;border:1px solid var(--green)"><p>وضعیت: <strong style="color:var(--green)">${data.status}</strong></p><p>تعداد: ${data.cp} CP</p><p>مبلغ: ${data.price} تومان</p><p>تاریخ: ${data.date}</p></div>`;}else document.getElementById('trackResult').innerHTML='<span style="color:var(--red)">سفارشی یافت نشد</span>';}catch(e){document.getElementById('trackResult').textContent='خطا در ارتباط';}}
 
-function openAbout(){alert(`ما یک تیم واقعی و حرفه‌ای از گیمرهای کالاف دیوتی هستیم که از سال‌ها پیش عاشق این بازی بودیم.
+function showModal(title, htmlContent){
+  let old = document.getElementById('siteModal');
+  if(old) old.remove();
+  const m = document.createElement('div');
+  m.id = 'siteModal';
+  m.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(6px)';
+  m.innerHTML = `
+    <div style="background:linear-gradient(145deg,#1a1a1a,#0d0d0d);border:1px solid rgba(255,107,0,0.4);border-radius:18px;padding:22px;max-width:460px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 0 40px rgba(255,107,0,0.2)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <h3 style="font-size:17px;font-weight:800;color:#ffaa00">${title}</h3>
+        <button onclick="document.getElementById('siteModal').remove()" style="background:none;border:none;color:#aaa;font-size:22px;cursor:pointer">×</button>
+      </div>
+      <div style="font-size:13.5px;line-height:1.95;color:#ddd">${htmlContent}</div>
+    </div>`;
+  m.onclick = e => { if(e.target===m) m.remove(); };
+  document.body.appendChild(m);
+}
 
-به دلیل کمبود بودجه و نبود امکانات مناسب در سال‌های اول، نتونستیم به شکل جدی کار رو شروع کنیم. اما با پشتکار و حمایت شما، امروز فونیکس چیت به یکی از قابل‌اعتمادترین سرویس‌های سی‌پی تبدیل شده.
+function openAbout(){
+  showModal('درباره ما', `
+    <p>ما یک تیم واقعی و حرفه‌ای از گیمرهای کالاف دیوتی هستیم که از سال‌ها پیش عاشق این بازی بودیم.</p>
+    <p style="margin-top:10px">به دلیل کمبود بودجه و نبود امکانات مناسب در سال‌های اول، نتونستیم به شکل جدی کار رو شروع کنیم. اما با پشتکار و حمایت شما، امروز فونیکس چیت به یکی از قابل‌اعتمادترین سرویس‌های سی‌پی تبدیل شده.</p>
+    <p style="margin-top:10px">هدف ما فقط فروش نیست. ما می‌خوایم تو با خیال راحت بازی کنی و از هر لحظه‌ش لذت ببری.</p>
+    <p style="margin-top:12px;color:#ffaa00;font-weight:700">فونیکس چیت یعنی اعتماد، سرعت و کیفیت.</p>
+  `);
+}
 
-هدف ما فقط فروش نیست. ما می‌خوایم تو با خیال راحت بازی کنی و از هر لحظه‌ش لذت ببری. فونیکس چیت یعنی اعتماد، سرعت و کیفیت.`);}
-function openTrust(){alert(`✓ بیش از ۵۰۰ مشتری راضی در سراسر ایران
-✓ کانال اعتماد فعال با نظرات واقعی کاربران
-✓ پشتیبانی ۲۴ ساعته و واقعی
-✓ تحویل تضمینی و پیگیری کامل سفارش
+function openTrust(){
+  showModal('اعتماد مشتریان', `
+    <p>✓ بیش از ۵۰۰ مشتری راضی در سراسر ایران</p>
+    <p>✓ کانال اعتماد فعال با نظرات واقعی کاربران</p>
+    <p>✓ پشتیبانی ۲۴ ساعته و واقعی</p>
+    <p>✓ تحویل تضمینی و پیگیری کامل سفارش</p>
+    <a href="https://rubika.ir/PhoenixCheatTrust" target="_blank" style="display:block;margin-top:18px;background:linear-gradient(90deg,#00c853,#009624);color:#000;text-align:center;padding:12px;border-radius:12px;font-weight:800;text-decoration:none">ورود به کانال اعتماد</a>
+  `);
+}
 
-کانال اعتماد:
-https://rubika.ir/PhoenixCheatTrust`);}
-function openFAQ(){alert(`سوالات متداول:
+function openFAQ(){
+  showModal('سوالات متداول', `
+    <p><b>۱. کجا می‌تونم رضایت مشتریان رو ببینم؟</b><br>← <a href="https://rubika.ir/PhoenixCheatTrust" target="_blank" style="color:#00bfff">کانال اعتماد</a></p>
+    <p style="margin-top:10px"><b>۲. کانال اصلی کجاست؟</b><br>← <a href="https://rubika.ir/PhoenixCheat" target="_blank" style="color:#00bfff">rubika.ir/PhoenixCheat</a></p>
+    <p style="margin-top:10px"><b>۳. پشتیبانی؟</b><br>← <a href="https://rubika.ir/My_HINATA" target="_blank" style="color:#00bfff">rubika.ir/My_HINATA</a></p>
+    <p style="margin-top:10px"><b>۴. چطوری پرداخت کنم؟</b><br>← کارت به کارت به شماره اعلام‌شده در سایت</p>
+    <p style="margin-top:10px"><b>۵. چطوری خرید کنم؟</b><br>← لاگین → انتخاب روش → انتخاب سی‌پی → پرداخت → اطلاعات اکانت</p>
+    <p style="margin-top:10px"><b>۶. چطوری رفرال بگیرم؟</b><br>← از بخش رفرال لینک اختصاصی بساز و پخش کن</p>
+    <p style="margin-top:10px"><b>۷. چرا رفرال ثبت نمی‌شه؟</b><br>← فقط وقتی فرد معرفی‌شده اکانت جدید بسازه. استفاده از گوشی خودت ممنوع است.</p>
+    <p style="margin-top:10px"><b>۸. حداقل شارژ؟</b><br>← ۱۰,۰۰۰ سی‌پی</p>
+    <p style="margin-top:10px"><b>۹. کد ورودم رو فراموش کردم؟</b><br>← به پشتیبانی پیام بده</p>
+    <p style="margin-top:10px"><b>۱۰. سیستم ضد بن چیست؟</b><br>← لایه امنیتی اضافی برای کاهش ریسک بن</p>
+    <p style="margin-top:10px"><b>۱۱. فوری و زمان‌بر؟</b><br>← فوری ≈ ۱۰ دقیقه | معمولی ≈ ۵ ساعت</p>
+  `);
+}
 
-۱. کجا می‌تونم رضایت مشتریان رو ببینم؟
-→ کانال اعتماد: rubika.ir/PhoenixCheatTrust
+function openRules(){
+  showModal('قوانین سایت', `
+    <ul style="padding-right:18px;line-height:2">
+      <li>هر کاربر فقط یک اکانت می‌تواند داشته باشد</li>
+      <li>سوءاستفاده از رفرال = تعلیق اکانت</li>
+      <li>اطلاعات اکانت بازی محفوظ است</li>
+      <li>پس از ثبت سفارش امکان لغو وجود ندارد</li>
+      <li>مسئولیت صحت اطلاعات با کاربر است</li>
+      <li>حداقل سفارش ۱۰ هزار سی‌پی</li>
+      <li>رفرال فقط با ساخت اکانت جدید ثبت می‌شود</li>
+      <li>استفاده از IP یا دستگاه خود برای رفرال ممنوع</li>
+      <li>مدیریت حق دارد موجودی مشکوک را صفر کند</li>
+    </ul>
+  `);
+}
 
-۲. کانال اصلی و اطلاع‌رسانی کجاست؟
-→ rubika.ir/PhoenixCheat
+function openSecurity(){
+  showModal('نکات امنیتی', `
+    <ul style="padding-right:18px;line-height:2">
+      <li>کد ورود خود را به هیچ‌کس ندهید</li>
+      <li>از رمزهای پیچیده استفاده کنید</li>
+      <li>لینک‌های مشکوک را باز نکنید</li>
+      <li>فقط از طریق سایت رسمی خرید کنید</li>
+      <li>رسید پرداخت را تا پایان سفارش نگه دارید</li>
+    </ul>
+  `);
+}
 
-۳. از کجا با پشتیبانی در تماس باشم؟
-→ rubika.ir/My_HINATA
-
-۴. چطوری پرداخت کنم؟
-→ کارت به کارت به شماره اعلام‌شده
-
-۵. چطوری خرید کنم؟
-→ لاگین کن → انتخاب روش → انتخاب سی‌پی → پرداخت → اطلاعات اکانت
-
-۶. چطوری رفرال بگیرم؟
-→ از بخش رفرال لینک اختصاصی بساز و پخش کن
-
-۷. چرا رفرال‌هام ثبت نمی‌شه؟
-→ فقط وقتی فرد معرفی‌شده اکانت جدید بسازه ثبت می‌شه. استفاده از گوشی خودت ممنوع است.
-
-۸. حداقل شارژ چقدره؟
-→ ۱۰,۰۰۰ سی‌پی
-
-۹. کد ورودم رو فراموش کردم؟
-→ به پشتیبانی پیام بده: rubika.ir/My_HINATA
-
-۱۰. سیستم ضد بن چیست؟
-→ لایه‌ی امنیتی اضافی برای کاهش ریسک بن شدن اکانت
-
-۱۱. فوری و زمان‌بر چیست؟
-→ فوری حدود ۱۰ دقیقه - معمولی حدود ۵ ساعت`);}
-function openRules(){alert(`قوانین سایت:
-- هر کاربر فقط یک اکانت
-- سوءاستفاده از رفرال = تعلیق
-- اطلاعات اکانت محفوظ است
-- پس از ثبت سفارش لغو ممکن نیست
-- مسئولیت صحت اطلاعات با کاربر است
-- حداقل سفارش ۱۰ هزار سی‌پی
-- رفرال فقط با ساخت اکانت جدید ثبت می‌شود
-- استفاده از IP یا دستگاه خود برای رفرال ممنوع
-- مدیریت حق دارد موجودی مشکوک را صفر کند`);}
-function openSecurity(){alert(`نکات امنیتی:
-- کد ورود خود را به هیچ‌کس ندهید
-- از رمزهای پیچیده استفاده کنید
-- لینک‌های مشکوک را باز نکنید
-- فقط از طریق سایت رسمی خرید کنید
-- رسید پرداخت را نگه دارید`);}
-function openChannels(){alert(`کانال‌های رسمی:
-• کانال اصلی: rubika.ir/PhoenixCheat
-• کانال اعتماد: rubika.ir/PhoenixCheatTrust
-• پشتیبانی: rubika.ir/My_HINATA`);}
+function openChannels(){
+  showModal('کانال‌های رسمی', `
+    <a href="https://rubika.ir/PhoenixCheat" target="_blank" style="display:block;background:linear-gradient(90deg,#ff4500,#ff6b00);color:#000;text-align:center;padding:13px;border-radius:12px;font-weight:800;text-decoration:none;margin-bottom:10px">کانال اصلی فونیکس چیت</a>
+    <a href="https://rubika.ir/PhoenixCheatTrust" target="_blank" style="display:block;background:linear-gradient(90deg,#00c853,#009624);color:#000;text-align:center;padding:13px;border-radius:12px;font-weight:800;text-decoration:none;margin-bottom:10px">کانال اعتماد (نظرات مشتریان)</a>
+    <a href="https://rubika.ir/My_HINATA" target="_blank" style="display:block;background:linear-gradient(90deg,#00a8ff,#0052d4);color:#fff;text-align:center;padding:13px;border-radius:12px;font-weight:800;text-decoration:none">پشتیبانی مستقیم</a>
+  `);
+}
 
 loadSettings();
 </script>
