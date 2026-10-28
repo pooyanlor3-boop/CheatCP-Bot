@@ -412,25 +412,42 @@ body{
   </div>
 </div>
 
-<!-- صفحه موفقیت -->
+<!-- صفحه موفقیت و تشکر (شیک و کادربندی شده) -->
 <div id="pageSuccess" class="view">
-  <div class="card" style="text-align:center;padding:28px 18px;border:1.5px solid rgba(255,107,0,0.45);box-shadow:0 0 30px rgba(255,107,0,0.15)">
-    <h2 style="font-size:21px;margin-bottom:18px;font-weight:900;background:linear-gradient(90deg,#ff4500,#ffaa00);-webkit-background-clip:text;-webkit-text-fill-color:transparent">سفارش شما ثبت شد</h2>
+  <div class="header">
+    <h3 style="font-size:17px;font-weight:800;color:var(--green)">✅ سفارش با موفقیت ثبت شد</h3>
+  </div>
+  
+  <div class="card" style="text-align:center;padding:32px 20px;border:1.5px solid rgba(0,200,83,0.4);box-shadow:0 0 40px rgba(0,200,83,0.15);background:linear-gradient(145deg,rgba(26,26,26,0.98),rgba(10,10,10,0.98));border-radius:24px;position:relative;overflow:hidden">
     
-    <div style="background:linear-gradient(135deg,rgba(255,107,0,0.15),rgba(230,0,0,0.1));border:1px solid rgba(255,107,0,0.4);border-radius:14px;padding:16px;margin-bottom:14px">
-      <div style="font-size:12px;color:#aaa;margin-bottom:6px">کد پیگیری سفارش</div>
-      <div style="font-size:22px;font-weight:900;color:var(--fire-orange);letter-spacing:2px;text-shadow:0 0 12px rgba(255,107,0,0.5)" id="finalOrderCode">ORD-XXXXXX</div>
+    <!-- افکت درخشش پس‌زمینه -->
+    <div style="position:absolute;top:-50px;left:50%;transform:translateX(-50%);width:200px;height:200px;background:radial-gradient(circle,rgba(0,200,83,0.15) 0%,transparent 70%);pointer-events:none"></div>
+
+    <div style="display:inline-flex;align-items:center;justify-content:center;width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,rgba(0,200,83,0.2),rgba(0,200,83,0.05));border:2px solid rgba(0,200,83,0.5);margin-bottom:20px;box-shadow:0 0 25px rgba(0,200,83,0.3);animation:pulseLogo 2s infinite alternate">
+      <span style="font-size:40px">🎉</span>
     </div>
 
-    <div style="background:rgba(0,168,255,0.1);border:1px solid rgba(0,168,255,0.35);border-radius:14px;padding:14px;margin-bottom:18px">
-      <div style="font-size:13px;color:#90caf9" id="deliveryTimeText">زمان تقریبی تحویل اعلام خواهد شد</div>
+    <h2 style="font-size:22px;margin-bottom:10px;font-weight:900;background:linear-gradient(90deg,#00c853,#00e676);-webkit-background-clip:text;-webkit-text-fill-color:transparent">ممنون از خرید شما!</h2>
+    <p style="font-size:13px;color:#a0a0a0;line-height:1.8;margin-bottom:24px">سفارش شما با موفقیت در سیستم ثبت شد و در صف بررسی قرار گرفت. لطفاً کد پیگیری زیر را نزد خود نگه دارید.</p>
+    
+    <!-- کادر کد پیگیری -->
+    <div style="background:linear-gradient(135deg,rgba(255,107,0,0.1),rgba(230,0,0,0.05));border:1.5px dashed rgba(255,107,0,0.5);border-radius:16px;padding:18px;margin-bottom:16px;position:relative">
+      <div style="font-size:12px;color:#aaa;margin-bottom:8px;letter-spacing:1px">کد پیگیری اختصاصی شما</div>
+      <div style="font-size:24px;font-weight:900;color:var(--fire-orange);letter-spacing:3px;text-shadow:0 0 15px rgba(255,107,0,0.4);font-family:monospace" id="finalOrderCode">ORD-XXXXXX</div>
     </div>
 
-    <div style="display:flex;flex-direction:column;gap:9px">
-      <a href="https://rubika.ir/PhoenixCheat" target="_blank" class="btn-main" style="text-decoration:none;margin:0">عضویت در کانال اصلی</a>
-      <a href="https://rubika.ir/PhoenixCheatTrust" target="_blank" class="btn-outline" style="text-decoration:none;margin:0;border-color:rgba(0,200,83,0.5);color:#69f0ae">مشاهده نظرات مشتریان</a>
-      <a href="https://rubika.ir/My_HINATA" target="_blank" class="btn-outline" style="text-decoration:none;margin:0;border-color:rgba(0,168,255,0.5);color:#82b1ff">ارتباط با پشتیبانی</a>
-      <button class="btn-outline" style="margin:0" onclick="go('page1')">بازگشت به صفحه اصلی</button>
+    <!-- کادر زمان تحویل -->
+    <div style="background:rgba(0,168,255,0.08);border:1px solid rgba(0,168,255,0.3);border-radius:14px;padding:14px;margin-bottom:24px;display:flex;align-items:center;justify-content:center;gap:10px">
+      <span style="font-size:20px">⏳</span>
+      <div style="font-size:13px;color:#90caf9;font-weight:700" id="deliveryTimeText">زمان تقریبی تحویل اعلام خواهد شد</div>
+    </div>
+
+    <!-- دکمه‌ها -->
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <a href="https://rubika.ir/PhoenixCheat" target="_blank" class="btn-main" style="text-decoration:none;margin:0;background:linear-gradient(100deg,#00c853,#009624);color:#fff;box-shadow:0 0 20px rgba(0,200,83,0.4)">📢 عضویت در کانال اصلی</a>
+      <a href="https://rubika.ir/PhoenixCheatTrust" target="_blank" class="btn-outline" style="text-decoration:none;margin:0;border-color:rgba(0,168,255,0.4);color:#82b1ff;background:rgba(0,168,255,0.05)">⭐ مشاهده نظرات مشتریان</a>
+      <a href="https://rubika.ir/My_HINATA" target="_blank" class="btn-outline" style="text-decoration:none;margin:0;border-color:rgba(255,255,255,0.15);color:#ddd">💬 ارتباط با پشتیبانی</a>
+      <button class="btn-outline" style="margin:0;border-color:rgba(255,255,255,0.1);color:#888;font-size:13px;margin-top:8px" onclick="go('page1')">بازگشت به صفحه اصلی</button>
     </div>
   </div>
 </div>
@@ -452,6 +469,9 @@ body{
 </div>
 
 <script>
+// آدرس رندر برای اتصال سایت به ربات
+const API_BASE_URL = 'https://cheatcp-bot.onrender.com';
+
 (function(){
   const c=document.getElementById('particles');
   for(let i=0;i<35;i++){
@@ -471,7 +491,7 @@ document.addEventListener('click',e=>{const s=document.createElement('div');s.cl
 
 let SETTINGS={},TEXTS={},currentUser=null;
 let order={cp:10000,antiban:false,speed:'normal',discount:0,discountType:'',totalPrice:0,balanceUsed:0};
-let order_code='',paymentReady=false;
+let order_code='',paymentReady=false,isPaymentSubmitted=false;
 let fingerprint=localStorage.getItem('fp')||(Math.random().toString(36).slice(2)+Date.now().toString(36));
 localStorage.setItem('fp',fingerprint);
 const urlParams=new URLSearchParams(location.search);
@@ -482,7 +502,7 @@ function getRef(){return localStorage.getItem('ref')||'';}
 
 async function loadSettings(){
   try{
-    const res=await fetch('/api/settings');const data=await res.json();
+    const res=await fetch(`${API_BASE_URL}/api/settings`);const data=await res.json();
     SETTINGS=data.settings||{};TEXTS=data.texts||{};
     if(SETTINGS.registration_open===false){
       document.getElementById('closedMessageText').innerHTML=(SETTINGS.closed_message||'سایت در حال بروزرسانی است').replace(/\n/g,'<br>');
@@ -504,7 +524,7 @@ async function loadSettings(){
   }catch(e){console.log(e)}
 }
 async function tryAutoLogin(code){
-  try{const res=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code,fingerprint})});const data=await res.json();if(data.success){currentUser=data;localStorage.setItem('user_code',data.code);updateUserUI();}else localStorage.removeItem('user_code');}catch(e){}
+  try{const res=await fetch(`${API_BASE_URL}/api/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code,fingerprint})});const data=await res.json();if(data.success){currentUser=data;localStorage.setItem('user_code',data.code);updateUserUI();}else localStorage.removeItem('user_code');}catch(e){}
 }
 function updateUserUI(){
   if(!currentUser)return;
@@ -536,13 +556,13 @@ function checkRegisterForm(){
   document.getElementById('btnRegister').disabled=!ok;
 }
 async function generateCode(){
-  try{const res=await fetch('/api/generate_code');const data=await res.json();if(data.success){document.getElementById('regCode').value=data.code;checkRegisterForm();}}catch(e){}
+  try{const res=await fetch(`${API_BASE_URL}/api/generate_code`);const data=await res.json();if(data.success){document.getElementById('regCode').value=data.code;checkRegisterForm();}}catch(e){}
 }
 async function doRegister(){
   checkRegisterForm();if(document.getElementById('btnRegister').disabled)return;
   const btn=document.getElementById('btnRegister');btn.disabled=true;btn.textContent='در حال ساخت...';
   try{
-    const res=await fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({rubika:document.getElementById('regRubika').value.trim(),code:document.getElementById('regCode').value.trim().toUpperCase(),fingerprint,ref:getRef()})});
+    const res=await fetch(`${API_BASE_URL}/api/register`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({rubika:document.getElementById('regRubika').value.trim(),code:document.getElementById('regCode').value.trim().toUpperCase(),fingerprint,ref:getRef()})});
     const data=await res.json();
     if(data.success){currentUser={code:data.code,balance:data.balance||0};localStorage.setItem('user_code',data.code);alert('✅ اکانت ساخته شد!\n\nکد ورود شما:\n'+data.code+'\n\nحتماً ذخیره کنید!');updateUserUI();go('page1');}
     else alert(data.message||'نمی‌توانید با این کد اکانت بسازید');
@@ -553,7 +573,7 @@ async function doLogin(){
   const code=document.getElementById('loginCode').value.trim().toUpperCase();
   if(!code){document.getElementById('loginError').textContent='کد را وارد کنید';return;}
   document.getElementById('loginError').textContent='';
-  try{const res=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code,fingerprint})});const data=await res.json();if(data.success){currentUser=data;localStorage.setItem('user_code',data.code);updateUserUI();go('page1');}else document.getElementById('loginError').textContent=data.message||'کد اشتباه است';}catch(e){document.getElementById('loginError').textContent='خطای شبکه';}
+  try{const res=await fetch(`${API_BASE_URL}/api/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code,fingerprint})});const data=await res.json();if(data.success){currentUser=data;localStorage.setItem('user_code',data.code);updateUserUI();go('page1');}else document.getElementById('loginError').textContent=data.message||'کد اشتباه است';}catch(e){document.getElementById('loginError').textContent='خطای شبکه';}
 }
 function startBuy(){if(!currentUser){go('pageLogin');return;}go('pageMethod');}
 function chooseMethod(m){if(m==='referral'){document.getElementById('refLink').textContent=location.origin+'/?ref='+currentUser.code;go('pageReferral');}else go('pageProduct');}
@@ -570,8 +590,9 @@ function calculateTotal(){
 }
 function toggleAntiBan(){order.antiban=!order.antiban;document.getElementById('optAntiBan').classList.toggle('active',order.antiban);calculateTotal();}
 function toggleSpeed(s){order.speed=s;document.getElementById('optNormal').classList.toggle('active',s==='normal');document.getElementById('optFast').classList.toggle('active',s==='fast');calculateTotal();}
-async function checkCoupon(){let code=document.getElementById('couponInput').value.trim().toUpperCase();if(!code)return;try{const res=await fetch('/api/check_coupon',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});const data=await res.json();if(data.success){order.discount=data.amount;order.discountType=data.type;document.getElementById('couponStatus').innerHTML='<span style="color:var(--green)">✓ کد اعمال شد</span>';calculateTotal();}else document.getElementById('couponStatus').innerHTML='<span style="color:var(--red)">کد نامعتبر</span>';}catch(e){}}
+async function checkCoupon(){let code=document.getElementById('couponInput').value.trim().toUpperCase();if(!code)return;try{const res=await fetch(`${API_BASE_URL}/api/check_coupon`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});const data=await res.json();if(data.success){order.discount=data.amount;order.discountType=data.type;document.getElementById('couponStatus').innerHTML='<span style="color:var(--green)">✓ کد اعمال شد</span>';calculateTotal();}else document.getElementById('couponStatus').innerHTML='<span style="color:var(--red)">کد نامعتبر</span>';}catch(e){}}
 function goToPayment(){
+  isPaymentSubmitted=false;
   document.getElementById('payAmountText').textContent=order.totalPrice.toLocaleString('fa-IR');
   document.getElementById('sentAmount').value=order.totalPrice;
   paymentReady=false;
@@ -604,10 +625,16 @@ function validatePayment(){
   document.getElementById('btnGoToInfo').disabled=!ok;
 }
 async function submitPayment(){
+  if(isPaymentSubmitted) return;
   let btn=document.getElementById('btnGoToInfo');btn.disabled=true;btn.textContent='در حال ارسال...';
   let fd=new FormData();fd.append('cp',order.cp);fd.append('antiban',order.antiban);fd.append('speed',order.speed);fd.append('totalPrice',order.totalPrice+order.balanceUsed);fd.append('discountAmount',order.discount);fd.append('finalPrice',order.totalPrice);fd.append('balance_used',order.balanceUsed);fd.append('senderCard',document.getElementById('senderCard').value.trim());fd.append('sentAmount',document.getElementById('sentAmount').value);fd.append('sentTime',document.getElementById('sentTime').value.trim());fd.append('user_code',currentUser?currentUser.code:'');
-  let f=document.getElementById('receiptImage').files[0];if(f)fd.append('receipt',f);
-  try{const res=await fetch('/api/payment_info',{method:'POST',body:fd});const data=await res.json();if(data.success){order_code=data.order_code;if(currentUser&&order.balanceUsed>0){currentUser.balance-=order.balanceUsed;updateUserUI();}go('pageUserInfo');}else alert(data.message||'خطا');}catch(e){alert('خطای شبکه');}
+  let f=document.getElementById('receiptImage').files[0];
+  if(f){ 
+    if(!f.type.startsWith('image/')){alert('فقط ارسال عکس مجاز است!');btn.disabled=false;btn.textContent='تایید و ادامه';return;}
+    if(f.size > 5*1024*1024){alert('حجم عکس نباید بیشتر از ۵ مگابایت باشد!');btn.disabled=false;btn.textContent='تایید و ادامه';return;}
+    fd.append('receipt',f);
+  }
+  try{const res=await fetch(`${API_BASE_URL}/api/payment_info`,{method:'POST',body:fd});const data=await res.json();if(data.success){isPaymentSubmitted=true;order_code=data.order_code;if(currentUser&&order.balanceUsed>0){currentUser.balance-=order.balanceUsed;updateUserUI();}go('pageUserInfo');}else alert(data.message||'خطا');}catch(e){alert('خطای شبکه');}
   btn.disabled=false;btn.textContent='تایید و ادامه';
 }
 function validateAccount(){
@@ -621,10 +648,10 @@ function validateAccount(){
 async function finalSubmit(){
   validateAccount();if(document.getElementById('finalSubmitBtn').disabled)return;
   let btn=document.getElementById('finalSubmitBtn');btn.disabled=true;btn.textContent='در حال ارسال...';
-  try{const res=await fetch('/api/final_order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({order_code,email:document.getElementById('accEmail').value.trim(),pass:document.getElementById('accPass').value.trim(),rubika:document.getElementById('accRubika').value.trim(),desc:document.getElementById('accDesc').value.trim()})});const data=await res.json();if(data.success){document.getElementById('finalOrderCode').textContent=order_code;document.getElementById('deliveryTimeText').textContent=order.speed==='fast'?'زمان تقریبی تحویل: ۱۰ دقیقه':'زمان تقریبی تحویل: ۵ ساعت';go('pageSuccess');}else alert(data.message||'خطا');}catch(e){alert('خطای شبکه');}
+  try{const res=await fetch(`${API_BASE_URL}/api/final_order`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({order_code,email:document.getElementById('accEmail').value.trim(),pass:document.getElementById('accPass').value.trim(),rubika:document.getElementById('accRubika').value.trim(),desc:document.getElementById('accDesc').value.trim()})});const data=await res.json();if(data.success){document.getElementById('finalOrderCode').textContent=order_code;document.getElementById('deliveryTimeText').textContent=order.speed==='fast'?'زمان تقریبی تحویل: ۱۰ دقیقه':'زمان تقریبی تحویل: ۵ ساعت';go('pageSuccess');}else alert(data.message||'خطا');}catch(e){alert('خطای شبکه');}
   btn.disabled=false;btn.textContent='ثبت نهایی سفارش';
 }
-async function trackOrder(){let code=document.getElementById('trackInput').value.trim().toUpperCase();if(!code)return;document.getElementById('trackResult').textContent='در حال جستجو...';try{const res=await fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});const data=await res.json();if(data.success){document.getElementById('trackResult').innerHTML=`<div style="background:#111;padding:14px;border-radius:12px;border:1px solid var(--green)"><p>وضعیت: <strong style="color:var(--green)">${data.status}</strong></p><p>تعداد: ${data.cp} CP</p><p>مبلغ: ${data.price} تومان</p><p>تاریخ: ${data.date}</p></div>`;}else document.getElementById('trackResult').innerHTML='<span style="color:var(--red)">سفارشی یافت نشد</span>';}catch(e){document.getElementById('trackResult').textContent='خطا در ارتباط';}}
+async function trackOrder(){let code=document.getElementById('trackInput').value.trim().toUpperCase();if(!code)return;document.getElementById('trackResult').textContent='در حال جستجو...';try{const res=await fetch(`${API_BASE_URL}/api/track`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});const data=await res.json();if(data.success){document.getElementById('trackResult').innerHTML=`<div style="background:#111;padding:14px;border-radius:12px;border:1px solid var(--green)"><p>وضعیت: <strong style="color:var(--green)">${data.status}</strong></p><p>تعداد: ${data.cp} CP</p><p>مبلغ: ${data.price} تومان</p><p>تاریخ: ${data.date}</p></div>`;}else document.getElementById('trackResult').innerHTML='<span style="color:var(--red)">سفارشی یافت نشد</span>';}catch(e){document.getElementById('trackResult').textContent='خطا در ارتباط';}}
 
 function showModal(title, htmlContent){
   let old = document.getElementById('siteModal');
