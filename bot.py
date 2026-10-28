@@ -211,6 +211,51 @@ def submit_review():
         print(e)
         return jsonify({"success": False}), 500
 
+
+@app_web.route("/api/submit_reply", methods=["POST"])
+def submit_reply():
+    try:
+        data = request.get_json(silent=True) or {}
+        review_id = str(data.get("review_id", "")).strip()
+        name = str(data.get("name", "")).strip()
+        text = str(data.get("text", "")).strip()
+        user_code = str(data.get("user_code", "")).strip().upper()
+        is_admin = bool(data.get("is_admin", False))
+        if not review_id or not name or not text:
+            return jsonify({"success": False, "message": "اطلاعات ناقص"}), 400
+        with DATA_LOCK:
+            db = load_data()
+            found = False
+            for r in db.get("reviews", []):
+                if r.get("id") == review_id:
+                    reply = {
+                        "id": make_code(5),
+                        "name": name,
+                        "text": text,
+                        "user_code": user_code,
+                        "is_admin": is_admin,
+                        "status": "approved" if is_admin else "pending",
+                        "date": datetime.now().strftime("%Y-%m-%d %H:%M")
+                    }
+                    r.setdefault("replies", []).append(reply)
+                    found = True
+                    break
+            if not found:
+                return jsonify({"success": False, "message": "نظر یافت نشد"}), 404
+            save_data(db)
+        if not is_admin:
+            text_msg = f"💬 **پاسخ جدید به نظر**\n\n👤 {name}\n📝 {text}\n\nآیدی نظر: `{review_id}`"
+            kb = [[InlineKeyboardButton("✅ تایید پاسخ", callback_data=f"rep_ok_{review_id}_{reply['id']}"),
+                   InlineKeyboardButton("❌ رد", callback_data=f"rep_no_{review_id}_{reply['id']}")]]
+            async def _send():
+                await bot_app.bot.send_message(chat_id=GROUP_ID, text=text_msg, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
+            send_telegram_safe(_send())
+        return jsonify({"success": True})
+    except Exception as e:
+        print(e)
+        return jsonify({"success": False}), 500
+
+
 @app_web.route("/api/register", methods=["POST"])
 def register():
     try:
@@ -455,7 +500,8 @@ def get_main_menu(db=None):
         [InlineKeyboardButton("📦 سفارشات", callback_data="menu_orders"),
          InlineKeyboardButton("📊 آمار", callback_data="menu_stats")],
         [InlineKeyboardButton("👥 کاربران", callback_data="menu_users")],
-        [InlineKeyboardButton("💬 نظرات", callback_data="menu_reviews")],
+        [InlineKeyboardButton("💬 نظرات", callback_data="menu_reviews"),
+         InlineKeyboardButton("🛠️ کامنت ادمین", callback_data="menu_admin_comment")],
         [InlineKeyboardButton("📝 متن‌ها", callback_data="menu_texts")],
         [InlineKeyboardButton("💰 قیمت‌ها", callback_data="menu_prices")],
         [InlineKeyboardButton("⏳ کد تایم‌دار", callback_data="menu_timed_coupon")],
@@ -559,6 +605,11 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             await query.edit_message_text("حداکثر تعداد نظر روزانه هر کاربر:")
 
         # Reviews menu
+        
+        elif data == "menu_admin_comment":
+            USER_STATES[ADMIN_ID] = {"state": "waiting_admin_reply_id"}
+            await query.edit_message_text("آیدی نظر را بفرست (از بخش نظرات کپی کن):")
+
         elif data == "menu_reviews":
             reviews = db.get("reviews", [])
             pending = len([r for r in reviews if r.get("status") == "pending"])
@@ -862,6 +913,33 @@ async def handle_text(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             save_data(db)
             USER_STATES.pop(ADMIN_ID, None)
             await update.message.reply_text("✅ ذخیره شد.", reply_markup=InlineKeyboardMarkup(get_main_menu(db)))
+            return
+
+        
+        elif state == "waiting_admin_reply_id":
+            st["review_id"] = text.strip()
+            st["state"] = "waiting_admin_reply_text"
+            await update.message.reply_text("متن پاسخ ادمین را بفرست:")
+            return
+
+        elif state == "waiting_admin_reply_text":
+            review_id = st.get("review_id")
+            with DATA_LOCK:
+                db = load_data()
+                for r in db.get("reviews", []):
+                    if r.get("id") == review_id:
+                        r.setdefault("replies", []).append({
+                            "id": make_code(5),
+                            "name": "پشتیبانی فونیکس",
+                            "text": text,
+                            "is_admin": True,
+                            "status": "approved",
+                            "date": datetime.now().strftime("%Y-%m-%d %H:%M")
+                        })
+                        save_data(db)
+                        break
+            USER_STATES.pop(ADMIN_ID, None)
+            await update.message.reply_text("✅ پاسخ ادمین ثبت شد.", reply_markup=InlineKeyboardMarkup(get_main_menu(db)))
             return
 
         elif state == "waiting_timed_code":
