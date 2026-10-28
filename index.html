@@ -3,104 +3,171 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>PhoenixCheat | در حال بروزرسانی</title>
-<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#0a0a0a">
+<title>PhoenixCheat | فونیکس چیت</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body {
-    background-color: #0a0a0a;
-    background-image: radial-gradient(ellipse at top, rgba(230,0,0,0.2), transparent 60%);
-    color: #fff;
-    font-family: 'Vazirmatn', Tahoma, sans-serif;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-}
-.card {
-    background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
-    border: 1px solid rgba(230,0,0,0.4);
-    border-radius: 24px;
-    padding: 40px 25px;
-    max-width: 420px;
-    width: 100%;
-    text-align: center;
-    box-shadow: 0 15px 50px rgba(0,0,0,0.8), 0 0 30px rgba(230,0,0,0.1);
-}
-.logo {
-    font-size: 60px;
-    margin-bottom: 20px;
-    animation: pulse 2s infinite alternate;
-}
-@keyframes pulse {
-    0% { transform: scale(1); text-shadow: 0 0 15px #ff4500; }
-    100% { transform: scale(1.1); text-shadow: 0 0 30px #00bfff; }
-}
-h1 {
-    font-size: 22px;
-    font-weight: 900;
-    color: #ffaa00;
-    margin-bottom: 15px;
-}
-p {
-    font-size: 14px;
-    line-height: 2;
-    color: #ccc;
-    margin-bottom: 30px;
-}
-.btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    width: 100%;
-    padding: 16px;
-    border-radius: 14px;
-    font-size: 15px;
-    font-weight: 900;
-    text-decoration: none;
-    margin-bottom: 15px;
-    transition: 0.3s;
-    font-family: inherit;
-}
-.btn-support {
-    background: linear-gradient(90deg, #00a8ff, #0052d4);
-    color: #fff;
-    box-shadow: 0 5px 20px rgba(0,168,255,0.3);
-}
-.btn-support:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,168,255,0.6); }
-
-.btn-channel {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,107,0,0.6);
-    color: #ff6b00;
-}
-.btn-channel:hover { background: rgba(255,107,0,0.1); transform: translateY(-3px); }
-
-svg { width: 22px; height: 22px; }
+:root{--orange:#ff6b00;--red:#e60000;--black:#0a0a0a;--panel:#1a1a1a;--white:#f5f5f5;--gray:#a0a0a0;--green:#00c853;--blue:#00a8ff;--gold:#ffaa00;--fire-red:#ff0000;--fire-orange:#ff4500;--fire-blue:#00bfff}
+html,body{min-height:100%;overflow-x:hidden}
+body{background:var(--black);background-image:radial-gradient(ellipse at top,rgba(230,0,0,0.2),transparent 55%),radial-gradient(ellipse at bottom,rgba(255,107,0,0.12),transparent 50%);color:var(--white);font-family:'Vazirmatn',Tahoma,sans-serif;min-height:100vh;position:relative}
+.particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.particle{position:absolute;border-radius:50%;opacity:0.7;animation:floatUp linear infinite;will-change:transform,opacity}
+@keyframes floatUp{0%{transform:translateY(0) scale(0.3);opacity:0}10%{opacity:0.85}90%{opacity:0.5}100%{transform:translateY(-120vh) scale(1.4);opacity:0}}
+.stars-bg{position:fixed;inset:0;z-index:0;opacity:0.4;background-image:radial-gradient(1.5px 1.5px at 8% 15%,#fff,transparent),radial-gradient(1px 1px at 25% 55%,rgba(255,255,255,0.8),transparent),radial-gradient(2px 2px at 65% 25%,var(--fire-blue),transparent),radial-gradient(1.5px 1.5px at 85% 75%,var(--gold),transparent);background-size:250px 250px;animation:twinkle 4.5s infinite alternate}
+@keyframes twinkle{0%{opacity:0.25}100%{opacity:0.5}}
+.sparkle{position:fixed;pointer-events:none;width:10px;height:10px;border-radius:50%;animation:sparkleAnim 0.7s ease-out forwards;z-index:9999;box-shadow:0 0 18px currentColor}
+@keyframes sparkleAnim{0%{transform:scale(1);opacity:1}100%{transform:scale(0);opacity:0}}
+.app{max-width:520px;margin:0 auto;padding:16px;padding-bottom:90px;position:relative;z-index:2}
+.view{display:none!important}
+.view.active{display:block!important;animation:fadeIn 0.4s ease-out}
+@keyframes fadeIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.header{display:flex;justify-content:space-between;align-items:center;padding:12px 0;margin-bottom:16px;position:relative}
+.header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--fire-red),var(--fire-blue),transparent);box-shadow:0 0 12px var(--fire-blue)}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:52px;height:52px;border-radius:50%;background:var(--panel);display:grid;place-items:center;font-size:24px;border:2px solid transparent;background-image:linear-gradient(var(--panel),var(--panel)),radial-gradient(circle,var(--fire-blue),var(--fire-red),var(--fire-orange));background-origin:border-box;background-clip:padding-box,border-box;box-shadow:0 0 18px var(--fire-red);animation:pulseLogo 2.4s infinite alternate}
+@keyframes pulseLogo{0%{box-shadow:0 0 12px var(--fire-red)}100%{box-shadow:0 0 28px var(--fire-blue)}}
+.brand-text h1{font-size:19px;font-weight:900;background:linear-gradient(90deg,var(--fire-blue),var(--fire-red),var(--fire-orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.brand-text small{font-size:10px;color:var(--gray)}
+.login-btn{background:linear-gradient(90deg,#0d0d0d,#1a1a1a);border:1px solid var(--fire-blue);color:var(--fire-blue);padding:8px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 0 15px rgba(0,191,255,0.35);animation:glowPulse 2.2s infinite}
+@keyframes glowPulse{0%,100%{box-shadow:0 0 10px rgba(0,191,255,0.3)}50%{box-shadow:0 0 22px rgba(0,191,255,0.7)}}
+.card{background:linear-gradient(145deg,rgba(26,26,26,0.97),rgba(10,10,10,0.97));border:1px solid rgba(230,0,0,0.28);border-radius:18px;padding:20px;margin-bottom:14px;box-shadow:0 10px 32px rgba(0,0,0,0.5)}
+.btn-main{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:linear-gradient(100deg,var(--fire-red),var(--fire-orange));color:#0a0a0a;font-weight:900;font-size:15px;border:0;border-radius:14px;padding:15px;margin-top:10px;cursor:pointer;font-family:inherit;box-shadow:0 0 24px rgba(230,0,0,0.5);transition:0.3s}
+.btn-main:hover{transform:translateY(-2px);box-shadow:0 0 36px rgba(230,0,0,0.8)}
+.btn-blue{background:linear-gradient(100deg,var(--fire-blue),#0052d4);color:#fff;box-shadow:0 0 18px rgba(0,191,255,0.4)}
+.btn-outline{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.14);color:var(--white);border-radius:12px;padding:12px;width:100%;font-family:inherit;font-size:13px;cursor:pointer;margin-top:8px;transition:0.3s}
+.btn-outline:hover{border-color:var(--fire-red);background:rgba(230,0,0,0.1)}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:12px;font-weight:700;color:#e0e0e0;margin-bottom:6px}
+.form-group input,.form-group textarea{width:100%;background:rgba(8,8,8,0.85);border:1px solid rgba(230,0,0,0.25);border-radius:12px;padding:13px 14px;color:var(--white);font-size:14px;font-family:inherit;outline:none;transition:0.3s}
+.form-group input:focus{border-color:var(--fire-blue);box-shadow:0 0 16px rgba(0,191,255,0.25)}
+.form-group input.success{border-color:var(--green)!important}
+.form-group input.error{border-color:var(--red)!important}
+.error-text{font-size:11px;color:var(--red);margin-top:4px;min-height:14px}
+.hint{font-size:11px;color:#888;margin-top:4px;line-height:1.6}
+.option-card{background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:15px;margin-bottom:10px;cursor:pointer;transition:0.3s;position:relative}
+.option-card:hover{border-color:rgba(230,0,0,0.5)}
+.option-card.active{border-color:var(--fire-red);background:rgba(230,0,0,0.12)}
+.option-card.active::after{content:'✓';position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--green);font-size:18px;font-weight:900}
+.option-card .title{font-size:14px;font-weight:800;margin-bottom:4px}
+.option-card .desc{font-size:12px;color:var(--gray);line-height:1.6}
+.balance-box{background:linear-gradient(90deg,rgba(0,200,83,0.14),rgba(0,200,83,0.05));border:1px solid rgba(0,200,83,0.4);border-radius:14px;padding:12px 15px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font-size:14px}
+.balance-box .val{font-weight:900;color:var(--green);font-size:16px}
+.warn-box{background:rgba(230,0,0,0.13);border:1px solid rgba(230,0,0,0.45);padding:13px;border-radius:12px;font-size:13px;line-height:1.8;margin:12px 0;color:#ff9a9a}
+.notice-box{background:rgba(255,170,0,0.1);border:1px solid rgba(255,170,0,0.35);padding:12px;border-radius:12px;font-size:12px;color:#ffcc80;margin:12px 0;line-height:1.7}
+.closed-page{text-align:center;padding:50px 16px}
+.closed-page .icon{font-size:64px;margin-bottom:16px;animation:pulseLogo 2s infinite alternate}
+.closed-page h2{font-size:22px;margin-bottom:14px;color:var(--fire-orange);font-weight:900}
+.closed-page p{font-size:14px;line-height:2;color:#ccc;margin-bottom:24px}
+.copy-btn{background:rgba(0,168,255,0.12);border:1px solid var(--fire-blue);color:var(--fire-blue);padding:8px 14px;border-radius:10px;font-size:12px;cursor:pointer;margin-top:8px}
+.hidden{display:none!important}
+.menu-btn{background:rgba(26,26,26,0.9);border:1px solid rgba(230,0,0,0.35);border-radius:12px;padding:10px 8px;color:var(--white);font-size:12px;font-weight:700;cursor:pointer;flex:1;text-align:center}
+.global-links{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0;justify-content:center}
+.global-links button{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);color:#ccc;padding:7px 11px;border-radius:18px;font-size:11px;cursor:pointer}
+.floating-btns{position:fixed;bottom:80px;left:14px;display:flex;flex-direction:column;gap:10px;z-index:50}
+.float-btn{width:50px;height:50px;border-radius:50%;display:grid;place-items:center;font-size:20px;box-shadow:0 4px 16px rgba(0,0,0,0.5);text-decoration:none;color:#fff;transition:0.3s}
+.float-btn.support{background:linear-gradient(135deg,#00c853,#009624);box-shadow:0 0 16px rgba(0,200,83,0.45)}
+.float-btn.channel{background:linear-gradient(135deg,#0088cc,#0052d4);box-shadow:0 0 16px rgba(0,136,204,0.45)}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(12,12,12,0.95);border-top:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-around;padding:8px 0 10px;z-index:100;backdrop-filter:blur(12px)}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;color:#888;font-size:11px;cursor:pointer;padding:4px 12px;border-radius:10px}
+.nav-item.active{color:var(--fire-orange)}
+.nav-item span{font-size:20px}
+.review-card{background:rgba(0,0,0,0.45);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:14px;margin-bottom:12px}
+.review-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.review-avatar{width:38px;height:38px;border-radius:50%;background:#222;display:grid;place-items:center;font-size:18px}
+.review-name{font-size:13px;font-weight:800;color:var(--fire-orange)}
+.review-id{font-size:11px;color:#888}
+.review-stars{color:var(--gold);font-size:13px;margin:4px 0}
+.review-text{font-size:13px;line-height:1.8;color:#ddd}
+.profile-header{text-align:center;padding:20px 0}
+.profile-avatar{width:80px;height:80px;border-radius:50%;background:#1a1a1a;border:2px solid var(--fire-blue);margin:0 auto 12px;display:grid;place-items:center;font-size:36px}
+.profile-name{font-size:18px;font-weight:900}
+.profile-site-id{font-size:13px;color:var(--fire-blue);margin-top:4px}
+.check-row{display:flex;gap:10px;margin-top:6px;font-size:12px}
+.check-item{display:flex;align-items:center;gap:4px}
+.check-item .dot{width:13px;height:13px;border-radius:50%;border:1.5px solid #555;display:grid;place-items:center;font-size:8px}
+.check-item.ok .dot{background:var(--green);border-color:var(--green);color:#000}
 </style>
 </head>
 <body>
-
-<div class="card">
-    <div class="logo">⚡</div>
-    <h1>سایت در حال بروزرسانی است</h1>
-    <p>
-        سلام دوست عزیز،<br>
-        سایت در حال آپدیت هست. برای خرید می‌تونید به پیوی ادمین پیام بدید و یا برای اطلاع از زمان بازگشایی، در کانال اصلی عضو بشید.
-    </p>
-
-    <a href="https://rubika.ir/My_HINATA" target="_blank" class="btn btn-support">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-        پیام به پشتیبانی (ادمین)
-    </a>
-
-    <a href="https://rubika.ir/PhoenixCheat" target="_blank" class="btn btn-channel">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-        عضویت در کانال اصلی
-    </a>
+<div class="stars-bg"></div>
+<div class="particles" id="particles"></div>
+<div class="floating-btns">
+  <a href="https://rubika.ir/My_HINATA" target="_blank" class="float-btn support">💬</a>
+  <a href="https://rubika.ir/PhoenixCheat" target="_blank" class="float-btn channel">📢</a>
 </div>
-
+<div class="app">
+<div id="pageClosed" class="view"><div class="closed-page"><div class="icon">🔒</div><h2>سایت موقتاً بسته است</h2><p id="closedMessageText">سایت در حال بروزرسانی است.</p><a id="closedChannelBtn" href="https://rubika.ir/PhoenixCheat" target="_blank" class="btn-main" style="text-decoration:none">عضویت در کانال</a></div></div>
+<div id="page1" class="view active">
+  <div class="header"><div class="brand"><div class="logo">🔥</div><div class="brand-text"><h1 id="siteName">فونیکس چیت</h1><small>COD STORE</small></div></div><button class="login-btn" id="headerLoginBtn" onclick="go('pageLogin')">ورود / ثبت‌نام</button></div>
+  <div id="userBalanceBox" class="balance-box hidden"><span>موجودی شما:</span><span class="val" id="headerBalance">۰ تومان</span></div>
+  <div class="card"><div style="display:inline-block;background:linear-gradient(90deg,var(--fire-red),var(--fire-orange));color:#000;padding:5px 12px;border-radius:18px;font-size:11px;font-weight:900;margin-bottom:12px">🔥 PHOENIXCHEAT</div><h2 style="font-size:19px;font-weight:900;margin-bottom:10px" id="welcomeTitle">به خانواده فونیکس چیت خوش اومدی</h2><p style="font-size:13px;line-height:2;color:#d0d0d0" id="welcomeText1">اینجا فقط یه فروشگاه ساده نیست. ما یه تیم واقعی از گیمرهای عاشق کالاف دیوتی هستیم.</p><p style="font-size:13px;line-height:2;color:#d0d0d0;margin-top:8px" id="welcomeText2">با فونیکس چیت دیگه نگران بن نباش.</p></div>
+  <button class="btn-main" onclick="startBuy()">🛒 خرید سی‌پی</button>
+  <div style="display:flex;gap:6px;margin-top:10px"><button class="menu-btn" onclick="openAbout()">درباره ما</button><button class="menu-btn" onclick="openTrust()">اعتماد</button><button class="menu-btn" onclick="openFAQ()">سوالات</button></div>
+  <div class="global-links"><button onclick="openRules()">قوانین</button><button onclick="openSecurity()">امنیتی</button><button onclick="openChannels()">کانال‌ها</button></div>
+  <div class="card" style="margin-top:20px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><h3 style="font-size:15px;font-weight:800">💬 نظرات مشتریان</h3><span style="font-size:12px;color:#888" id="reviewsCount">۰ نظر</span></div><div id="reviewsList"></div><button class="btn-outline" style="margin-top:10px" onclick="go('pageAddReview')">ثبت نظر جدید</button></div>
+</div>
+<div id="pageLogin" class="view"><div class="header"><button onclick="go('page1')" style="background:none;border:none;color:var(--gray);font-size:20px;cursor:pointer">←</button><h3 style="font-size:17px;font-weight:800">ورود به حساب</h3><div style="width:28px"></div></div><div class="card"><div class="form-group"><label>آیدی سایت</label><input type="text" id="loginCode" placeholder="آیدی خود را وارد کنید" style="text-align:center" dir="ltr"><div class="error-text" id="loginError"></div></div><div class="form-group"><label>رمز عبور</label><input type="password" id="loginPass" placeholder="رمز عبور" style="text-align:center" dir="ltr"></div><button class="btn-main" onclick="doLogin()">ورود</button><button class="btn-outline" onclick="go('pageRegister')">ساخت اکانت جدید</button><div style="text-align:center;margin-top:18px"><p style="font-size:12px;color:var(--gray)">رمز را فراموش کرده‌اید؟</p><a href="https://rubika.ir/My_HINATA" target="_blank" style="color:var(--fire-blue);font-size:14px;font-weight:700;text-decoration:none">پشتیبانی</a></div></div></div>
+<div id="pageRegister" class="view"><div class="header"><button onclick="go('pageLogin')" style="background:none;border:none;color:var(--gray);font-size:20px;cursor:pointer">←</button><h3 style="font-size:17px;font-weight:800">ساخت اکانت جدید</h3><div style="width:28px"></div></div><div class="card"><div class="form-group"><label>نام نمایشی (حداکثر ۱۵)</label><input type="text" id="regName" maxlength="15" placeholder="نام شما" oninput="checkRegisterForm()"><div class="error-text" id="nameError"></div></div><div class="form-group"><label>آیدی روبیکا</label><input type="text" id="regRubika" placeholder="@username" dir="ltr" oninput="checkRegisterForm()"><div class="hint">با @ شروع • حداقل ۵ • حروف لاتین، عدد و _</div><div class="error-text" id="rubikaError"></div></div><div class="form-group"><label>آیدی سایت (دائمی)</label><input type="text" id="regSiteId" placeholder="مثلاً phoenix81" dir="ltr" maxlength="15" oninput="checkRegisterForm()"><div class="hint">دیگر قابل تغییر نیست</div><div class="error-text" id="siteIdError"></div></div><div class="form-group"><label>رمز عبور (۶ تا ۲۰)</label><div style="display:flex;gap:8px"><input type="text" id="regPass" placeholder="رمز" style="flex:1;text-align:center" dir="ltr" oninput="checkRegisterForm()"><button type="button" class="btn-blue" style="width:auto;padding:0 12px;margin:0;font-size:12px" onclick="generatePass()">خودکار</button></div><div class="check-row"><div class="check-item" id="checkLetter"><div class="dot">✓</div> حروف</div><div class="check-item" id="checkNumber"><div class="dot">✓</div> عدد</div><div class="check-item" id="checkLen"><div class="dot">✓</div> طول</div></div><div class="error-text" id="passError"></div></div><div class="warn-box">⚠️ <strong>هشدار:</strong> این رمز ورود شماست. حتماً کپی و ذخیره کنید.<button class="copy-btn" style="width:100%;margin-top:10px" onclick="copyPass()">📋 کپی رمز</button></div><button class="btn-main" id="btnRegister" onclick="doRegister()" disabled>ساخت اکانت</button></div></div>
+<div id="pageMethod" class="view"><div class="header"><button onclick="go('page1')" style="background:none;border:none;color:var(--gray);font-size:20px;cursor:pointer">←</button><h3 style="font-size:17px;font-weight:800">انتخاب روش</h3><div style="width:28px"></div></div><div class="option-card" onclick="chooseMethod('card')"><div class="title">💳 پرداخت کارت به کارت</div><div class="desc">پرداخت مستقیم و دریافت سریع</div></div><div class="option-card" id="referralOption" onclick="chooseMethod('referral')"><div class="title">🎁 رفرال‌گیری</div><div class="desc">با معرفی دوستان موجودی رایگان بگیر</div></div></div>
+<div id="pageReferral" class="view"><div class="header"><button onclick="go('pageMethod')" style="background:none;border:none;color:var(--gray);font-size:20px;cursor:pointer">←</button><h3 style="font-size:17px;font-weight:800">سیستم معرفی</h3><div style="width:28px"></div></div><div id="referralActive"><div class="balance-box"><span>موجودی رفرال:</span><span class="val" id="refBalance">۰ تومان</span></div><div class="card"><p style="font-size:13px;line-height:1.9;color:#ccc;margin-bottom:14px" id="refDescription">لینک اختصاصی خودت رو بساز و پخش کن.</p><div style="background:rgba(0,0,0,0.4);border-radius:12px;padding:14px;text-align:center;border:1px solid rgba(0,191,255,0.2)"><div style="font-size:12px;color:#888;margin-bottom:6px">لینک شما</div><div id="refLink" style="font-size:13px;word-break:break-all;color:var(--fire-blue);direction:ltr" dir="ltr">...</div><button class="copy-btn" onclick="copyRefLink()">کپی لینک</button></div><div class="notice-box">هر معرفی = <strong id="refRewardText">۲۵,۰۰۰</strong> تومان</div></div><button class="btn-main" onclick="go('pageProduct')">ادامه خرید</button></div><div id="referralDisabled" class="hidden"><div class="card" style="text-align:center;padding:40px 20px"><div style="font-size:48px;margin-bottom:14px">🔒</div><h3 style="font-size:17px;margin-bottom:10px">بخش رفرال غیرفعال است</h3><p style="font-size:13px;color:#aaa">تا اطلاع ثانویه امکان استفاده وجود ندارد.</p><button class="btn-main" style="margin-top:20px" onclick="go('page1')">بازگشت</button></div></div></div>
+<div id="pageProduct" class="view"><div class="header"><button onclick="go('pageMethod')" style="background:none;border:none;color:var(--gray);font-size:20px;cursor:pointer">←</button><h3 style="font-size:17px;font-weight:800">خرید سی‌پی</h3><div style="width:28px"></div></div><div id="productBalanceBox" class="balance-box hidden"><span>موجودی:</span><span class="val" id="productBalance">۰ تومان</span></div><div class="card"><div class="form-group"><label>مقدار سی‌پی</label><input type="number" id="cpAmount" value="10000" min="10000" step="1000" oninput="calculateTotal()" style="text-align:center;font-size:18px;font-weight:700"></div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="quickCps"></div><div class="option-card" id="optAntiBan" onclick="toggleAntiBan()"><div class="title">🛡️ ضد بن</div><div class="desc">+ <span id="lblAntibanPrice">۵۰,۰۰۰</span> تومان</div></div><div class="option-card active" id="optNormal" onclick="toggleSpeed('normal')"><div class="title">⏳ معمولی</div><div class="desc">حدود ۵ ساعت</div></div><div class="option-card" id="optFast" onclick="toggleSpeed('fast')"><div class="title">⚡ فوری</div><div class="desc">حدود ۱۰ دقیقه</div></div><div class="form-group" style="margin-top:14px"><label>کد تخفیف</label><div style="display:flex;gap:8px"><input type="text" id="couponInput" placeholder="کد" style="flex:1"><button class="btn-blue" style="width:auto;padding:0 14px;margin:0" onclick="checkCoupon()">بررسی</button></div><div id="couponStatus" style="font-size:12px;margin-top:5px"></div></div><div style="background:linear-gradient(90deg,rgba(230,0,0,0.12),transparent);border-right:3px solid var(--fire-red);padding:12px;border-radius:10px;display:flex;justify-content:space-between;margin-top:14px"><span>مبلغ نهایی:</span><span style="font-weight:900;color:var(--green);font-size:17px" id="totalPriceDisplay">۰</span></div><div id="balanceUseBox" class="hidden" style="margin-top:14px;background:linear-gradient(90deg,rgba(0,200,83,0.15),rgba(0,200,83,0.05));border:1.5px solid rgba(0,200,83,0.5);border-radius:12px;padding:12px 14px"><label style="font-size:14px;font-weight:800;display:flex;align-items:center;gap:8px;color:#00e676"><input type="checkbox" id="useBalance" onchange="calculateTotal()" style="width:18px;height:18px">🎁 استفاده از موجودی</label><div style="font-size:12px;color:#a5d6a7;margin-top:6px">استفاده شده: <strong id="balanceUsedDisplay">۰</strong></div></div></div><button class="btn-main" onclick="goToPayment()">ادامه و پرداخت</button></div>
+<div id="pagePayment" class="view"><div class="header"><button onclick="go('pageProduct')" style="background:none;border:none;color:var(--gray);font-size:20px;cursor:pointer">←</button><h3 style="font-size:17px;font-weight:800">پرداخت</h3><div style="width:28px"></div></div><div class="card" style="background:linear-gradient(135deg,#0052d4,#4364f7);text-align:center"><div style="font-size:12px;opacity:0.9;margin-bottom:6px">شماره کارت</div><div id="cardNumDisplay" style="font-size:18px;font-weight:700;letter-spacing:1px;direction:ltr;margin-bottom:8px">----</div><div id="cardHolderDisplay" style="font-size:13px">----</div><button class="copy-btn" style="margin-top:10px;background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.4);color:#fff" onclick="copyCard()">کپی کارت</button></div><div class="card"><div style="text-align:center;margin-bottom:12px;font-size:14px">مبلغ: <strong style="color:var(--green);font-size:18px" id="payAmountText">۰</strong></div><div class="form-group"><label>کارت مبدا (۱۶ رقم)</label><input type="text" id="senderCard" maxlength="16" dir="ltr" oninput="validatePayment()"><div class="error-text" id="senderCardError"></div></div><div class="form-group"><label>مبلغ واریزی</label><input type="number" id="sentAmount" oninput="validatePayment()"><div class="error-text" id="sentAmountError"></div></div><div class="form-group"><label>ساعت (مثال: ۱۲۴۰)</label><input type="text" id="sentTime" placeholder="1240" dir="ltr" oninput="formatTime(this);validatePayment()"><div class="error-text" id="sentTimeError"></div></div><div class="form-group"><label>عکس رسید</label><input type="file" id="receiptImage" accept="image/*"></div><button class="btn-main" id="btnGoToInfo" onclick="submitPayment()" disabled style="opacity:0.7">صبر کنید ۳۰ ثانیه...</button></div></div>
+<div id="pageUserInfo" class="view"><div class="header"><button onclick="go('pagePayment')" style="background:none;border:none;color:var(--gray);font-size:20px;cursor:pointer">←</button><h3 style="font-size:17px;font-weight:800">اطلاعات اکانت</h3><div style="width:28px"></div></div><div class="card"><div class="form-group"><label>ایمیل</label><input type="email" id="accEmail" dir="ltr" oninput="validateAccount()"><div class="error-text" id="accEmailError"></div></div><div class="form-group"><label>رمز</label><input type="text" id="accPass" dir="ltr" oninput="validateAccount()"><div class="error-text" id="accPassError"></div></div><div class="form-group"><label>آیدی روبیکا</label><input type="text" id="accRubika" placeholder="@username" dir="ltr" oninput="validateAccount()"><div class="error-text" id="accRubikaError"></div></div><div class="form-group"><label>توضیحات</label><textarea id="accDesc" rows="2"></textarea></div><button class="btn-main" id="finalSubmitBtn" onclick="finalSubmit()" disabled>ثبت نهایی</button></div></div>
+<div id="pageSuccess" class="view"><div class="card" style="text-align:center;padding:30px 18px;border:1.5px solid rgba(255,107,0,0.4)"><h2 style="font-size:20px;margin-bottom:16px;font-weight:900;background:linear-gradient(90deg,#ff4500,#ffaa00);-webkit-background-clip:text;-webkit-text-fill-color:transparent">سفارش شما ثبت شد</h2><div style="background:rgba(255,107,0,0.12);border:1px solid rgba(255,107,0,0.35);border-radius:12px;padding:14px;margin-bottom:12px"><div style="font-size:12px;color:#aaa">کد پیگیری</div><div style="font-size:20px;font-weight:900;color:var(--fire-orange);letter-spacing:2px" id="finalOrderCode">ORD-XXXXXX</div></div><div style="background:rgba(0,168,255,0.1);border:1px solid rgba(0,168,255,0.3);border-radius:12px;padding:12px;margin-bottom:16px"><div style="font-size:13px;color:#90caf9" id="deliveryTimeText">زمان تقریبی اعلام می‌شود</div></div><a href="https://rubika.ir/PhoenixCheat" target="_blank" class="btn-main" style="text-decoration:none;margin-bottom:8px">عضویت در کانال</a><a href="https://rubika.ir/My_HINATA" target="_blank" class="btn-outline" style="text-decoration:none;display:block;margin-bottom:8px">پشتیبانی</a><button class="btn-outline" onclick="go('page1')">بازگشت</button></div></div>
+<div id="pageProfile" class="view"><div class="header"><button onclick="go('page1')" style="background:none;border:none;color:var(--gray);font-size:20px;cursor:pointer">←</button><h3 style="font-size:17px;font-weight:800">پروفایل</h3><div style="width:28px"></div></div><div class="card"><div class="profile-header"><div class="profile-avatar">👤</div><div class="profile-name" id="profileName">مهمان</div><div class="profile-site-id" id="profileSiteId">-</div></div><div class="balance-box" style="justify-content:center;gap:8px"><span>موجودی:</span><span class="val" id="profileBalance">۰ تومان</span></div><button class="btn-outline" onclick="go('pageReferral')">بخش رفرال</button><button class="btn-outline" onclick="openAbout()">درباره ما</button><button class="btn-outline" onclick="openRules()">قوانین</button><button class="btn-outline" style="color:#ff6b6b;border-color:rgba(255,100,100,0.3)" onclick="logout()">خروج</button></div></div>
+<div id="pageMyOrders" class="view"><div class="header"><button onclick="go('page1')" style="background:none;border:none;color:var(--gray);font-size:20px;cursor:pointer">←</button><h3 style="font-size:17px;font-weight:800">سفارشات من</h3><div style="width:28px"></div></div><div class="card"><div class="form-group"><label>کد سفارش</label><input type="text" id="trackInput" placeholder="ORD-XXXXXX" style="text-align:center" dir="ltr"></div><button class="btn-main" onclick="trackOrder()">پیگیری</button><div id="trackResult" style="margin-top:14px;text-align:center;font-size:13px"></div></div><button class="btn-outline" style="margin-top:10px" onclick="startBuy()">ثبت سفارش جدید</button></div>
+<div id="pageAddReview" class="view"><div class="header"><button onclick="go('page1')" style="background:none;border:none;color:var(--gray);font-size:20px;cursor:pointer">←</button><h3 style="font-size:17px;font-weight:800">ثبت نظر</h3><div style="width:28px"></div></div><div class="card"><div class="form-group"><label>نام</label><input type="text" id="revName" maxlength="20"></div><div class="form-group"><label>امتیاز</label><div style="display:flex;gap:8px;justify-content:center;font-size:28px" id="starSelect"><span onclick="setStars(1)">☆</span><span onclick="setStars(2)">☆</span><span onclick="setStars(3)">☆</span><span onclick="setStars(4)">☆</span><span onclick="setStars(5)">☆</span></div></div><div class="form-group"><label>متن نظر</label><textarea id="revText" rows="4"></textarea></div><button class="btn-main" onclick="submitReview()">ارسال</button><p style="font-size:11px;color:#888;text-align:center;margin-top:10px">پس از تایید ادمین نمایش داده می‌شود</p></div></div>
+</div>
+<div class="bottom-nav"><div class="nav-item active" onclick="go('page1')"><span>🛒</span>فروشگاه</div><div class="nav-item" onclick="goProfile()"><span>👤</span>پروفایل</div><div class="nav-item" onclick="go('pageMyOrders')"><span>📦</span>سفارشات</div></div>
+<script>
+let SETTINGS={},TEXTS={},currentUser=null;
+let order={cp:10000,antiban:false,speed:'normal',discount:0,discountType:'',totalPrice:0,balanceUsed:0};
+let order_code='',paymentReady=false,selectedStars=0;
+let fingerprint=localStorage.getItem('fp')||(Math.random().toString(36).slice(2)+Date.now().toString(36));
+localStorage.setItem('fp',fingerprint);
+const urlParams=new URLSearchParams(location.search);
+if(urlParams.get('ref'))localStorage.setItem('ref',urlParams.get('ref').toUpperCase());
+(function(){const c=document.getElementById('particles');for(let i=0;i<30;i++){const p=document.createElement('div');p.className='particle';p.style.left=Math.random()*100+'%';p.style.bottom='-20px';p.style.width=p.style.height=(2+Math.random()*4)+'px';p.style.background=['#ffaa00','#ff4500','#00bfff','#ff0000'][i%4];p.style.boxShadow='0 0 12px currentColor';p.style.animationDuration=(10+Math.random()*16)+'s';p.style.animationDelay=(Math.random()*10)+'s';c.appendChild(p);}})();
+document.addEventListener('click',e=>{const s=document.createElement('div');s.className='sparkle';s.style.left=e.clientX+'px';s.style.top=e.clientY+'px';s.style.color=['#ff4500','#00bfff','#ffaa00'][Math.floor(Math.random()*3)];document.body.appendChild(s);setTimeout(()=>s.remove(),700);});
+function go(id){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));if(id==='page1')document.querySelectorAll('.nav-item')[0]?.classList.add('active');if(id==='pageProfile')document.querySelectorAll('.nav-item')[1]?.classList.add('active');if(id==='pageMyOrders')document.querySelectorAll('.nav-item')[2]?.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
+function getRef(){return localStorage.getItem('ref')||'';}
+async function loadSettings(){try{const res=await fetch('/api/settings');const data=await res.json();SETTINGS=data.settings||{};TEXTS=data.texts||{};if(SETTINGS.registration_open===false){document.getElementById('closedMessageText').innerHTML=(SETTINGS.closed_message||'سایت در حال بروزرسانی است').replace(/\n/g,'<br>');document.getElementById('closedChannelBtn').href=SETTINGS.closed_channel||'https://rubika.ir/PhoenixCheat';go('pageClosed');return;}if(TEXTS.site_name)document.getElementById('siteName').textContent=TEXTS.site_name;if(TEXTS.welcome_title)document.getElementById('welcomeTitle').textContent=TEXTS.welcome_title;if(TEXTS.welcome_text1)document.getElementById('welcomeText1').textContent=TEXTS.welcome_text1;if(TEXTS.welcome_text2)document.getElementById('welcomeText2').textContent=TEXTS.welcome_text2;document.getElementById('lblAntibanPrice').textContent=(SETTINGS.price_antiban||50000).toLocaleString('fa-IR');document.getElementById('lblFastPrice').textContent=(SETTINGS.price_fast||20000).toLocaleString('fa-IR');document.getElementById('refRewardText').textContent=(SETTINGS.referral_reward||25000).toLocaleString('fa-IR');if(SETTINGS.referral_description)document.getElementById('refDescription').textContent=SETTINGS.referral_description;if(SETTINGS.card_number){let c=String(SETTINGS.card_number).replace(/\s/g,'');document.getElementById('cardNumDisplay').textContent=c.match(/.{1,4}/g)?.join(' ')||c;}if(SETTINGS.card_holder)document.getElementById('cardHolderDisplay').textContent=SETTINGS.card_holder;let q=document.getElementById('quickCps');q.innerHTML='';(SETTINGS.custom_packages||[]).forEach(p=>{let b=document.createElement('button');b.textContent=p.cp.toLocaleString();b.style="background:#222;border:1px solid var(--fire-orange);color:var(--fire-orange);padding:5px 10px;border-radius:8px;font-size:11px;cursor:pointer";b.onclick=()=>{document.getElementById('cpAmount').value=p.cp;calculateTotal();};q.appendChild(b);});if(!SETTINGS.referral_enabled)document.getElementById('referralOption')?.classList.add('hidden');const saved=localStorage.getItem('user_code');if(saved)await tryAutoLogin(saved);calculateTotal();loadReviews();}catch(e){console.log(e);}}
+async function tryAutoLogin(code){try{const res=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code,fingerprint})});const data=await res.json();if(data.success){currentUser=data;localStorage.setItem('user_code',data.code);updateUserUI();}else localStorage.removeItem('user_code');}catch(e){}}
+function updateUserUI(){if(!currentUser)return;document.getElementById('headerLoginBtn').textContent=currentUser.name||currentUser.code;document.getElementById('userBalanceBox').classList.remove('hidden');document.getElementById('headerBalance').textContent=(currentUser.balance||0).toLocaleString('fa-IR')+' تومان';document.getElementById('productBalanceBox')?.classList.remove('hidden');document.getElementById('productBalance').textContent=(currentUser.balance||0).toLocaleString('fa-IR')+' تومان';document.getElementById('refBalance').textContent=(currentUser.balance||0).toLocaleString('fa-IR')+' تومان';if((currentUser.balance||0)>0)document.getElementById('balanceUseBox')?.classList.remove('hidden');document.getElementById('profileName').textContent=currentUser.name||currentUser.code;document.getElementById('profileSiteId').textContent='@'+(currentUser.code||'');document.getElementById('profileBalance').textContent=(currentUser.balance||0).toLocaleString('fa-IR')+' تومان';}
+function checkRegisterForm(){const name=document.getElementById('regName').value.trim();const rubika=document.getElementById('regRubika').value.trim();const siteId=document.getElementById('regSiteId').value.trim();const pass=document.getElementById('regPass').value.trim();let ok=true;if(!name||name.length>15){document.getElementById('nameError').textContent='۱ تا ۱۵ کاراکتر';ok=false;}else document.getElementById('nameError').textContent='';if(!rubika.startsWith('@')||rubika.length<6||!/^@[a-zA-Z0-9_]{5,14}$/.test(rubika)){document.getElementById('rubikaError').textContent='فرمت نامعتبر';ok=false;}else document.getElementById('rubikaError').textContent='';if(!/^[a-zA-Z0-9_]{5,15}$/.test(siteId)){document.getElementById('siteIdError').textContent='۵ تا ۱۵ • حروف عدد _';ok=false;}else document.getElementById('siteIdError').textContent='';const hasL=/[a-zA-Z]/.test(pass),hasN=/[0-9]/.test(pass),goodLen=pass.length>=6&&pass.length<=20;document.getElementById('checkLetter').classList.toggle('ok',hasL);document.getElementById('checkNumber').classList.toggle('ok',hasN);document.getElementById('checkLen').classList.toggle('ok',goodLen);if(!hasL||!hasN||!goodLen){document.getElementById('passError').textContent='حروف+عدد • ۶-۲۰';ok=false;}else document.getElementById('passError').textContent='';document.getElementById('btnRegister').disabled=!ok;}
+function generatePass(){const chars='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';let p='';for(let i=0;i<10;i++)p+=chars[Math.floor(Math.random()*chars.length)];document.getElementById('regPass').value=p;checkRegisterForm();}
+function copyPass(){const p=document.getElementById('regPass').value;if(!p)return alert('اول رمز را بسازید');navigator.clipboard.writeText(p).then(()=>alert('کپی شد!'));}
+async function doRegister(){checkRegisterForm();if(document.getElementById('btnRegister').disabled)return;const btn=document.getElementById('btnRegister');btn.disabled=true;btn.textContent='در حال ساخت...';try{const res=await fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:document.getElementById('regName').value.trim(),rubika:document.getElementById('regRubika').value.trim(),code:document.getElementById('regSiteId').value.trim().toUpperCase(),password:document.getElementById('regPass').value.trim(),fingerprint,ref:getRef()})});const data=await res.json();if(data.success){currentUser={code:data.code,name:document.getElementById('regName').value.trim(),balance:0};localStorage.setItem('user_code',data.code);alert('✅ اکانت ساخته شد!\nآیدی: '+data.code);updateUserUI();go('page1');}else alert(data.message||'خطا');}catch(e){alert('خطای شبکه');}btn.disabled=false;btn.textContent='ساخت اکانت';checkRegisterForm();}
+async function doLogin(){const code=document.getElementById('loginCode').value.trim().toUpperCase();const pass=document.getElementById('loginPass').value.trim();if(!code){document.getElementById('loginError').textContent='آیدی را وارد کنید';return;}document.getElementById('loginError').textContent='';try{const res=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code,password:pass,fingerprint})});const data=await res.json();if(data.success){currentUser=data;localStorage.setItem('user_code',data.code);updateUserUI();go('page1');}else document.getElementById('loginError').textContent=data.message||'آیدی یا رمز اشتباه';}catch(e){document.getElementById('loginError').textContent='خطای شبکه';}}
+function logout(){currentUser=null;localStorage.removeItem('user_code');document.getElementById('headerLoginBtn').textContent='ورود / ثبت‌نام';document.getElementById('userBalanceBox').classList.add('hidden');go('page1');}
+function goProfile(){if(!currentUser){go('pageLogin');return;}go('pageProfile');}
+function startBuy(){if(!currentUser){go('pageLogin');return;}go('pageMethod');}
+function chooseMethod(m){if(m==='referral'){if(!SETTINGS.referral_enabled){document.getElementById('referralActive').classList.add('hidden');document.getElementById('referralDisabled').classList.remove('hidden');}else{document.getElementById('referralActive').classList.remove('hidden');document.getElementById('referralDisabled').classList.add('hidden');document.getElementById('refLink').textContent=location.origin+'/?ref='+currentUser.code;}go('pageReferral');}else go('pageProduct');}
+function copyRefLink(){navigator.clipboard.writeText(document.getElementById('refLink').textContent).then(()=>alert('کپی شد!'));}
+function calculateTotal(){let val=parseInt(document.getElementById('cpAmount').value)||0;if(val<10000)val=10000;order.cp=val;let base=0;const pkgs=SETTINGS.custom_packages||[];const match=pkgs.find(p=>p.cp===val);if(match)base=match.price;else base=Math.ceil(val/1000)*(SETTINGS.price_per_1000||25000);let extra=0;if(order.antiban)extra+=(SETTINGS.price_antiban||50000);if(order.speed==='fast')extra+=(SETTINGS.price_fast||20000);let total=base+extra;if(order.discount>0){if(order.discountType==='percent')total-=total*order.discount/100;else total-=order.discount;}if(total<0)total=0;order.balanceUsed=0;if(document.getElementById('useBalance')?.checked&&currentUser){order.balanceUsed=Math.min(currentUser.balance||0,total);total-=order.balanceUsed;}order.totalPrice=Math.max(0,Math.round(total));document.getElementById('totalPriceDisplay').textContent=order.totalPrice.toLocaleString('fa-IR');if(document.getElementById('balanceUsedDisplay'))document.getElementById('balanceUsedDisplay').textContent=order.balanceUsed.toLocaleString('fa-IR');}
+function toggleAntiBan(){order.antiban=!order.antiban;document.getElementById('optAntiBan').classList.toggle('active',order.antiban);calculateTotal();}
+function toggleSpeed(s){order.speed=s;document.getElementById('optNormal').classList.toggle('active',s==='normal');document.getElementById('optFast').classList.toggle('active',s==='fast');calculateTotal();}
+async function checkCoupon(){const code=document.getElementById('couponInput').value.trim().toUpperCase();if(!code)return;try{const res=await fetch('/api/check_coupon',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});const data=await res.json();if(data.success){order.discount=data.amount;order.discountType=data.type;document.getElementById('couponStatus').innerHTML='<span style="color:var(--green)">✓ اعمال شد</span>';calculateTotal();}else document.getElementById('couponStatus').innerHTML='<span style="color:var(--red)">نامعتبر</span>';}catch(e){}}
+function goToPayment(){document.getElementById('payAmountText').textContent=order.totalPrice.toLocaleString('fa-IR');document.getElementById('sentAmount').value=order.totalPrice;paymentReady=false;const btn=document.getElementById('btnGoToInfo');btn.disabled=true;btn.style.opacity='0.7';let t=30;btn.textContent=`صبر کنید ${t} ثانیه...`;const timer=setInterval(()=>{t--;if(t>0)btn.textContent=`صبر کنید ${t} ثانیه...`;else{clearInterval(timer);paymentReady=true;btn.textContent='تایید و ادامه';btn.style.opacity='1';validatePayment();}},1000);go('pagePayment');}
+function formatTime(el){let v=el.value.replace(/\D/g,'');if(v.length>=3&&v.length<=4&&!v.includes(':'))el.value=v.slice(0,2)+':'+v.slice(2);validatePayment();}
+function copyCard(){navigator.clipboard.writeText((SETTINGS.card_number||'').replace(/\s/g,'')).then(()=>alert('کپی شد'));}
+function validatePayment(){const card=document.getElementById('senderCard').value.trim();const amount=parseInt(document.getElementById('sentAmount').value)||0;const time=document.getElementById('sentTime').value.trim();let ok=paymentReady;if(!/^\d{16}$/.test(card)){document.getElementById('senderCardError').textContent='۱۶ رقم';ok=false;}else document.getElementById('senderCardError').textContent='';if(amount!==order.totalPrice){document.getElementById('sentAmountError').textContent='مبلغ دقیق باشد';ok=false;}else document.getElementById('sentAmountError').textContent='';if(!/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(time)){document.getElementById('sentTimeError').textContent='فرمت ساعت';ok=false;}else document.getElementById('sentTimeError').textContent='';document.getElementById('btnGoToInfo').disabled=!ok;}
+async function submitPayment(){const btn=document.getElementById('btnGoToInfo');btn.disabled=true;btn.textContent='در حال ارسال...';const fd=new FormData();fd.append('cp',order.cp);fd.append('antiban',order.antiban);fd.append('speed',order.speed);fd.append('totalPrice',order.totalPrice+order.balanceUsed);fd.append('discountAmount',order.discount);fd.append('finalPrice',order.totalPrice);fd.append('balance_used',order.balanceUsed);fd.append('senderCard',document.getElementById('senderCard').value.trim());fd.append('sentAmount',document.getElementById('sentAmount').value);fd.append('sentTime',document.getElementById('sentTime').value.trim());fd.append('user_code',currentUser?currentUser.code:'');const f=document.getElementById('receiptImage').files[0];if(f)fd.append('receipt',f);try{const res=await fetch('/api/payment_info',{method:'POST',body:fd});const data=await res.json();if(data.success){order_code=data.order_code;if(currentUser&&order.balanceUsed>0){currentUser.balance-=order.balanceUsed;updateUserUI();}go('pageUserInfo');}else alert(data.message||'خطا');}catch(e){alert('خطای شبکه');}btn.disabled=false;btn.textContent='تایید و ادامه';}
+function validateAccount(){const email=document.getElementById('accEmail').value.trim();const pass=document.getElementById('accPass').value.trim();const rubika=document.getElementById('accRubika').value.trim();let ok=true;if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){document.getElementById('accEmailError').textContent='ایمیل معتبر';ok=false;}else document.getElementById('accEmailError').textContent='';if(!pass||pass.length<6){document.getElementById('accPassError').textContent='حداقل ۶ کاراکتر';ok=false;}else document.getElementById('accPassError').textContent='';if(!rubika.startsWith('@')){document.getElementById('accRubikaError').textContent='با @ شروع شود';ok=false;}else document.getElementById('accRubikaError').textContent='';document.getElementById('finalSubmitBtn').disabled=!ok;}
+async function finalSubmit(){validateAccount();if(document.getElementById('finalSubmitBtn').disabled)return;const btn=document.getElementById('finalSubmitBtn');btn.disabled=true;btn.textContent='در حال ارسال...';try{const res=await fetch('/api/final_order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({order_code,email:document.getElementById('accEmail').value.trim(),pass:document.getElementById('accPass').value.trim(),rubika:document.getElementById('accRubika').value.trim(),desc:document.getElementById('accDesc').value.trim()})});const data=await res.json();if(data.success){document.getElementById('finalOrderCode').textContent=order_code;document.getElementById('deliveryTimeText').textContent=order.speed==='fast'?'زمان تقریبی: ۱۰ دقیقه':'زمان تقریبی: ۵ ساعت';go('pageSuccess');}else alert(data.message||'خطا');}catch(e){alert('خطای شبکه');}btn.disabled=false;btn.textContent='ثبت نهایی';}
+async function trackOrder(){const code=document.getElementById('trackInput').value.trim().toUpperCase();if(!code)return;document.getElementById('trackResult').textContent='در حال جستجو...';try{const res=await fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});const data=await res.json();if(data.success){document.getElementById('trackResult').innerHTML=`<div style="background:#111;padding:14px;border-radius:12px;border:1px solid var(--green)"><p>وضعیت: <strong style="color:var(--green)">${data.status}</strong></p><p>تعداد: ${data.cp} CP</p><p>مبلغ: ${data.price} تومان</p></div>`;}else document.getElementById('trackResult').innerHTML='<span style="color:var(--red)">یافت نشد</span>';}catch(e){document.getElementById('trackResult').textContent='خطا';}}
+async function loadReviews(){try{const res=await fetch('/api/reviews');const list=await res.json();document.getElementById('reviewsCount').textContent=(list.length||0)+' نظر';const box=document.getElementById('reviewsList');if(!list.length){box.innerHTML='<p style="text-align:center;color:#666;font-size:13px">هنوز نظری ثبت نشده</p>';return;}box.innerHTML=list.slice(0,8).map(r=>`<div class="review-card"><div class="review-header"><div class="review-avatar">👤</div><div><div class="review-name">${r.name||'کاربر'}</div><div class="review-id">${r.date||''}</div></div></div><div class="review-stars">${'★'.repeat(r.stars||5)}${'☆'.repeat(5-(r.stars||5))}</div><div class="review-text">${r.text||''}</div></div>`).join('');}catch(e){}}
+function setStars(n){selectedStars=n;document.querySelectorAll('#starSelect span').forEach((s,i)=>s.textContent=i<n?'★':'☆');}
+async function submitReview(){const name=document.getElementById('revName').value.trim();const text=document.getElementById('revText').value.trim();if(!name||!text)return alert('نام و متن را پر کنید');if(selectedStars<1)return alert('امتیاز را انتخاب کنید');try{const res=await fetch('/api/submit_review',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,text,stars:selectedStars,user_code:currentUser?.code||''})});const data=await res.json();if(data.success){alert('نظر ارسال شد و پس از تایید نمایش داده می‌شود');go('page1');}else alert(data.message||'خطا');}catch(e){alert('خطای شبکه');}}
+function showModal(title,html){let old=document.getElementById('siteModal');if(old)old.remove();const m=document.createElement('div');m.id='siteModal';m.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(6px)';m.innerHTML=`<div style="background:linear-gradient(145deg,#1a1a1a,#0d0d0d);border:1px solid rgba(255,107,0,0.4);border-radius:18px;padding:20px;max-width:440px;width:100%;max-height:80vh;overflow-y:auto"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><h3 style="font-size:16px;font-weight:800;color:#ffaa00">${title}</h3><button onclick="document.getElementById('siteModal').remove()" style="background:none;border:none;color:#aaa;font-size:22px;cursor:pointer">×</button></div><div style="font-size:13px;line-height:1.9;color:#ddd">${html}</div></div>`;m.onclick=e=>{if(e.target===m)m.remove();};document.body.appendChild(m);}
+function openAbout(){showModal('درباره ما','<p>ما یک تیم واقعی از گیمرهای کالاف دیوتی هستیم که با تجربه چندساله، امن‌ترین سرویس سی‌پی را ارائه می‌دهیم.</p>');}
+function openTrust(){showModal('اعتماد','<p>✓ بیش از ۵۰۰ مشتری راضی</p><p>✓ کانال اعتماد فعال</p><a href="https://rubika.ir/PhoenixCheatTrust" target="_blank" style="display:block;margin-top:14px;background:linear-gradient(90deg,#00c853,#009624);color:#000;text-align:center;padding:12px;border-radius:12px;font-weight:800;text-decoration:none">کانال اعتماد</a>');}
+function openFAQ(){showModal('سوالات','<p><b>چطور خرید کنم؟</b><br>لاگین کنید و مراحل را طی کنید.</p><p style="margin-top:8px"><b>حداقل سفارش؟</b><br>۱۰ هزار سی‌پی</p>');}
+function openRules(){showModal('قوانین','<ul style="padding-right:16px;line-height:2"><li>هر کاربر یک اکانت</li><li>سوءاستفاده از رفرال = تعلیق</li><li>پس از ثبت سفارش لغو ممکن نیست</li></ul>');}
+function openSecurity(){showModal('امنیتی','<ul style="padding-right:16px;line-height:2"><li>رمز را به کسی ندهید</li><li>فقط از سایت رسمی خرید کنید</li></ul>');}
+function openChannels(){showModal('کانال‌ها','<a href="https://rubika.ir/PhoenixCheat" target="_blank" style="display:block;background:linear-gradient(90deg,#ff4500,#ff6b00);color:#000;text-align:center;padding:12px;border-radius:12px;font-weight:800;text-decoration:none;margin-bottom:8px">کانال اصلی</a><a href="https://rubika.ir/My_HINATA" target="_blank" style="display:block;background:linear-gradient(90deg,#00a8ff,#0052d4);color:#fff;text-align:center;padding:12px;border-radius:12px;font-weight:800;text-decoration:none">پشتیبانی</a>');}
+loadSettings();
+</script>
 </body>
 </html>
