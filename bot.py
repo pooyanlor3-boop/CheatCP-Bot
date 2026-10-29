@@ -193,7 +193,7 @@ def submit_review():
                 if len(user_reviews_today) >= max_per_day:
                     return jsonify({"success": False, "message": f"حداکثر {max_per_day} نظر در روز مجاز است"}), 400
             rev_id = make_code(6)
-            avatar = str(data.get("avatar", "") or "")[:150000]
+            avatar = str(data.get("avatar", "") or "")[:80000]
             review = {
                 "id": rev_id, "name": name, "text": text, "stars": stars,
                 "user_code": user_code, "status": "pending",
@@ -554,43 +554,76 @@ async def start(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
 async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
-    data = query.data
-    await query.answer()
+    data = query.data or ""
 
-    # Review approve/reject - fast path
+    # ===== تایید / رد نظر (قبل از answer عمومی) =====
     if data.startswith("rev_ok_") or data.startswith("rev_no_"):
-        parts = data.split("_")
-        rev_id = parts[-1] if len(parts) >= 3 else ""
+        rev_id = data.split("_")[-1]
         new_status = "approved" if data.startswith("rev_ok_") else "rejected"
-        ok_save = False
-        with DATA_LOCK:
-            db = load_data()
-            for r in db.get("reviews", []):
-                if str(r.get("id")) == str(rev_id):
-                    r["status"] = new_status
-                    ok_save = True
-                    break
-            if ok_save:
-                ok_save = save_data(db)
+        found = False
+        saved = False
         try:
-            if ok_save:
+            with DATA_LOCK:
+                db = load_data()
+                for r in db.get("reviews", []):
+                    if str(r.get("id")) == str(rev_id):
+                        r["status"] = new_status
+                        found = True
+                        break
+                if found:
+                    saved = save_data(db)
+            if found and saved:
                 await query.answer("✅ ثبت شد", show_alert=True)
+                try:
+                    await query.edit_message_text(
+                        ("✅ نظر تایید شد و در سایت نمایش داده می‌شود" if new_status == "approved"
+                         else "❌ نظر رد شد") + f"\nآیدی: {rev_id}"
+                    )
+                except Exception:
+                    pass
+            elif found and not saved:
+                await query.answer("❌ ذخیره در دیتابیس ناموفق بود", show_alert=True)
             else:
-                await query.answer("❌ ذخیره نشد", show_alert=True)
+                await query.answer("❌ نظر پیدا نشد", show_alert=True)
         except Exception as e:
-            print("answer error", e)
-        try:
-            await query.edit_message_text(
-                f"{'✅ نظر تایید شد' if new_status=='approved' else '❌ نظر رد شد'}\nآیدی: `{rev_id}`",
-                parse_mode="Markdown"
-            )
-        except:
+            print("rev approve error:", e)
             try:
-                await query.message.delete()
-            except:
+                await query.answer("❌ خطا در تایید", show_alert=True)
+            except Exception:
                 pass
         return
 
+    # ===== تایید / رد پاسخ =====
+    if data.startswith("rep_ok_") or data.startswith("rep_no_"):
+        parts = data.split("_")
+        try:
+            review_id, reply_id = parts[2], parts[3]
+            new_status = "approved" if data.startswith("rep_ok_") else "rejected"
+            with DATA_LOCK:
+                db = load_data()
+                for r in db.get("reviews", []):
+                    if str(r.get("id")) == str(review_id):
+                        for rep in r.get("replies", []):
+                            if str(rep.get("id")) == str(reply_id):
+                                rep["status"] = new_status
+                                break
+                        break
+                save_data(db)
+            await query.answer("✅ ثبت شد", show_alert=True)
+            try:
+                await query.edit_message_text("✅ پاسخ ثبت شد")
+            except Exception:
+                pass
+        except Exception as e:
+            print("rep approve error:", e)
+            try:
+                await query.answer("❌ خطا", show_alert=True)
+            except Exception:
+                pass
+        return
+
+    # بقیه دکمه‌ها
+    await query.answer()
     db = load_data()
     s = db.get("settings", {})
 
