@@ -339,7 +339,14 @@ function parseNum(s){return parseInt(String(s).replace(/,/g,''))||0}
 document.addEventListener('click',e=>{const s=document.createElement('div');s.className='sparkle';s.style.left=e.clientX+'px';s.style.top=e.clientY+'px';s.style.color=['#ff4500','#00bfff','#ffaa00'][Math.floor(Math.random()*3)];document.body.appendChild(s);setTimeout(()=>s.remove(),750);});
 window.addEventListener('scroll',()=>{document.getElementById('backTop').classList.toggle('show',window.scrollY>400);});
 
-function go(id){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));if(id==='page1')document.querySelectorAll('.nav-item')[0]?.classList.add('active');if(id==='pageMyOrders')document.querySelectorAll('.nav-item')[1]?.classList.add('active');if(id==='pageProfile'||id==='pageEditProfile')document.querySelectorAll('.nav-item')[2]?.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
+function go(id){
+  // unlock forms when navigating
+  ['senderCard','sentAmount','sentTime','receiptImage','accEmail','accPass','accRubika','accDesc'].forEach(fid=>{
+    const el=document.getElementById(fid);if(el)el.disabled=false;
+  });
+  const b1=document.getElementById('btnGoToInfo');if(b1&&paymentReady){b1.disabled=false;b1.textContent='تایید و ادامه';}
+  const b2=document.getElementById('finalSubmitBtn');if(b2){b2.textContent='ثبت نهایی';}
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));if(id==='page1')document.querySelectorAll('.nav-item')[0]?.classList.add('active');if(id==='pageMyOrders')document.querySelectorAll('.nav-item')[1]?.classList.add('active');if(id==='pageProfile'||id==='pageEditProfile')document.querySelectorAll('.nav-item')[2]?.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
 function getRef(){return localStorage.getItem('ref')||'';}
 
 async function loadSettings(){
@@ -444,11 +451,66 @@ function formatTime(el){let v=el.value.replace(/\D/g,'');if(v.length>=3&&v.lengt
 function copyCard(){navigator.clipboard.writeText((SETTINGS.card_number||'').replace(/\s/g,'')).then(()=>alert('کپی شد'));}
 function validatePayment(){const card=document.getElementById('senderCard').value.trim();const amount=parseNum(document.getElementById('sentAmount').value);const time=document.getElementById('sentTime').value.trim();let ok=paymentReady;if(!/^\d{16}$/.test(card)){document.getElementById('senderCardError').textContent='۱۶ رقم';ok=false;}else document.getElementById('senderCardError').textContent='';if(amount!==order.totalPrice){document.getElementById('sentAmountError').textContent='مبلغ دقیق باشد';ok=false;}else document.getElementById('sentAmountError').textContent='';if(!/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(time)){document.getElementById('sentTimeError').textContent='فرمت ساعت';ok=false;}else document.getElementById('sentTimeError').textContent='';document.getElementById('btnGoToInfo').disabled=!ok;}
 
-async function submitPayment(){const btn=document.getElementById('btnGoToInfo');btn.disabled=true;btn.textContent='در حال ارسال...';const fd=new FormData();fd.append('cp',order.cp);fd.append('antiban',order.antiban);fd.append('speed',order.speed);fd.append('totalPrice',order.totalPrice+order.balanceUsed);fd.append('discountAmount',order.discount);fd.append('finalPrice',order.totalPrice);fd.append('balance_used',order.balanceUsed);fd.append('senderCard',document.getElementById('senderCard').value.trim());fd.append('sentAmount',parseNum(document.getElementById('sentAmount').value));fd.append('sentTime',document.getElementById('sentTime').value.trim());fd.append('user_code',currentUser?currentUser.code:'');const f=document.getElementById('receiptImage').files[0];if(f)fd.append('receipt',f);
-try{const res=await fetch('/api/payment_info',{method:'POST',body:fd});const data=await res.json();if(data.success){order_code=data.order_code;if(currentUser&&order.balanceUsed>0){currentUser.balance-=order.balanceUsed;updateUserUI();}go('pageUserInfo');}else alert(data.message||'خطا');}catch(e){alert('خطای شبکه');}btn.disabled=false;btn.textContent='تایید و ادامه';}
+async function submitPayment(){
+  const btn=document.getElementById('btnGoToInfo');
+  const fields=['senderCard','sentAmount','sentTime','receiptImage'];
+  fields.forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=true;});
+  btn.disabled=true;btn.innerHTML='⏳ در حال ارسال...';
+  const fd=new FormData();
+  fd.append('cp',order.cp);fd.append('antiban',order.antiban);fd.append('speed',order.speed);
+  fd.append('totalPrice',order.totalPrice+order.balanceUsed);fd.append('discountAmount',order.discount);
+  fd.append('finalPrice',order.totalPrice);fd.append('balance_used',order.balanceUsed);
+  fd.append('senderCard',document.getElementById('senderCard').value.trim());
+  fd.append('sentAmount',parseNum(document.getElementById('sentAmount').value));
+  fd.append('sentTime',document.getElementById('sentTime').value.trim());
+  fd.append('user_code',currentUser?currentUser.code:'');
+  const f=document.getElementById('receiptImage').files[0];if(f)fd.append('receipt',f);
+  try{
+    const ctrl=new AbortController();
+    const to=setTimeout(()=>ctrl.abort(),45000);
+    const res=await fetch('/api/payment_info',{method:'POST',body:fd,signal:ctrl.signal});
+    clearTimeout(to);
+    const data=await res.json();
+    if(data.success){
+      order_code=data.order_code;
+      if(currentUser&&order.balanceUsed>0){currentUser.balance-=order.balanceUsed;updateUserUI();}
+      go('pageUserInfo');
+    }else{
+      alert(data.message||'خطا در ثبت');
+      fields.forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=false;});
+      btn.disabled=false;btn.textContent='تایید و ادامه';
+    }
+  }catch(e){
+    alert(e.name==='AbortError'?'زمان تمام شد. دوباره تلاش کنید':'خطای شبکه');
+    fields.forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=false;});
+    btn.disabled=false;btn.textContent='تایید و ادامه';
+  }
+}
 function validateAccount(){const email=document.getElementById('accEmail').value.trim(),pass=document.getElementById('accPass').value.trim(),rubika=document.getElementById('accRubika').value.trim();let ok=true;if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){document.getElementById('accEmailError').textContent='ایمیل معتبر';ok=false;}else document.getElementById('accEmailError').textContent='';if(!pass||pass.length<6){document.getElementById('accPassError').textContent='حداقل ۶';ok=false;}else document.getElementById('accPassError').textContent='';if(!rubika.startsWith('@')){document.getElementById('accRubikaError').textContent='با @';ok=false;}else document.getElementById('accRubikaError').textContent='';document.getElementById('finalSubmitBtn').disabled=!ok;}
-async function finalSubmit(){validateAccount();if(document.getElementById('finalSubmitBtn').disabled)return;const btn=document.getElementById('finalSubmitBtn');btn.disabled=true;btn.textContent='در حال ارسال...';
-try{const res=await fetch('/api/final_order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({order_code,email:document.getElementById('accEmail').value.trim(),pass:document.getElementById('accPass').value.trim(),rubika:document.getElementById('accRubika').value.trim(),desc:document.getElementById('accDesc').value.trim()})});const data=await res.json();if(data.success){document.getElementById('finalOrderCode').textContent=order_code;document.getElementById('deliveryTimeText').textContent=order.speed==='fast'?'زمان تقریبی: حدود ۱۰ دقیقه':'زمان تقریبی: حدود ۵ ساعت';go('pageSuccess');}else alert(data.message||'خطا');}catch(e){alert('خطای شبکه');}btn.disabled=false;btn.textContent='ثبت نهایی';}
+async function finalSubmit(){
+  validateAccount();if(document.getElementById('finalSubmitBtn').disabled)return;
+  const btn=document.getElementById('finalSubmitBtn');
+  const fields=['accEmail','accPass','accRubika','accDesc'];
+  fields.forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=true;});
+  btn.disabled=true;btn.innerHTML='⏳ در حال ارسال...';
+  try{
+    const res=await fetch('/api/final_order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({order_code,email:document.getElementById('accEmail').value.trim(),pass:document.getElementById('accPass').value.trim(),rubika:document.getElementById('accRubika').value.trim(),desc:document.getElementById('accDesc').value.trim()})});
+    const data=await res.json();
+    if(data.success){
+      document.getElementById('finalOrderCode').textContent=order_code;
+      document.getElementById('deliveryTimeText').textContent=order.speed==='fast'?'زمان تقریبی: حدود ۱۰ دقیقه':'زمان تقریبی: حدود ۵ ساعت';
+      go('pageSuccess');
+    }else{
+      alert(data.message||'خطا');
+      fields.forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=false;});
+      btn.disabled=false;btn.textContent='ثبت نهایی';
+    }
+  }catch(e){
+    alert('خطای شبکه');
+    fields.forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=false;});
+    btn.disabled=false;btn.textContent='ثبت نهایی';
+  }
+}
 function copyOrderCode(){navigator.clipboard.writeText(document.getElementById('finalOrderCode').textContent).then(()=>alert('کد پیگیری کپی شد!'));}
 
 async function trackOrder(){const code=document.getElementById('trackInput').value.trim().toUpperCase();if(!code)return;document.getElementById('trackResult').textContent='جستجو...';try{const res=await fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});const data=await res.json();if(data.success){document.getElementById('trackResult').innerHTML=`<div style="background:#111;padding:16px;border-radius:12px;border:1px solid var(--green)"><p>وضعیت: <strong style="color:var(--green)">${data.status}</strong></p><p>تعداد: ${data.cp} CP</p><p>مبلغ: ${data.price} تومان</p></div>`;}else document.getElementById('trackResult').innerHTML='<span style="color:var(--red)">یافت نشد</span>';}catch(e){document.getElementById('trackResult').textContent='خطا';}}
@@ -458,14 +520,17 @@ async function loadReviews(){
   const box=document.getElementById('reviewsList');
   if(!list.length){box.innerHTML='<p style="text-align:center;color:#666;font-size:13px;padding:20px">هنوز نظری ثبت نشده</p>';return;}
   box.innerHTML=list.slice(0,15).map(r=>{
+    const av = r.avatar ? `<img src="${r.avatar}" alt="">` : '👤';
     const replies=(r.replies||[]).filter(x=>x.status==='approved'||x.is_admin).map(rep=>`<div class="reply-item ${rep.is_admin?'admin':''}"><div class="rname">${rep.is_admin?'🛠️ پشتیبانی فونیکس':(rep.name||'کاربر')}</div><div>${rep.text||''}</div></div>`).join('');
-    return `<div class="review-card"><div class="review-header"><div class="review-avatar">👤</div><div><div class="review-name">${r.name||'کاربر'}</div><div class="review-id">${r.date||''}</div></div></div><div class="review-stars">${'★'.repeat(r.stars||5)}${'☆'.repeat(5-(r.stars||5))}</div><div class="review-text">${r.text||''}</div>${replies?`<div class="review-replies">${replies}</div>`:''}<button class="review-reply-btn" onclick="openReply('${r.id}','${(r.name||'').replace(/'/g,'')}')">💬 پاسخ</button></div>`;
+    const safeName=(r.name||'کاربر').replace(/'/g,'').replace(/"/g,'');
+    return `<div class="review-card"><div class="review-header"><div class="review-avatar">${av}</div><div><div class="review-name">${r.name||'کاربر'}</div><div class="review-id">${r.date||''}</div></div></div><div class="review-stars">${'★'.repeat(r.stars||5)}${'☆'.repeat(5-(r.stars||5))}</div><div class="review-text">${r.text||''}</div>${replies?`<div class="review-replies">${replies}</div>`:''}<button class="review-reply-btn" onclick="openReply('${r.id}','${safeName}')">💬 پاسخ</button></div>`;
   }).join('');
   }catch(e){}
 }
 function setStars(n){selectedStars=n;document.querySelectorAll('#starSelect span').forEach((s,i)=>s.textContent=i<n?'★':'☆');}
 async function submitReview(){const name=document.getElementById('revName').value.trim(),text=document.getElementById('revText').value.trim();if(!name||!text)return alert('نام و متن را پر کنید');if(selectedStars<1)return alert('امتیاز را انتخاب کنید');
-try{const res=await fetch('/api/submit_review',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,text,stars:selectedStars,user_code:currentUser?.code||''})});const data=await res.json();if(data.success){alert('نظر ارسال شد و پس از تایید نمایش داده می‌شود');go('page1');}else alert(data.message||'خطا');}catch(e){alert('خطای شبکه');}}
+const avatar = (currentUser && currentUser.avatar) ? currentUser.avatar : (localStorage.getItem('avatar_'+(currentUser?.code||''))||'');
+try{const res=await fetch('/api/submit_review',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,text,stars:selectedStars,user_code:currentUser?.code||'',avatar:avatar&&avatar.length<200000?avatar:''})});const data=await res.json();if(data.success){alert('نظر ارسال شد و پس از تایید نمایش داده می‌شود');go('page1');}else alert(data.message||'خطا');}catch(e){alert('خطای شبکه');}}
 function openReply(id,name){replyToId=id;document.getElementById('replyTarget').textContent='پاسخ به نظر: '+name;if(currentUser)document.getElementById('replyName').value=currentUser.name||'';go('pageReplyReview');}
 async function submitReply(){const name=document.getElementById('replyName').value.trim(),text=document.getElementById('replyText').value.trim();if(!name||!text||!replyToId)return alert('نام و متن را پر کنید');
 try{const res=await fetch('/api/submit_reply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({review_id:replyToId,name,text,user_code:currentUser?.code||''})});const data=await res.json();if(data.success){alert('پاسخ ارسال شد و پس از تایید نمایش داده می‌شود');go('page1');}else alert(data.message||'خطا');}catch(e){alert('خطای شبکه');}}

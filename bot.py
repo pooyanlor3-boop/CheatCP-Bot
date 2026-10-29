@@ -193,9 +193,11 @@ def submit_review():
                 if len(user_reviews_today) >= max_per_day:
                     return jsonify({"success": False, "message": f"حداکثر {max_per_day} نظر در روز مجاز است"}), 400
             rev_id = make_code(6)
+            avatar = str(data.get("avatar", "") or "")[:150000]
             review = {
                 "id": rev_id, "name": name, "text": text, "stars": stars,
                 "user_code": user_code, "status": "pending",
+                "avatar": avatar,
                 "date": datetime.now().strftime("%Y-%m-%d %H:%M"), "replies": []
             }
             db.setdefault("reviews", []).append(review)
@@ -397,6 +399,7 @@ def check_coupon():
 
 @app_web.route("/api/payment_info", methods=["POST"])
 def payment_info():
+    receipt_path = None
     try:
         with DATA_LOCK:
             db = load_data()
@@ -405,28 +408,35 @@ def payment_info():
             oid = db.get("next_order_id", 1)
             user = db.get("users", {}).get(user_code) if user_code else None
             receipt = request.files.get("receipt")
-            receipt_path = None
             if receipt and receipt.filename:
                 ext = os.path.splitext(receipt.filename)[1].lower()
                 if ext in [".jpg", ".jpeg", ".png", ".webp"]:
                     receipt_path = os.path.join(BASE_DIR, f"temp_{oid}_{int(time.time())}{ext}")
                     receipt.save(receipt_path)
-            balance_used = int(data.get("balance_used", 0) or 0)
+            try:
+                balance_used = int(float(str(data.get("balance_used", 0) or 0).replace(",", "")))
+            except:
+                balance_used = 0
             if user and balance_used > 0:
                 user["balance"] = max(0, user.get("balance", 0) - min(balance_used, user.get("balance", 0)))
+            def safe_int(v, default=0):
+                try:
+                    return int(float(str(v or 0).replace(",", "")))
+                except:
+                    return default
             order = {
                 "id": oid, "code": make_order_code(),
                 "date": datetime.now().strftime("%Y-%m-%d %H:%M"),
-                "cp": int(data.get("cp", 0)),
+                "cp": safe_int(data.get("cp")),
                 "antiban": str(data.get("antiban", "")).lower() == "true",
-                "speed": data.get("speed"),
-                "base_price": int(data.get("totalPrice", 0)),
-                "discount_amount": int(data.get("discountAmount", 0)),
+                "speed": data.get("speed") or "normal",
+                "base_price": safe_int(data.get("totalPrice")),
+                "discount_amount": safe_int(data.get("discountAmount")),
                 "balance_used": balance_used,
-                "final_price": int(data.get("finalPrice", 0)),
-                "sender_card": data.get("senderCard"),
-                "sent_amount": data.get("sentAmount"),
-                "sent_time": data.get("sentTime"),
+                "final_price": safe_int(data.get("finalPrice")),
+                "sender_card": data.get("senderCard") or "",
+                "sent_amount": data.get("sentAmount") or "",
+                "sent_time": data.get("sentTime") or "",
                 "user_code": user_code,
                 "email": "", "pass": "", "rubika": "", "desc": "",
                 "status": "pending_payment"
@@ -435,15 +445,25 @@ def payment_info():
             db["next_order_id"] = oid + 1
             if user:
                 db["users"][user_code] = user
-            save_data(db)
-        send_payment_msg(order, receipt_path)
+            saved = save_data(db)
+            if not saved:
+                print("WARNING: payment order save failed")
+        # send outside lock
+        try:
+            send_payment_msg(order, receipt_path)
+        except Exception as se:
+            print("send_payment_msg error:", se)
         if receipt_path and os.path.exists(receipt_path):
             try: os.remove(receipt_path)
             except: pass
         return jsonify({"success": True, "order_code": order["code"]})
     except Exception as e:
-        print(e)
-        return jsonify({"success": False}), 500
+        print("payment_info error:", e)
+        import traceback; traceback.print_exc()
+        if receipt_path and os.path.exists(receipt_path):
+            try: os.remove(receipt_path)
+            except: pass
+        return jsonify({"success": False, "message": "خطا در ثبت پرداخت"}), 500
 
 @app_web.route("/api/final_order", methods=["POST"])
 def final_order():
@@ -468,13 +488,29 @@ def final_order():
         return jsonify({"success": False}), 500
 
 def send_payment_msg(order, receipt_path=None):
-    text = f"💳 **پرداخت جدید**\n🔢 `{order['code']}`\n👤 `{order.get('user_code')}`\n\n💎 {order.get('cp'):,} CP\n💰 {order.get('final_price'):,} تومان"
+    if not GROUP_ID:
+        print("GROUP_ID not set - cannot send payment")
+        return
+    text = (
+        f"💳 پرداخت جدید\n"
+        f"🔢 {order.get('code')}\n"
+        f"👤 {order.get('user_code') or '-'}\n\n"
+        f"💎 {order.get('cp', 0):,} CP\n"
+        f"💰 {order.get('final_price', 0):,} تومان\n"
+        f"کارت مبدا: {order.get('sender_card') or '-'}\n"
+        f"مبلغ: {order.get('sent_amount') or '-'}\n"
+        f"ساعت: {order.get('sent_time') or '-'}"
+    )
     async def _send():
-        if receipt_path and os.path.exists(receipt_path):
-            with open(receipt_path, "rb") as photo:
-                await bot_app.bot.send_photo(chat_id=GROUP_ID, photo=photo, caption=text, parse_mode="Markdown")
-        else:
-            await bot_app.bot.send_message(chat_id=GROUP_ID, text=text, parse_mode="Markdown")
+        try:
+            if receipt_path and os.path.exists(receipt_path):
+                with open(receipt_path, "rb") as photo:
+                    await bot_app.bot.send_photo(chat_id=GROUP_ID, photo=photo, caption=text)
+            else:
+                await bot_app.bot.send_message(chat_id=GROUP_ID, text=text)
+        except Exception as e:
+            print("telegram send payment failed:", e)
+            await bot_app.bot.send_message(chat_id=GROUP_ID, text=text)
     send_telegram_safe(_send())
 
 def send_account_msg(code):
@@ -523,19 +559,36 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
     # Review approve/reject - fast path
     if data.startswith("rev_ok_") or data.startswith("rev_no_"):
-        rev_id = data.split("_")[2]
+        parts = data.split("_")
+        rev_id = parts[-1] if len(parts) >= 3 else ""
         new_status = "approved" if data.startswith("rev_ok_") else "rejected"
+        ok_save = False
         with DATA_LOCK:
             db = load_data()
             for r in db.get("reviews", []):
-                if r.get("id") == rev_id:
+                if str(r.get("id")) == str(rev_id):
                     r["status"] = new_status
+                    ok_save = True
                     break
-            save_data(db)
+            if ok_save:
+                ok_save = save_data(db)
         try:
-            await query.message.delete()
+            if ok_save:
+                await query.answer("✅ ثبت شد", show_alert=True)
+            else:
+                await query.answer("❌ ذخیره نشد", show_alert=True)
+        except Exception as e:
+            print("answer error", e)
+        try:
+            await query.edit_message_text(
+                f"{'✅ نظر تایید شد' if new_status=='approved' else '❌ نظر رد شد'}\nآیدی: `{rev_id}`",
+                parse_mode="Markdown"
+            )
         except:
-            pass
+            try:
+                await query.message.delete()
+            except:
+                pass
         return
 
     db = load_data()
