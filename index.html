@@ -259,10 +259,23 @@ body{background:var(--black);background-image:radial-gradient(ellipse at top,rgb
     <div class="balance-box" style="margin-top:14px"><span>موجودی:</span><span class="val" id="profileBalance">۰ تومان</span></div>
     <button class="btn-outline" onclick="go('pageEditProfile')">✏️ ویرایش اطلاعات</button>
     <button class="btn-outline" onclick="openProfileReferral()">🎁 بخش رفرال</button>
+    <button class="btn-outline" onclick="openMyOrdersList()">📦 سفارش‌های من (آپدیت جدید)</button>
     <button class="btn-outline" onclick="openAbout()">درباره ما</button>
     <button class="btn-outline" onclick="openRules()">قوانین</button>
     <button class="btn-outline" onclick="openFAQ()">سوالات متداول</button>
     <button class="btn-outline" style="color:#ff6b6b;border-color:rgba(255,100,100,0.35)" onclick="logout()">خروج</button>
+  </div>
+</div>
+
+<!-- NEW UPDATE: Page for My Orders in Profile -->
+<div id="pageMyOrdersProfile" class="view">
+  <div class="header"><button onclick="go('pageProfile')" style="background:none;border:none;color:var(--gray);font-size:22px;cursor:pointer">←</button><h3 style="font-size:18px;font-weight:800">سفارش‌های من</h3><div style="width:28px"></div></div>
+  <div class="card">
+    <p style="font-size:13px;color:#aaa;margin-bottom:14px;text-align:center">لیست تمام سفارش‌هایی که با این اکانت ثبت کرده‌اید:</p>
+    <div id="userOrdersContainer">
+      <p style="text-align:center;color:#666;font-size:13px;padding:20px">در حال بارگذاری...</p>
+    </div>
+    <button class="btn-outline" style="margin-top:14px" onclick="go('pageProfile')">بازگشت به پروفایل</button>
   </div>
 </div>
 
@@ -340,13 +353,12 @@ document.addEventListener('click',e=>{const s=document.createElement('div');s.cl
 window.addEventListener('scroll',()=>{document.getElementById('backTop').classList.toggle('show',window.scrollY>400);});
 
 function go(id){
-  // unlock forms when navigating
   ['senderCard','sentAmount','sentTime','receiptImage','accEmail','accPass','accRubika','accDesc'].forEach(fid=>{
     const el=document.getElementById(fid);if(el)el.disabled=false;
   });
   const b1=document.getElementById('btnGoToInfo');if(b1&&paymentReady){b1.disabled=false;b1.textContent='تایید و ادامه';}
   const b2=document.getElementById('finalSubmitBtn');if(b2){b2.textContent='ثبت نهایی';}
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));if(id==='page1')document.querySelectorAll('.nav-item')[0]?.classList.add('active');if(id==='pageMyOrders')document.querySelectorAll('.nav-item')[1]?.classList.add('active');if(id==='pageProfile'||id==='pageEditProfile')document.querySelectorAll('.nav-item')[2]?.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));if(id==='page1')document.querySelectorAll('.nav-item')[0]?.classList.add('active');if(id==='pageMyOrders')document.querySelectorAll('.nav-item')[1]?.classList.add('active');if(id==='pageProfile'||id==='pageEditProfile'||id==='pageMyOrdersProfile')document.querySelectorAll('.nav-item')[2]?.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
 function getRef(){return localStorage.getItem('ref')||'';}
 
 async function loadSettings(){
@@ -429,6 +441,37 @@ function openProfileReferral(){
 }
 function chooseMethod(m){if(m==='referral')openProfileReferral();else go('pageProduct');}
 function copyRefLink(){navigator.clipboard.writeText(document.getElementById('refLink').textContent).then(()=>alert('کپی شد!'));}
+
+// NEW UPDATE FUNCTION: Open and load My Orders list inside Profile
+async function openMyOrdersList(){
+  if(!currentUser){go('pageLogin');return;}
+  go('pageMyOrdersProfile');
+  const container = document.getElementById('userOrdersContainer');
+  container.innerHTML='<p style="text-align:center;color:#888;font-size:13px;padding:20px">⏳ در حال دریافت لیست سفارش‌ها...</p>';
+  try{
+    const res = await fetch('/api/my_orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_code: currentUser.code})});
+    const data = await res.json();
+    if(data.success && data.orders.length > 0){
+      container.innerHTML = data.orders.map(o=>`
+        <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:14px;margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+            <span style="font-weight:900;color:var(--fire-orange);font-size:14px">${o.code}</span>
+            <span style="font-size:12px;font-weight:700;color:${o.raw_status==='accepted'?'var(--green)':'var(--gold)'}">${o.status}</span>
+          </div>
+          <div style="font-size:12.5px;color:#ccc;display:flex;justify-content:space-between;margin-top:4px">
+            <span>💎 ${o.cp} CP</span>
+            <span>💰 ${o.price} تومان</span>
+          </div>
+          <div style="font-size:11px;color:#888;margin-top:6px">📅 ${o.date}</div>
+        </div>
+      `).join('');
+    } else {
+      container.innerHTML='<p style="text-align:center;color:#888;font-size:13px;padding:20px">هنوز سفارشی ثبت نکرده‌اید.</p>';
+    }
+  }catch(e){
+    container.innerHTML='<p style="text-align:center;color:var(--red);font-size:13px;padding:20px">خطا در دریافت اطلاعات</p>';
+  }
+}
 
 function onCpInput(){let el=document.getElementById('cpAmount');let n=parseNum(el.value);el.value=n?fmt(n):'';calculateTotal();}
 function onSentAmountInput(){let el=document.getElementById('sentAmount');let n=parseNum(el.value);el.value=n?fmt(n):'';validatePayment();}

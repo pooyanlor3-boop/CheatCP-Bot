@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-# PhoenixCheat Bot - Fixed Stable Version
-# Fix: no more freeze/spam when toggling site or referral
+# PhoenixCheat Bot - Fully Debugged & Upgraded Stable Version
+# New Update: Added /api/my_orders endpoint for users to view their order history in profile!
 
 import json
 import os
@@ -17,6 +17,7 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
+from werkzeug.security import generate_password_hash, check_password_hash
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 try:
@@ -213,7 +214,6 @@ def submit_review():
         print(e)
         return jsonify({"success": False}), 500
 
-
 @app_web.route("/api/submit_reply", methods=["POST"])
 def submit_reply():
     try:
@@ -257,7 +257,6 @@ def submit_reply():
         print(e)
         return jsonify({"success": False}), 500
 
-
 @app_web.route("/api/register", methods=["POST"])
 def register():
     try:
@@ -287,8 +286,10 @@ def register():
                 return jsonify({"success": False, "message": "این آیدی سایت قبلاً انتخاب شده"}), 400
             if not db["settings"].get("referral_enabled", True):
                 ref_code = None
+            
+            hashed_password = generate_password_hash(password)
             user = {
-                "code": code, "name": name, "rubika": rubika, "password": password,
+                "code": code, "name": name, "rubika": rubika, "password": hashed_password,
                 "balance": 0, "referral_count": 0, "referred_by": None,
                 "ip": get_client_ip(), "fingerprint": fingerprint,
                 "created_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
@@ -326,27 +327,45 @@ def login():
         with DATA_LOCK:
             db = load_data()
             users = db.get("users", {})
+            user = None
 
-            # اگر code داده شده
             if code and code in users:
-                user = users[code]
-            # اگر فقط password داده شده (لاگین جدید)
-            elif password:
-                user = None
-                for u in users.values():
-                    if u.get("password") == password:
+                u = users[code]
+                stored_pass = u.get("password", "")
+                if stored_pass.startswith("pbkdf2:") or stored_pass.startswith("scrypt:"):
+                    if check_password_hash(stored_pass, password):
                         user = u
-                        code = u.get("code")
-                        break
+                else:
+                    # Backward compatibility for plain text passwords
+                    if stored_pass == password:
+                        user = u
+                        # Upgrade to hashed password securely
+                        u["password"] = generate_password_hash(password)
+                        save_data(db)
+            elif password:
+                for c_key, u in users.items():
+                    stored_pass = u.get("password", "")
+                    if stored_pass.startswith("pbkdf2:") or stored_pass.startswith("scrypt:"):
+                        if check_password_hash(stored_pass, password):
+                            user = u
+                            code = c_key
+                            break
+                    else:
+                        if stored_pass == password:
+                            user = u
+                            code = c_key
+                            u["password"] = generate_password_hash(password)
+                            save_data(db)
+                            break
                 if not user:
                     return jsonify({"success": False, "message": "رمز عبور اشتباه است"}), 403
             else:
                 return jsonify({"success": False, "message": "اطلاعات ورود ناقص است"}), 400
 
+            if not user:
+                return jsonify({"success": False, "message": "اطلاعات ورود نامعتبر است"}), 403
             if user.get("suspended"):
-                return jsonify({"success": False, "message": "اکانت تعلیق شده"}), 403
-            if password and user.get("password") and user.get("password") != password:
-                return jsonify({"success": False, "message": "رمز عبور اشتباه است"}), 403
+                return jsonify({"success": False, "message": "اکانت تعلیق شده است"}), 403
 
             if fingerprint:
                 user["fingerprint"] = fingerprint
@@ -379,6 +398,34 @@ def track_order():
         return jsonify({"success": False, "message": "یافت نشد"}), 404
     except:
         return jsonify({"success": False}), 500
+
+# NEW UPDATE: API endpoint to fetch all orders belonging to a logged-in user code
+@app_web.route("/api/my_orders", methods=["POST"])
+def my_orders():
+    try:
+        data = request.get_json(silent=True) or {}
+        user_code = str(data.get("user_code", "")).strip().upper()
+        if not user_code:
+            return jsonify({"success": False, "orders": []}), 400
+        db = load_data()
+        user_orders = [o for o in db.get("orders", []) if str(o.get("user_code", "")).upper() == user_code]
+        # Return newest first
+        formatted_orders = []
+        for o in user_orders[::-1]:
+            st = o.get("status", "pending")
+            status_fa = "⏳ در انتظار" if st in ("pending", "pending_payment") else ("✅ تایید شده" if st == "accepted" else "❌ رد شده")
+            formatted_orders.append({
+                "code": o.get("code"),
+                "cp": f"{o.get('cp', 0):,}",
+                "price": f"{o.get('final_price', 0):,}",
+                "date": o.get("date", ""),
+                "status": status_fa,
+                "raw_status": st
+            })
+        return jsonify({"success": True, "orders": formatted_orders})
+    except Exception as e:
+        print("my_orders error:", e)
+        return jsonify({"success": False, "orders": []}), 500
 
 @app_web.route("/api/check_coupon", methods=["POST"])
 def check_coupon():
@@ -448,7 +495,6 @@ def payment_info():
             saved = save_data(db)
             if not saved:
                 print("WARNING: payment order save failed")
-        # send outside lock
         try:
             send_payment_msg(order, receipt_path)
         except Exception as se:
@@ -556,7 +602,6 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     data = query.data or ""
 
-    # ===== تایید / رد نظر (قبل از answer عمومی) =====
     if data.startswith("rev_ok_") or data.startswith("rev_no_"):
         rev_id = data.split("_")[-1]
         new_status = "approved" if data.startswith("rev_ok_") else "rejected"
@@ -593,7 +638,6 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
                 pass
         return
 
-    # ===== تایید / رد پاسخ =====
     if data.startswith("rep_ok_") or data.startswith("rep_no_"):
         parts = data.split("_")
         try:
@@ -622,7 +666,6 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
                 pass
         return
 
-    # بقیه دکمه‌ها
     await query.answer()
     db = load_data()
     s = db.get("settings", {})
@@ -632,7 +675,6 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             USER_STATES.pop(ADMIN_ID, None)
             await query.edit_message_text("🎮 **پنل مدیریت**", reply_markup=InlineKeyboardMarkup(get_main_menu(db)), parse_mode="Markdown")
 
-        # ===== TOGGLE SITE (FIXED - no recursive call) =====
         elif data == "menu_toggle_reg":
             s["registration_open"] = not s.get("registration_open", True)
             with DATA_LOCK:
@@ -645,7 +687,6 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
                 parse_mode="Markdown"
             )
 
-        # ===== TOGGLE REFERRAL (FIXED) =====
         elif data == "menu_referral":
             enabled = s.get("referral_enabled", True)
             kb = [
@@ -690,8 +731,6 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             USER_STATES[ADMIN_ID] = {"state": "waiting_max_reviews"}
             await query.edit_message_text("حداکثر تعداد نظر روزانه هر کاربر:")
 
-        # Reviews menu
-        
         elif data == "menu_admin_comment":
             USER_STATES[ADMIN_ID] = {"state": "waiting_admin_reply_id"}
             await query.edit_message_text("آیدی نظر را بفرست (از بخش نظرات کپی کن):")
@@ -729,7 +768,6 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
                 db["reviews"] = [r for r in db.get("reviews", []) if r.get("id") != rev_id]
                 save_data(db)
             await query.answer("حذف شد")
-            # refresh reviews list without recursion
             reviews = db.get("reviews", [])
             pending = len([r for r in reviews if r.get("status") == "pending"])
             approved = len([r for r in reviews if r.get("status") == "approved"])
@@ -737,7 +775,6 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             kb = [[InlineKeyboardButton("🔙 بازگشت", callback_data="back")]]
             await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
 
-        # Timed coupon
         elif data == "menu_timed_coupon":
             code = s.get("timed_coupon_code") or "ندارد"
             pct = s.get("timed_coupon_percent", 0)
@@ -765,7 +802,6 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             await query.answer("حذف شد")
             await query.edit_message_text("🎮 **پنل مدیریت**", reply_markup=InlineKeyboardMarkup(get_main_menu(db)), parse_mode="Markdown")
 
-        # Users
         elif data == "menu_users":
             users = db.get("users", {})
             if not users:
@@ -818,13 +854,11 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             ]
             await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
 
-        # Stats
         elif data == "menu_stats":
             orders = db.get("orders", [])
             text = f"📊 **آمار**\n\nکاربران: {len(db.get('users', {}))}\nسفارشات: {len(orders)}\nتایید شده: {len([o for o in orders if o.get('status') == 'accepted'])}\nدرآمد: {sum(o.get('final_price', 0) for o in orders if o.get('status') == 'accepted'):,}\nنظرات: {len(db.get('reviews', []))}"
             await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙", callback_data="back")]]), parse_mode="Markdown")
 
-        # Texts
         elif data == "menu_texts":
             kb = [
                 [InlineKeyboardButton("خوش‌آمد ۱", callback_data="txt_welcome_text1"),
@@ -840,7 +874,6 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             USER_STATES[ADMIN_ID] = {"state": f"waiting_text_{key}"}
             await query.edit_message_text("متن جدید را بفرست:")
 
-        # Prices
         elif data == "menu_prices":
             kb = [
                 [InlineKeyboardButton("نرخ هر ۱۰۰۰", callback_data="var_price")],
@@ -860,12 +893,10 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             USER_STATES[ADMIN_ID] = {"state": "waiting_price_antiban"}
             await query.edit_message_text("قیمت آنتی‌بن:")
 
-        # Card
         elif data == "menu_card":
             USER_STATES[ADMIN_ID] = {"state": "waiting_card"}
             await query.edit_message_text("شماره کارت - نام صاحب کارت\nمثال:\n6219... - یوسف موسوی")
 
-        # Orders
         elif data == "menu_orders":
             kb = []
             for o in db.get("orders", [])[-10:][::-1]:
@@ -899,7 +930,6 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
     except Exception as e:
         print("button_handler error:", e)
-
 
 async def handle_text(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ADMIN_ID:
@@ -1001,7 +1031,6 @@ async def handle_text(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text("✅ ذخیره شد.", reply_markup=InlineKeyboardMarkup(get_main_menu(db)))
             return
 
-        
         elif state == "waiting_admin_reply_id":
             st["review_id"] = text.strip()
             st["state"] = "waiting_admin_reply_text"
@@ -1056,7 +1085,6 @@ async def handle_text(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         print("handle_text error:", e)
         await update.message.reply_text("❌ خطا رخ داد.")
-
 
 def run_flask():
     port = int(os.environ.get("PORT", 5000))
