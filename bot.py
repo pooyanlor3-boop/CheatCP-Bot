@@ -64,8 +64,13 @@ DEFAULT_DATA = {
         "timed_coupon_code": "",
         "timed_coupon_percent": 0,
         "timed_coupon_expire": 0,
-        "max_reviews_per_day": 3
+        "max_reviews_per_day": 3,
+        "mod_price_15": 350000,
+        "mod_price_30": 500000,
+        "mod_price_antiban": 50000,
+        "mod_enabled": True
     },
+    "mod_images": {},
     "coupons": [],
     "texts": {
         "site_name": "فونیکس چیت",
@@ -103,6 +108,8 @@ def load_data():
                     data["texts"] = copy.deepcopy(DEFAULT_DATA["texts"])
                 if "coupons" not in data:
                     data["coupons"] = []
+                if "mod_images" not in data:
+                    data["mod_images"] = {}
                 return data
         return copy.deepcopy(DEFAULT_DATA)
     except Exception as e:
@@ -160,7 +167,7 @@ def index():
 def get_settings():
     try:
         db = load_data()
-        return jsonify({"texts": db.get("texts", {}), "settings": db.get("settings", {})})
+        return jsonify({"texts": db.get("texts", {}), "settings": db.get("settings", {}), "mod_images": db.get("mod_images", {})})
     except:
         return jsonify({"error": "Error"}), 500
 
@@ -486,7 +493,11 @@ def payment_info():
                 "sent_time": data.get("sentTime") or "",
                 "user_code": user_code,
                 "email": "", "pass": "", "rubika": "", "desc": "",
-                "status": "pending_payment"
+                "status": "pending_payment",
+                "product_type": str(data.get("product_type") or "cp"),
+                "mod_plan": str(data.get("mod_plan") or ""),
+                "mod_rubika": str(data.get("mod_rubika") or ""),
+                "mod_desc": str(data.get("mod_desc") or "")
             }
             db["orders"].append(order)
             db["next_order_id"] = oid + 1
@@ -537,16 +548,32 @@ def send_payment_msg(order, receipt_path=None):
     if not GROUP_ID:
         print("GROUP_ID not set - cannot send payment")
         return
-    text = (
-        f"💳 پرداخت جدید\n"
-        f"🔢 {order.get('code')}\n"
-        f"👤 {order.get('user_code') or '-'}\n\n"
-        f"💎 {order.get('cp', 0):,} CP\n"
-        f"💰 {order.get('final_price', 0):,} تومان\n"
-        f"کارت مبدا: {order.get('sender_card') or '-'}\n"
-        f"مبلغ: {order.get('sent_amount') or '-'}\n"
-        f"ساعت: {order.get('sent_time') or '-'}"
-    )
+    is_mod = str(order.get('product_type') or '') == 'mod'
+    if is_mod:
+        plan = order.get('mod_plan') or '-'
+        text = (
+            f"🎮 سفارش مود منو\n"
+            f"🔢 {order.get('code')}\n"
+            f"👤 {order.get('user_code') or '-'}\n"
+            f"📱 روبیکا: {order.get('mod_rubika') or '-'}\n"
+            f"⏱ پلن: {plan} روزه\n"
+            f"🛡️ ضد بن: {'بله' if order.get('antiban') else 'خیر'}\n"
+            f"💰 {order.get('final_price', 0):,} تومان\n"
+            f"📝 {order.get('mod_desc') or '-'}\n"
+            f"کارت مبدا: {order.get('sender_card') or '-'}\n"
+            f"ساعت: {order.get('sent_time') or '-'}"
+        )
+    else:
+        text = (
+            f"💳 پرداخت جدید\n"
+            f"🔢 {order.get('code')}\n"
+            f"👤 {order.get('user_code') or '-'}\n\n"
+            f"💎 {order.get('cp', 0):,} CP\n"
+            f"💰 {order.get('final_price', 0):,} تومان\n"
+            f"کارت مبدا: {order.get('sender_card') or '-'}\n"
+            f"مبلغ: {order.get('sent_amount') or '-'}\n"
+            f"ساعت: {order.get('sent_time') or '-'}"
+        )
     async def _send():
         try:
             if receipt_path and os.path.exists(receipt_path):
@@ -586,6 +613,7 @@ def get_main_menu(db=None):
          InlineKeyboardButton("🛠️ کامنت ادمین", callback_data="menu_admin_comment")],
         [InlineKeyboardButton("📝 متن‌ها", callback_data="menu_texts")],
         [InlineKeyboardButton("💰 قیمت‌ها", callback_data="menu_prices")],
+        [InlineKeyboardButton("🎮 مود منو", callback_data="menu_mod")],
         [InlineKeyboardButton("⏳ کد تایم‌دار", callback_data="menu_timed_coupon")],
         [InlineKeyboardButton("🎁 رفرال: روشن" if ref_enabled else "🎁 رفرال: خاموش", callback_data="menu_referral")],
         [InlineKeyboardButton("💳 کارت", callback_data="menu_card")],
@@ -774,6 +802,62 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             text = f"💬 **نظرات**\n\nدر انتظار: {pending}\nتایید شده: {approved}\nکل: {len(reviews)}"
             kb = [[InlineKeyboardButton("🔙 بازگشت", callback_data="back")]]
             await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
+
+
+        elif data == "menu_mod":
+            kb = [
+                [InlineKeyboardButton(f"۱۵ روزه: {s.get('mod_price_15', 350000):,}", callback_data="mod_p15")],
+                [InlineKeyboardButton(f"۳۰ روزه: {s.get('mod_price_30', 500000):,}", callback_data="mod_p30")],
+                [InlineKeyboardButton(f"ضد بن مود: {s.get('mod_price_antiban', 50000):,}", callback_data="mod_pantiban")],
+                [InlineKeyboardButton("🖼 مدیریت عکس‌ها", callback_data="mod_photos")],
+                [InlineKeyboardButton("🔙", callback_data="back")]
+            ]
+            await query.edit_message_text("🎮 تنظیمات مود منو (اندروید/آیفون)", reply_markup=InlineKeyboardMarkup(kb))
+
+        elif data == "mod_p15":
+            USER_STATES[ADMIN_ID] = {"state": "waiting_mod_price_15"}
+            await query.edit_message_text("قیمت پلن ۱۵ روزه (تومان):")
+        elif data == "mod_p30":
+            USER_STATES[ADMIN_ID] = {"state": "waiting_mod_price_30"}
+            await query.edit_message_text("قیمت پلن ۳۰ روزه (تومان):")
+        elif data == "mod_pantiban":
+            USER_STATES[ADMIN_ID] = {"state": "waiting_mod_price_antiban"}
+            await query.edit_message_text("قیمت ضد بن مود منو (تومان):")
+
+        elif data == "mod_photos":
+            features = [
+                ("esp_enable", "ESP - فعال‌سازی"),
+                ("esp_box", "ESP - باکس"),
+                ("esp_name", "ESP - نام"),
+                ("esp_distance", "ESP - فاصله"),
+                ("esp_health", "ESP - نوار جان"),
+                ("esp_count", "ESP - تعداد دشمن"),
+                ("esp_snap", "ESP - خط هدایت"),
+                ("aim_aimbot", "AIM - ایم‌بات"),
+                ("aim_bullet", "AIM - ردیابی گلوله"),
+                ("aim_fov", "AIM - FOV"),
+                ("aim_bone", "AIM - نقطه هدف"),
+                ("radar_enable", "رادار - فعال"),
+                ("radar_range", "رادار - برد"),
+                ("mem_recoil", "Memory - بدون لگد"),
+                ("mem_spread", "Memory - بدون پخش"),
+                ("mem_speed", "Memory - سرعت"),
+                ("mem_jump", "Memory - پرش"),
+                ("skin_main", "اسکین"),
+            ]
+            kb = []
+            imgs = db.get("mod_images", {})
+            for key, label in features:
+                mark = "✅" if imgs.get(key) else "⬜"
+                kb.append([InlineKeyboardButton(f"{mark} {label}", callback_data=f"modimg_{key}")])
+            kb.append([InlineKeyboardButton("🔙", callback_data="menu_mod")])
+            await query.edit_message_text("عکس کدام گزینه را ست می‌کنی؟", reply_markup=InlineKeyboardMarkup(kb))
+
+        elif data.startswith("modimg_"):
+            key = data.replace("modimg_", "", 1)
+            USER_STATES[ADMIN_ID] = {"state": "waiting_mod_photo", "photo_key": key}
+            await query.edit_message_text(f"عکس این گزینه را همین الان بفرست:\n`{key}`\n\n(فقط یک عکس)", parse_mode="Markdown")
+
 
         elif data == "menu_timed_coupon":
             code = s.get("timed_coupon_code") or "ندارد"
@@ -1086,6 +1170,61 @@ async def handle_text(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         print("handle_text error:", e)
         await update.message.reply_text("❌ خطا رخ داد.")
 
+
+async def handle_photo(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    if update.effective_user.id != ADMIN_ID:
+        return
+    st = USER_STATES.get(ADMIN_ID) or {}
+    if st.get("state") != "waiting_mod_photo":
+        return
+    key = st.get("photo_key")
+    if not key or not update.message.photo:
+        return
+    try:
+        photo = update.message.photo[-1]
+        file = await bot_app.bot.get_file(photo.file_id)
+        # store telegram file path reference (served via proxy)
+        file_url = file.file_path  # relative path
+        with DATA_LOCK:
+            db = load_data()
+            db.setdefault("mod_images", {})[key] = {
+                "file_id": photo.file_id,
+                "file_path": file_url
+            }
+            save_data(db)
+        USER_STATES.pop(ADMIN_ID, None)
+        await update.message.reply_text(f"✅ عکس `{key}` ذخیره شد.", parse_mode="Markdown", reply_markup=InlineKeyboardMarkup(get_main_menu(db)))
+    except Exception as e:
+        print("handle_photo error:", e)
+        await update.message.reply_text("❌ خطا در ذخیره عکس")
+
+
+@app_web.route("/api/mod_photo/<key>")
+def mod_photo_proxy(key):
+    """Proxy mod feature image from Telegram CDN"""
+    try:
+        db = load_data()
+        info = (db.get("mod_images") or {}).get(key)
+        if not info:
+            return "Not found", 404
+        if isinstance(info, str):
+            # legacy url
+            return jsonify({"url": info})
+        file_path = info.get("file_path") or ""
+        if not file_path or not BOT_TOKEN:
+            return "Not found", 404
+        url = f"https://api.telegram.org/file/bot{BOT_TOKEN}/{file_path}"
+        r = requests.get(url, timeout=20)
+        if r.status_code != 200:
+            return "Fetch failed", 502
+        from flask import Response
+        return Response(r.content, mimetype=r.headers.get("Content-Type", "image/jpeg"))
+    except Exception as e:
+        print("mod_photo_proxy:", e)
+        return "Error", 500
+
+
+
 def run_flask():
     port = int(os.environ.get("PORT", 5000))
     app_web.run(host="0.0.0.0", port=port, debug=False, use_reloader=False)
@@ -1102,6 +1241,7 @@ def run_bot():
         bot_app.add_handler(CommandHandler("start", start))
         bot_app.add_handler(CallbackQueryHandler(button_handler))
         bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
+        bot_app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
         await bot_app.initialize()
         await bot_app.start()
         await bot_app.updater.start_polling(drop_pending_updates=True)

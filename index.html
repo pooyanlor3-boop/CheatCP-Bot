@@ -99,6 +99,20 @@ body{background:var(--black);background-image:radial-gradient(ellipse at top,rgb
 .check-item{display:flex;align-items:center;gap:5px}
 .check-item .dot{width:14px;height:14px;border-radius:50%;border:1.5px solid #555;display:grid;place-items:center;font-size:9px}
 .check-item.ok .dot{background:var(--green);border-color:var(--green);color:#000}
+
+.product-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+.product-card{background:linear-gradient(145deg,rgba(26,26,26,0.97),rgba(10,10,10,0.97));border:1px solid rgba(230,0,0,0.35);border-radius:16px;padding:18px 14px;text-align:center;cursor:pointer;transition:0.25s}
+.product-card:hover{border-color:var(--fire-orange);transform:translateY(-2px);box-shadow:0 8px 24px rgba(255,69,0,0.25)}
+.product-card .pico{font-size:36px;margin-bottom:8px}
+.product-card .ptitle{font-size:14px;font-weight:900;margin-bottom:6px}
+.product-card .pdesc{font-size:11px;color:#aaa;line-height:1.6}
+.feature-block{background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:14px;margin-bottom:12px}
+.feature-block h4{font-size:14px;font-weight:800;color:var(--fire-orange);margin-bottom:8px}
+.feature-block p{font-size:12.5px;line-height:1.85;color:#ccc}
+.feature-block img{width:100%;border-radius:10px;margin-top:10px;border:1px solid rgba(255,255,255,0.08);max-height:220px;object-fit:cover}
+.float-back{position:fixed;top:14px;right:14px;z-index:80;background:rgba(20,20,20,0.92);border:1px solid rgba(255,107,0,0.5);color:#fff;border-radius:20px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;display:none;font-family:inherit;box-shadow:0 4px 16px rgba(0,0,0,0.4)}
+.float-back.show{display:block}
+.section-badge{display:inline-block;background:linear-gradient(90deg,#00a8ff,#0052d4);color:#fff;padding:5px 12px;border-radius:16px;font-size:11px;font-weight:800;margin-bottom:12px}
 </style>
 </head>
 <body>
@@ -122,13 +136,87 @@ body{background:var(--black);background-image:radial-gradient(ellipse at top,rgb
     <p style="font-size:13.5px;line-height:2.15;color:#d0d0d0" id="welcomeText1">اینجا فقط یه فروشگاه ساده نیست. ما یه تیم واقعی از گیمرهای عاشق کالاف دیوتی هستیم که با خون دل و تجربه چندساله، بهترین و امن‌ترین سرویس سی‌پی رو برات آماده کردیم. هدف ما فقط فروش نیست؛ می‌خوایم تو با آرامش کامل بازی کنی.</p>
     <p style="font-size:13.5px;line-height:2.15;color:#d0d0d0;margin-top:12px" id="welcomeText2">با فونیکس چیت دیگه نگران بن نباش. آماده‌ای قدرتت رو چند برابر کنی؟</p>
   </div>
-  <button class="btn-main" onclick="startBuy()">🛒 خرید سی‌پی</button>
+  <div class="product-grid">
+    <div class="product-card" onclick="goModIntro()">
+      <div class="pico">🎮</div>
+      <div class="ptitle">چیت مود منو</div>
+      <div class="pdesc">اندروید / آیفون<br>ESP · Aimbot · رادار</div>
+    </div>
+    <div class="product-card" onclick="startBuy()">
+      <div class="pico">💎</div>
+      <div class="ptitle">چیت سی‌پی</div>
+      <div class="pdesc">خرید سی‌پی<br>امن · سریع · ضد بن</div>
+    </div>
+  </div>
   <div style="display:flex;gap:7px;margin-top:12px"><button class="menu-btn" onclick="openAbout()">درباره ما</button><button class="menu-btn" onclick="openTrust()">اعتماد</button><button class="menu-btn" onclick="openFAQ()">سوالات متداول</button></div>
-  <div class="global-links"><button onclick="openRules()">قوانین</button><button onclick="openSecurity()">امنیتی</button><button onclick="openChannels()">کانال‌ها</button></div>
+  <div class="global-links"><button onclick="openRules()">قوانین</button><button onclick="openSecurity()">امنیتی</button><button onclick="openChannels()">کانال‌ها</button><button onclick="go('pageCheatGuide')">آشنایی با چیت‌ها</button></div>
   <div class="card" style="margin-top:22px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><h3 style="font-size:16px;font-weight:800">💬 نظرات مشتریان</h3><span style="font-size:12px;color:#888" id="reviewsCount">۰ نظر</span></div>
     <div id="reviewsList"></div>
     <button class="btn-outline" style="margin-top:12px" onclick="go('pageAddReview')">ثبت نظر جدید</button>
+  </div>
+</div>
+
+
+<!-- آشنایی با چیت‌ها -->
+<div id="pageCheatGuide" class="view">
+  <div class="header"><button onclick="go('page1')" style="background:none;border:none;color:var(--gray);font-size:22px;cursor:pointer">←</button><h3 style="font-size:18px;font-weight:800">آشنایی با چیت‌ها</h3><div style="width:28px"></div></div>
+  <div class="product-grid">
+    <div class="product-card" onclick="goModIntro()"><div class="pico">🎮</div><div class="ptitle">مود منو</div><div class="pdesc">اندروید و آیفون</div></div>
+    <div class="product-card" onclick="go('pageCpIntro')"><div class="pico">💎</div><div class="ptitle">سی‌پی</div><div class="pdesc">خرید امن سی‌پی</div></div>
+  </div>
+</div>
+
+<!-- معرفی سی‌پی -->
+<div id="pageCpIntro" class="view">
+  <div class="header"><button onclick="go('pageCheatGuide')" style="background:none;border:none;color:var(--gray);font-size:22px;cursor:pointer">←</button><h3 style="font-size:18px;font-weight:800">چیت سی‌پی</h3><div style="width:28px"></div></div>
+  <div class="card">
+    <p style="font-size:13.5px;line-height:2.1;color:#ddd">سی‌پی برای تمام گردونه‌ها، باکس‌ها و بتل‌پس قابل استفاده‌ست. با سیستم ضد بن و تحویل تضمینی، بدون نگرانی از بن شدن خرید کن. تیم فونیکس کنارت هست تا تجربه بازیت امن و لذت‌بخش باشه.</p>
+    <button class="btn-main" onclick="startBuy()">شروع خرید سی‌پی</button>
+  </div>
+</div>
+
+<!-- معرفی مود منو + قابلیت‌ها -->
+<div id="pageModIntro" class="view">
+  <div class="header"><button onclick="go('page1')" style="background:none;border:none;color:var(--gray);font-size:22px;cursor:pointer">←</button><h3 style="font-size:18px;font-weight:800">مود منو</h3><div style="width:28px"></div></div>
+  <div class="card">
+    <div class="section-badge">📱 مخصوص اندروید و آیفون</div>
+    <p style="font-size:13.5px;line-height:2;color:#ddd;margin-bottom:14px">مود منوی فونیکس برای کالاف موبایل طراحی شده. قابلیت‌های بصری، هدف‌گیری، رادار و گیم‌پلی رو یکجا داری. پایین‌تر هر بخش رو با توضیح کامل ببین.</p>
+    <button class="btn-main" onclick="startModBuy()">🛒 خرید مود منو</button>
+  </div>
+  <div id="modFeaturesBox"></div>
+</div>
+
+<!-- انتخاب پلن مود -->
+<div id="pageModPlan" class="view">
+  <div class="header"><button onclick="go('pageModIntro')" style="background:none;border:none;color:var(--gray);font-size:22px;cursor:pointer">←</button><h3 style="font-size:18px;font-weight:800">انتخاب پلن</h3><div style="width:28px"></div></div>
+  <div class="option-card" id="modPlan15" onclick="selectModPlan('15')"><div class="title">⏱ پلن ۱۵ روزه</div><div class="desc" id="modPlan15Price">۳۵۰,۰۰۰ تومان</div></div>
+  <div class="option-card" id="modPlan30" onclick="selectModPlan('30')"><div class="title">📅 پلن ۳۰ روزه</div><div class="desc" id="modPlan30Price">۵۰۰,۰۰۰ تومان</div></div>
+  <div class="option-card" id="modOptAntiban" onclick="toggleModAntiban()"><div class="title">🛡️ سیستم ضد بن</div><div class="desc">+ <span id="modAntibanPriceLbl">۵۰,۰۰۰</span> تومان</div></div>
+  <div id="modBalanceBox" class="balance-box hidden"><span>موجودی رفرال:</span><span class="val" id="modBalanceVal">۰</span></div>
+  <div id="modUseBalBox" class="hidden" style="margin:12px 0;padding:12px;border:1px solid rgba(0,200,83,0.4);border-radius:12px">
+    <label style="display:flex;align-items:center;gap:8px;color:#69f0ae;font-weight:700"><input type="checkbox" id="modUseBalance" onchange="calcModTotal()"> استفاده از موجودی رفرال</label>
+  </div>
+  <div style="background:rgba(230,0,0,0.12);border-radius:12px;padding:14px;display:flex;justify-content:space-between;margin:12px 0"><span>مبلغ نهایی</span><strong style="color:var(--green)" id="modTotalDisplay">۰</strong></div>
+  <div class="form-group"><label>آیدی روبیکا</label><input type="text" id="modRubika" placeholder="@username" dir="ltr"><div class="hint">اجباری • با @ شروع شود</div><div class="error-text" id="modRubikaErr"></div></div>
+  <div class="form-group"><label>توضیحات (اختیاری)</label><textarea id="modDesc" rows="3" placeholder="نکته‌ای دارید بنویسید..."></textarea></div>
+  <button class="btn-main" onclick="goModPayment()">ادامه و پرداخت</button>
+</div>
+
+<!-- موفقیت مود منو -->
+<div id="pageModSuccess" class="view">
+  <div class="card" style="text-align:center;padding:28px 18px;border:1.5px solid rgba(255,107,0,0.45)">
+    <h2 style="font-size:21px;margin-bottom:14px;font-weight:900;color:var(--fire-orange)">سفارش شما ثبت شد</h2>
+    <div style="background:rgba(255,107,0,0.12);border:1px solid rgba(255,107,0,0.4);border-radius:14px;padding:16px;margin-bottom:12px">
+      <div style="font-size:12px;color:#aaa;margin-bottom:6px">کد سفارش</div>
+      <div style="font-size:22px;font-weight:900;color:var(--fire-orange);letter-spacing:2px" id="modFinalCode">ORD-XXXXXX</div>
+    </div>
+    <button class="btn-copy-big" onclick="copyModOrderCode()">📋 کپی کد سفارش</button>
+    <p style="font-size:14px;line-height:2;color:#eee;font-weight:700;margin:16px 0">برای دریافت <span style="color:var(--gold)">لودر (فایل مود منو)</span> و <span style="color:var(--gold)">کلید شخصی</span> به پشتیبانی پیام بده و کد سفارشت رو هم بفرست.</p>
+    <a href="https://rubika.ir/My_HINATA" target="_blank" class="btn-main" style="text-decoration:none;margin-bottom:10px">💬 پشتیبانی</a>
+    <a href="https://rubika.ir/PhoenixCheat" target="_blank" class="btn-outline" style="text-decoration:none;display:block;font-size:13px">عضویت در کانال</a>
+    <button class="btn-outline" style="font-size:13px" onclick="go('pageModIntro')">آشنایی با چیت مود منو</button>
+    <button class="btn-outline" style="font-size:12px" onclick="go('page1')">بازگشت به فروشگاه</button>
   </div>
 </div>
 
@@ -260,6 +348,7 @@ body{background:var(--black);background-image:radial-gradient(ellipse at top,rgb
     <button class="btn-outline" onclick="go('pageEditProfile')">✏️ ویرایش اطلاعات</button>
     <button class="btn-outline" onclick="openProfileReferral()">🎁 بخش رفرال</button>
     <button class="btn-outline" onclick="openMyOrdersList()">📦 سفارش‌های من (آپدیت جدید)</button>
+    <button class="btn-outline" onclick="go('pageCheatGuide')">آشنایی با چیت‌ها</button>
     <button class="btn-outline" onclick="openAbout()">درباره ما</button>
     <button class="btn-outline" onclick="openRules()">قوانین</button>
     <button class="btn-outline" onclick="openFAQ()">سوالات متداول</button>
@@ -340,6 +429,9 @@ body{background:var(--black);background-image:radial-gradient(ellipse at top,rgb
 let SETTINGS={},TEXTS={},currentUser=null;
 let order={cp:10000,antiban:false,speed:'normal',discount:0,discountType:'',totalPrice:0,balanceUsed:0};
 let order_code='',paymentReady=false,selectedStars=0,replyToId=null;
+let navStack=['page1'];
+let MOD_IMAGES={};
+let modOrder={plan:'15',antiban:false,total:0,balanceUsed:0};
 let fingerprint=localStorage.getItem('fp')||(Math.random().toString(36).slice(2)+Date.now().toString(36));
 localStorage.setItem('fp',fingerprint);
 const urlParams=new URLSearchParams(location.search);
@@ -352,7 +444,7 @@ function parseNum(s){return parseInt(String(s).replace(/,/g,''))||0}
 document.addEventListener('click',e=>{const s=document.createElement('div');s.className='sparkle';s.style.left=e.clientX+'px';s.style.top=e.clientY+'px';s.style.color=['#ff4500','#00bfff','#ffaa00'][Math.floor(Math.random()*3)];document.body.appendChild(s);setTimeout(()=>s.remove(),750);});
 window.addEventListener('scroll',()=>{document.getElementById('backTop').classList.toggle('show',window.scrollY>400);});
 
-function go(id){
+function go(id){try{if(typeof navStack!=='undefined'){if(navStack[navStack.length-1]!==id){navStack.push(id);history.pushState({page:id},'','#'+id);}}if(typeof updateFloatBack==='function')updateFloatBack();}catch(e){}
   ['senderCard','sentAmount','sentTime','receiptImage','accEmail','accPass','accRubika','accDesc'].forEach(fid=>{
     const el=document.getElementById(fid);if(el)el.disabled=false;
   });
@@ -362,7 +454,7 @@ function go(id){
 function getRef(){return localStorage.getItem('ref')||'';}
 
 async function loadSettings(){
-  try{const res=await fetch('/api/settings');const data=await res.json();SETTINGS=data.settings||{};TEXTS=data.texts||{};
+  try{const res=await fetch('/api/settings');const data=await res.json();SETTINGS=data.settings||{};TEXTS=data.texts||{};if(typeof MOD_IMAGES!=="undefined")MOD_IMAGES=data.mod_images||{};
   if(SETTINGS.registration_open===false){document.getElementById('closedMessageText').innerHTML=(SETTINGS.closed_message||'سایت در حال بروزرسانی است').replace(/\n/g,'<br>');document.getElementById('closedChannelBtn').href=SETTINGS.closed_channel||'https://rubika.ir/PhoenixCheat';go('pageClosed');return;}
   if(TEXTS.site_name)document.getElementById('siteName').textContent=TEXTS.site_name;
   if(TEXTS.welcome_title)document.getElementById('welcomeTitle').textContent=TEXTS.welcome_title;
@@ -507,6 +599,8 @@ async function submitPayment(){
   fd.append('sentAmount',parseNum(document.getElementById('sentAmount').value));
   fd.append('sentTime',document.getElementById('sentTime').value.trim());
   fd.append('user_code',currentUser?currentUser.code:'');
+  fd.append('product_type', window.__modCheckout ? 'mod' : 'cp');
+  if(window.__modCheckout){ fd.append('mod_plan', modOrder.plan); fd.append('mod_rubika', document.getElementById('modRubika')?.value||''); fd.append('mod_desc', document.getElementById('modDesc')?.value||''); fd.append('antiban', modOrder.antiban); fd.append('finalPrice', modOrder.total); fd.append('balance_used', modOrder.balanceUsed); }
   const f=document.getElementById('receiptImage').files[0];if(f)fd.append('receipt',f);
   try{
     const ctrl=new AbortController();
@@ -517,7 +611,14 @@ async function submitPayment(){
     if(data.success){
       order_code=data.order_code;
       if(currentUser&&order.balanceUsed>0){currentUser.balance-=order.balanceUsed;updateUserUI();}
-      go('pageUserInfo');
+      if(window.__modCheckout){
+        window.__modCheckout=false;
+        document.getElementById('modFinalCode').textContent=order_code;
+        if(currentUser&&modOrder.balanceUsed>0){/* already handled via order.balanceUsed */}
+        go('pageModSuccess');
+      } else {
+        go('pageUserInfo');
+      }
     }else{
       alert(data.message||'خطا در ثبت');
       fields.forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=false;});
