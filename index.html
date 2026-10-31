@@ -691,6 +691,155 @@ function openRules(){showModal('قوانین','<ul style="padding-right:16px;lin
 function openSecurity(){showModal('امنیتی','<ul style="padding-right:16px;line-height:2"><li>رمز را به کسی ندهید</li><li>فقط از سایت رسمی خرید کنید</li><li>رسید را نگه دارید</li></ul>');}
 function openChannels(){showModal('کانال‌ها','<a href="https://rubika.ir/PhoenixCheat" target="_blank" style="display:block;background:linear-gradient(90deg,#ff4500,#ff6b00);color:#000;text-align:center;padding:14px;border-radius:12px;font-weight:800;text-decoration:none;margin-bottom:10px">کانال اصلی</a><a href="https://rubika.ir/PhoenixCheatTrust" target="_blank" style="display:block;background:linear-gradient(90deg,#00c853,#009624);color:#000;text-align:center;padding:14px;border-radius:12px;font-weight:800;text-decoration:none;margin-bottom:10px">کانال اعتماد</a><a href="https://rubika.ir/My_HINATA" target="_blank" style="display:block;background:linear-gradient(90deg,#00a8ff,#0052d4);color:#fff;text-align:center;padding:14px;border-radius:12px;font-weight:800;text-decoration:none">پشتیبانی</a>');}
 
+
+function updateFloatBack(){
+  const fb=document.getElementById('floatBack');
+  if(!fb) return;
+  const cur=document.querySelector('.view.active');
+  const id=cur?cur.id:'';
+  fb.classList.toggle('show', !!(id && id!=='page1' && id!=='pageClosed'));
+}
+function historyBack(){
+  if(typeof navStack!=='undefined' && navStack.length>1) history.back();
+  else go('page1');
+}
+window.addEventListener('popstate', function(){
+  if(typeof navStack==='undefined'||navStack.length<=1) return;
+  navStack.pop();
+  const prev=navStack[navStack.length-1]||'page1';
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  const el=document.getElementById(prev);
+  if(el) el.classList.add('active');
+  updateFloatBack();
+});
+
+function goModIntro(){
+  try{ renderModFeatures(); }catch(e){ console.log(e); }
+  go('pageModIntro');
+}
+function startModBuy(){
+  if(!currentUser){ go('pageLogin'); return; }
+  modOrder={plan:'15', antiban:false, total:0, balanceUsed:0};
+  const p15=document.getElementById('modPlan15Price');
+  const p30=document.getElementById('modPlan30Price');
+  const ab=document.getElementById('modAntibanPriceLbl');
+  if(p15) p15.textContent=fmt(SETTINGS.mod_price_15||350000)+' تومان';
+  if(p30) p30.textContent=fmt(SETTINGS.mod_price_30||500000)+' تومان';
+  if(ab) ab.textContent=fmt(SETTINGS.mod_price_antiban||50000);
+  selectModPlan('15');
+  if(currentUser && (currentUser.balance||0)>0 && SETTINGS.referral_enabled){
+    document.getElementById('modBalanceBox')?.classList.remove('hidden');
+    document.getElementById('modBalanceVal') && (document.getElementById('modBalanceVal').textContent=fmt(currentUser.balance)+' تومان');
+    document.getElementById('modUseBalBox')?.classList.remove('hidden');
+  } else {
+    document.getElementById('modBalanceBox')?.classList.add('hidden');
+    document.getElementById('modUseBalBox')?.classList.add('hidden');
+  }
+  go('pageModPlan');
+}
+function selectModPlan(p){
+  modOrder.plan=p;
+  document.getElementById('modPlan15')?.classList.toggle('active', p==='15');
+  document.getElementById('modPlan30')?.classList.toggle('active', p==='30');
+  calcModTotal();
+}
+function toggleModAntiban(){
+  modOrder.antiban=!modOrder.antiban;
+  document.getElementById('modOptAntiban')?.classList.toggle('active', modOrder.antiban);
+  calcModTotal();
+}
+function calcModTotal(){
+  let t = modOrder.plan==='30' ? (SETTINGS.mod_price_30||500000) : (SETTINGS.mod_price_15||350000);
+  if(modOrder.antiban) t += (SETTINGS.mod_price_antiban||50000);
+  modOrder.balanceUsed=0;
+  if(document.getElementById('modUseBalance')?.checked && currentUser){
+    modOrder.balanceUsed=Math.min(currentUser.balance||0, t);
+    t -= modOrder.balanceUsed;
+  }
+  modOrder.total=Math.max(0,t);
+  const el=document.getElementById('modTotalDisplay');
+  if(el) el.textContent=fmt(modOrder.total)+' تومان';
+}
+function goModPayment(){
+  const rub=document.getElementById('modRubika')?.value.trim()||'';
+  if(!rub.startsWith('@') || rub.length<6){
+    const err=document.getElementById('modRubikaErr');
+    if(err) err.textContent='آیدی روبیکا معتبر نیست';
+    return;
+  }
+  const err=document.getElementById('modRubikaErr');
+  if(err) err.textContent='';
+  order.totalPrice = modOrder.total;
+  order.balanceUsed = modOrder.balanceUsed;
+  order.antiban = modOrder.antiban;
+  order.cp = 0;
+  order.speed = 'mod';
+  document.getElementById('payAmountText').textContent=fmt(modOrder.total);
+  document.getElementById('sentAmount').value=fmt(modOrder.total);
+  paymentReady=false;
+  const btn=document.getElementById('btnGoToInfo');
+  btn.disabled=true; btn.style.opacity='0.7';
+  let t=30; btn.textContent='صبر کنید '+t+' ثانیه...';
+  const timer=setInterval(()=>{
+    t--;
+    if(t>0) btn.textContent='صبر کنید '+t+' ثانیه...';
+    else { clearInterval(timer); paymentReady=true; btn.textContent='تایید و ادامه'; btn.style.opacity='1'; validatePayment(); }
+  },1000);
+  window.__modCheckout = true;
+  go('pagePayment');
+}
+function copyModOrderCode(){
+  const c=document.getElementById('modFinalCode')?.textContent||'';
+  navigator.clipboard.writeText(c).then(()=>alert('کپی شد'));
+}
+function renderModFeatures(){
+  const box=document.getElementById('modFeaturesBox');
+  if(!box) return;
+  const groups = [
+    {title:'👁 ESP / دید در دیوار', items:[
+      {k:'esp_enable', n:'فعال‌سازی ESP', d:'موقعیت دقیق حریفان را حتی از پشت دیوار روی صفحه گوشی نشان می‌دهد و برتری تاکتیکی بالایی می‌دهد.'},
+      {k:'esp_box', n:'باکس دور بازیکن', d:'کادر رنگی دور دشمن تا در فاصله دور و بین موانع راحت‌تر دیده شوند.'},
+      {k:'esp_name', n:'نمایش نام', d:'اسم حریف بالای سرش نمایش داده می‌شود و بات از بازیکن واقعی جدا می‌شود.'},
+      {k:'esp_distance', n:'نمایش فاصله', d:'فاصله دشمن تا شما به متر روی صفحه نوشته می‌شود.'},
+      {k:'esp_health', n:'نوار سلامتی', d:'جان باقی‌مانده حریف را نشان می‌دهد تا بدانید با چند تیر تمام می‌شود.'},
+      {k:'esp_count', n:'تعداد دشمنان', d:'تعداد دشمنان زنده اطراف را شمارش می‌کند.'},
+      {k:'esp_snap', n:'خط هدایت', d:'خطی به سمت موقعیت دشمن می‌کشد تا سریع‌تر پیدایش کنید.'}
+    ]},
+    {title:'🎯 AIM / هدف‌گیری', items:[
+      {k:'aim_aimbot', n:'ایم‌بات', d:'قفل خودکار نشانه روی دشمن؛ دقت شلیک را خیلی بالا می‌برد.'},
+      {k:'aim_bullet', n:'ردیابی گلوله', d:'مسیر تیر را به سمت هدف کمک می‌کند تا خطای کمتر بخوری.'},
+      {k:'aim_fov', n:'نمایش FOV', d:'محدوده عملکرد ایم‌بات را روی صفحه مشخص می‌کند.'},
+      {k:'aim_bone', n:'نقطه هدف', d:'می‌توانی قفل را روی سر، گردن یا سینه تنظیم کنی.'}
+    ]},
+    {title:'📡 رادار تاکتیکال', items:[
+      {k:'radar_enable', n:'فعال‌سازی رادار', d:'مینی‌مپ شناور موقعیت اطراف را حتی پشت دیوار نشان می‌دهد.'},
+      {k:'radar_range', n:'برد و اندازه', d:'برد، اندازه و شفافیت رادار قابل تنظیم است تا مزاحم بازی نباشد.'}
+    ]},
+    {title:'⚡ Memory / گیم‌پلی', items:[
+      {k:'mem_recoil', n:'بدون لگد', d:'لگد سلاح حذف می‌شود تا تیرها یک‌جا بنشینند.'},
+      {k:'mem_spread', n:'بدون پخش تیر', d:'پخش تیر در شلیک مداوم کم یا حذف می‌شود.'},
+      {k:'mem_speed', n:'سرعت حرکت', d:'سرعت دویدن و اسلاید را افزایش می‌دهد.'},
+      {k:'mem_jump', n:'پرش و پامپد', d:'پرش بلندتر و امکانات کلاس پامپد برای تسلط بهتر روی محیط.'}
+    ]},
+    {title:'🎨 اسکین', items:[
+      {k:'skin_main', n:'چیت اسکین', d:'ظاهر اسکین‌ها را جذاب‌تر می‌کند؛ بیشتر جنبه ظاهری دارد.'}
+    ]}
+  ];
+  box.innerHTML = groups.map(g => {
+    const items = g.items.map(it => {
+      const img = (typeof MOD_IMAGES!=='undefined' && MOD_IMAGES[it.k]) ? MOD_IMAGES[it.k] : null;
+      let imgHtml = '';
+      if(img){
+        const src = (typeof img==='object') ? ('/api/mod_photo/'+it.k) : img;
+        imgHtml = '<img src="'+src+'" alt="'+it.n+'" loading="lazy" onerror="this.style.display=\\\'none\\\'">';
+      }
+      return '<div class="feature-block"><h4>'+it.n+'</h4><p>'+it.d+'</p>'+imgHtml+'</div>';
+    }).join('');
+    return '<div class="card"><h3 style="font-size:15px;font-weight:900;margin-bottom:12px">'+g.title+'</h3>'+items+'</div>';
+  }).join('');
+}
+
+
 loadSettings();
 </script>
 </body>
