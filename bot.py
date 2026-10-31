@@ -1201,24 +1201,55 @@ async def handle_photo(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
 @app_web.route("/api/mod_photo/<key>")
 def mod_photo_proxy(key):
-    """Proxy mod feature image from Telegram CDN"""
+    """Proxy mod feature image - refreshes Telegram file path via file_id"""
     try:
+        from flask import Response
         db = load_data()
         info = (db.get("mod_images") or {}).get(key)
         if not info:
             return "Not found", 404
         if isinstance(info, str):
-            # legacy url
-            return jsonify({"url": info})
-        file_path = info.get("file_path") or ""
-        if not file_path or not BOT_TOKEN:
+            if info.startswith("http"):
+                r = requests.get(info, timeout=20)
+                if r.status_code == 200:
+                    return Response(r.content, mimetype=r.headers.get("Content-Type", "image/jpeg"))
             return "Not found", 404
+        if not BOT_TOKEN:
+            return "No token", 500
+        file_id = info.get("file_id") or ""
+        if not file_id:
+            return "Not found", 404
+        # Always resolve fresh path (Telegram paths expire)
+        meta = requests.get(
+            f"https://api.telegram.org/bot{BOT_TOKEN}/getFile",
+            params={"file_id": file_id},
+            timeout=15
+        ).json()
+        if not meta.get("ok"):
+            print("getFile fail", meta)
+            return "Telegram getFile failed", 502
+        file_path = meta["result"].get("file_path") or ""
+        if not file_path:
+            return "No path", 502
+        # cache fresh path
+        try:
+            with DATA_LOCK:
+                db2 = load_data()
+                if key in db2.get("mod_images", {}):
+                    db2["mod_images"][key]["file_path"] = file_path
+                    save_data(db2)
+        except Exception:
+            pass
         url = f"https://api.telegram.org/file/bot{BOT_TOKEN}/{file_path}"
-        r = requests.get(url, timeout=20)
+        r = requests.get(url, timeout=25)
         if r.status_code != 200:
+            print("download fail", r.status_code)
             return "Fetch failed", 502
-        from flask import Response
-        return Response(r.content, mimetype=r.headers.get("Content-Type", "image/jpeg"))
+        return Response(
+            r.content,
+            mimetype=r.headers.get("Content-Type", "image/jpeg"),
+            headers={"Cache-Control": "public, max-age=3600"}
+        )
     except Exception as e:
         print("mod_photo_proxy:", e)
         return "Error", 500
