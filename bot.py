@@ -143,24 +143,28 @@ def load_data(force=False):
         return copy.deepcopy(DEFAULT_DATA)
 
 def _slim_for_jsonbin(data):
-    """Trim huge base64 avatars so JSONBin free tier does not reject the body."""
+    """Keep JSONBin payload small — free tier rejects large bodies."""
     data = copy.deepcopy(data)
+    # never persist heavy base64 avatars
     for r in data.get("reviews", []) or []:
-        av = r.get("avatar") or ""
-        if isinstance(av, str) and len(av) > 12000:
-            r["avatar"] = ""
+        r["avatar"] = ""
         for rep in r.get("replies", []) or []:
             if isinstance(rep, dict):
-                rav = rep.get("avatar") or ""
-                if isinstance(rav, str) and len(rav) > 4000:
-                    rep["avatar"] = ""
+                rep["avatar"] = ""
+                rep.pop("avatar", None)
     users = data.get("users") or {}
     if isinstance(users, dict):
         for u in users.values():
             if isinstance(u, dict):
-                uav = u.get("avatar") or ""
-                if isinstance(uav, str) and len(uav) > 12000:
-                    u["avatar"] = ""
+                u["avatar"] = ""
+    # cap lists
+    reviews = data.get("reviews") or []
+    if len(reviews) > 80:
+        # keep newest
+        data["reviews"] = reviews[-80:]
+    orders = data.get("orders") or []
+    if len(orders) > 120:
+        data["orders"] = orders[-120:]
     return data
 
 def save_data(data):
@@ -168,42 +172,60 @@ def save_data(data):
     bin_id = os.environ.get("JSONBIN_ID")
     api_key = os.environ.get("JSONBIN_KEY")
     if not bin_id or not api_key:
-        print("save_data: missing JSONBIN_ID or JSONBIN_KEY")
+        print("save_data: missing JSONBIN_ID or JSONBIN_KEY env")
         return False
     if not isinstance(data, dict) or "orders" not in data or "users" not in data:
-        print("save_data: invalid structure")
+        print("save_data: invalid structure keys=", list(data.keys()) if isinstance(data, dict) else type(data))
         return False
     payload = _slim_for_jsonbin(data)
-    headers = {"Content-Type": "application/json", "X-Master-Key": api_key}
+    headers = {
+        "Content-Type": "application/json",
+        "X-Master-Key": api_key,
+        "X-Bin-Versioning": "false"
+    }
     url = f"https://api.jsonbin.io/v3/b/{bin_id}"
     try:
-        res = requests.put(url, json=payload, headers=headers, timeout=15)
+        body = json.dumps(payload, ensure_ascii=False, default=str)
+        size_kb = len(body.encode("utf-8")) / 1024.0
+        print(f"save_data: putting {size_kb:.1f} KB")
+        res = requests.put(url, data=body.encode("utf-8"), headers=headers, timeout=20)
         if res.status_code == 200:
             _CACHE["data"] = copy.deepcopy(payload)
             _CACHE["ts"] = time.time()
             return True
-        print("save_data fail status:", res.status_code, res.text[:300])
-        time.sleep(0.6)
-        res2 = requests.put(url, json=payload, headers=headers, timeout=15)
+        print("save_data fail:", res.status_code, res.text[:400])
+        # retry once
+        time.sleep(0.8)
+        res2 = requests.put(url, data=body.encode("utf-8"), headers=headers, timeout=20)
         if res2.status_code == 200:
             _CACHE["data"] = copy.deepcopy(payload)
             _CACHE["ts"] = time.time()
             return True
-        print("save_data retry fail:", res2.status_code, res2.text[:300])
-        # last try: drop ALL review avatars
-        for r in payload.get("reviews", []) or []:
-            r["avatar"] = ""
-        res3 = requests.put(url, json=payload, headers=headers, timeout=15)
+        print("save_data retry fail:", res2.status_code, res2.text[:400])
+        # emergency: minimal structure (settings + users + last orders/reviews)
+        emergency = {
+            "orders": (payload.get("orders") or [])[-40:],
+            "next_order_id": payload.get("next_order_id", 1),
+            "users": payload.get("users") or {},
+            "reviews": (payload.get("reviews") or [])[-30:],
+            "settings": payload.get("settings") or {},
+            "mod_images": {},
+            "coupons": payload.get("coupons") or [],
+            "texts": payload.get("texts") or {}
+        }
+        body3 = json.dumps(emergency, ensure_ascii=False, default=str)
+        res3 = requests.put(url, data=body3.encode("utf-8"), headers=headers, timeout=20)
         if res3.status_code == 200:
-            print("save_data: saved after stripping avatars")
-            _CACHE["data"] = copy.deepcopy(payload)
+            print("save_data: emergency slim save OK")
+            _CACHE["data"] = copy.deepcopy(emergency)
             _CACHE["ts"] = time.time()
             return True
-        print("save_data final fail:", res3.status_code, res3.text[:300])
+        print("save_data emergency fail:", res3.status_code, res3.text[:400])
         return False
     except Exception as e:
         print("save_data error:", e)
         return False
+
 
 def make_code(length=6):
     return "".join(random.choices(string.ascii_uppercase + string.digits, k=length))
@@ -241,6 +263,49 @@ def get_settings():
         return jsonify({"texts": db.get("texts", {}), "settings": db.get("settings", {}), "mod_images": db.get("mod_images", {})})
     except:
         return jsonify({"error": "Error"}), 500
+
+
+@app_web.route("/api/db_ping", methods=["GET"])
+def db_ping():
+    """Diagnose JSONBin connectivity — open in browser to see status."""
+    bin_id = os.environ.get("JSONBIN_ID") or ""
+    api_key = os.environ.get("JSONBIN_KEY") or ""
+    info = {
+        "has_bin_id": bool(bin_id),
+        "has_key": bool(api_key),
+        "key_prefix": (api_key[:6] + "...") if len(api_key) > 6 else "",
+        "read_ok": False,
+        "write_ok": False,
+        "read_status": None,
+        "write_status": None,
+        "write_body": "",
+        "users": 0,
+        "orders": 0,
+        "reviews": 0
+    }
+    if not bin_id or not api_key:
+        return jsonify(info)
+    try:
+        r = requests.get(
+            f"https://api.jsonbin.io/v3/b/{bin_id}/latest",
+            headers={"X-Master-Key": api_key},
+            timeout=12
+        )
+        info["read_status"] = r.status_code
+        info["read_ok"] = r.status_code == 200
+        if r.status_code == 200:
+            rec = r.json().get("record") or {}
+            info["users"] = len(rec.get("users") or {})
+            info["orders"] = len(rec.get("orders") or [])
+            info["reviews"] = len(rec.get("reviews") or [])
+            # try tiny write of same record (slim)
+            ok = save_data(rec)
+            info["write_ok"] = ok
+            info["write_status"] = 200 if ok else "fail"
+    except Exception as e:
+        info["error"] = str(e)
+    return jsonify(info)
+
 
 @app_web.route("/api/reviews", methods=["GET"])
 def get_reviews():
