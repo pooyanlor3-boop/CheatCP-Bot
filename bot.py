@@ -142,49 +142,68 @@ def load_data(force=False):
             return copy.deepcopy(_CACHE["data"])
         return copy.deepcopy(DEFAULT_DATA)
 
+def _slim_for_jsonbin(data):
+    """Trim huge base64 avatars so JSONBin free tier does not reject the body."""
+    data = copy.deepcopy(data)
+    for r in data.get("reviews", []) or []:
+        av = r.get("avatar") or ""
+        if isinstance(av, str) and len(av) > 12000:
+            r["avatar"] = ""
+        for rep in r.get("replies", []) or []:
+            if isinstance(rep, dict):
+                rav = rep.get("avatar") or ""
+                if isinstance(rav, str) and len(rav) > 4000:
+                    rep["avatar"] = ""
+    users = data.get("users") or {}
+    if isinstance(users, dict):
+        for u in users.values():
+            if isinstance(u, dict):
+                uav = u.get("avatar") or ""
+                if isinstance(uav, str) and len(uav) > 12000:
+                    u["avatar"] = ""
+    return data
+
 def save_data(data):
     global _CACHE
     bin_id = os.environ.get("JSONBIN_ID")
     api_key = os.environ.get("JSONBIN_KEY")
     if not bin_id or not api_key:
+        print("save_data: missing JSONBIN_ID or JSONBIN_KEY")
         return False
     if not isinstance(data, dict) or "orders" not in data or "users" not in data:
+        print("save_data: invalid structure")
         return False
-    # update cache immediately so next request is fast
-    _CACHE["data"] = copy.deepcopy(data)
-    _CACHE["ts"] = time.time()
+    payload = _slim_for_jsonbin(data)
+    headers = {"Content-Type": "application/json", "X-Master-Key": api_key}
+    url = f"https://api.jsonbin.io/v3/b/{bin_id}"
     try:
-        res = requests.put(
-            f"https://api.jsonbin.io/v3/b/{bin_id}",
-            json=data,
-            headers={"Content-Type": "application/json", "X-Master-Key": api_key},
-            timeout=10
-        )
+        res = requests.put(url, json=payload, headers=headers, timeout=15)
         if res.status_code == 200:
+            _CACHE["data"] = copy.deepcopy(payload)
+            _CACHE["ts"] = time.time()
             return True
-        # one quick retry
-        time.sleep(0.4)
-        res2 = requests.put(
-            f"https://api.jsonbin.io/v3/b/{bin_id}",
-            json=data,
-            headers={"Content-Type": "application/json", "X-Master-Key": api_key},
-            timeout=10
-        )
-        return res2.status_code == 200
+        print("save_data fail status:", res.status_code, res.text[:300])
+        time.sleep(0.6)
+        res2 = requests.put(url, json=payload, headers=headers, timeout=15)
+        if res2.status_code == 200:
+            _CACHE["data"] = copy.deepcopy(payload)
+            _CACHE["ts"] = time.time()
+            return True
+        print("save_data retry fail:", res2.status_code, res2.text[:300])
+        # last try: drop ALL review avatars
+        for r in payload.get("reviews", []) or []:
+            r["avatar"] = ""
+        res3 = requests.put(url, json=payload, headers=headers, timeout=15)
+        if res3.status_code == 200:
+            print("save_data: saved after stripping avatars")
+            _CACHE["data"] = copy.deepcopy(payload)
+            _CACHE["ts"] = time.time()
+            return True
+        print("save_data final fail:", res3.status_code, res3.text[:300])
+        return False
     except Exception as e:
         print("save_data error:", e)
-        try:
-            time.sleep(0.5)
-            res = requests.put(
-                f"https://api.jsonbin.io/v3/b/{bin_id}",
-                json=data,
-                headers={"Content-Type": "application/json", "X-Master-Key": api_key},
-                timeout=10
-            )
-            return res.status_code == 200
-        except Exception as e2:
-            print("save_data retry error:", e2)
-            return False
+        return False
 
 def make_code(length=6):
     return "".join(random.choices(string.ascii_uppercase + string.digits, k=length))
@@ -712,10 +731,13 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         saved = False
         try:
             with DATA_LOCK:
-                db = load_data()
+                db = load_data(force=True)
                 for r in db.get("reviews", []):
                     if str(r.get("id")) == str(rev_id):
                         r["status"] = new_status
+                        # shrink avatar so save is less likely to fail
+                        if isinstance(r.get("avatar"), str) and len(r.get("avatar") or "") > 8000:
+                            r["avatar"] = ""
                         found = True
                         break
                 if found:
@@ -730,15 +752,12 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
                 except Exception:
                     pass
             elif found and not saved:
-                await query.answer("❌ ذخیره در دیتابیس ناموفق بود", show_alert=True)
+                await query.answer("❌ ذخیره JSONBin ناموفق — کلید یا حجم دیتا را چک کن", show_alert=True)
             else:
                 await query.answer("❌ نظر پیدا نشد", show_alert=True)
         except Exception as e:
-            print("rev approve error:", e)
-            try:
-                await query.answer("❌ خطا در تایید", show_alert=True)
-            except Exception:
-                pass
+            print("rev_ok error:", e)
+            await query.answer("❌ خطا در تایید نظر", show_alert=True)
         return
 
     if data.startswith("rep_ok_") or data.startswith("rep_no_"):
