@@ -82,58 +82,109 @@ DEFAULT_DATA = {
     }
 }
 
-def load_data():
+# ---- in-memory cache to stop freezes when JSONBin is slow ----
+_CACHE = {"data": None, "ts": 0.0}
+_CACHE_TTL = 5.0  # seconds
+
+def _normalize_db(data):
+    if not isinstance(data, dict):
+        return copy.deepcopy(DEFAULT_DATA)
+    if "orders" not in data or "users" not in data:
+        return copy.deepcopy(DEFAULT_DATA)
+    if "reviews" not in data:
+        data["reviews"] = []
+    if "settings" not in data:
+        data["settings"] = copy.deepcopy(DEFAULT_DATA["settings"])
+    else:
+        for k, v in DEFAULT_DATA["settings"].items():
+            if k not in data["settings"]:
+                data["settings"][k] = v
+    if "texts" not in data:
+        data["texts"] = copy.deepcopy(DEFAULT_DATA["texts"])
+    if "coupons" not in data:
+        data["coupons"] = []
+    if "mod_images" not in data:
+        data["mod_images"] = {}
+    return data
+
+def load_data(force=False):
+    """Load DB. Uses short memory cache so concurrent logins/payments don't all hit JSONBin."""
+    global _CACHE
+    now = time.time()
+    if (not force) and _CACHE["data"] is not None and (now - _CACHE["ts"]) < _CACHE_TTL:
+        return copy.deepcopy(_CACHE["data"])
     bin_id = os.environ.get("JSONBIN_ID")
     api_key = os.environ.get("JSONBIN_KEY")
     if not bin_id or not api_key:
-        return copy.deepcopy(DEFAULT_DATA)
+        data = copy.deepcopy(DEFAULT_DATA)
+        _CACHE["data"] = copy.deepcopy(data)
+        _CACHE["ts"] = now
+        return data
     try:
         res = requests.get(
             f"https://api.jsonbin.io/v3/b/{bin_id}/latest",
             headers={"X-Master-Key": api_key},
-            timeout=12
+            timeout=8
         )
         if res.status_code == 200:
-            data = res.json().get("record", {})
-            if isinstance(data, dict) and "orders" in data and "users" in data:
-                if "reviews" not in data:
-                    data["reviews"] = []
-                if "settings" not in data:
-                    data["settings"] = copy.deepcopy(DEFAULT_DATA["settings"])
-                else:
-                    for k, v in DEFAULT_DATA["settings"].items():
-                        if k not in data["settings"]:
-                            data["settings"][k] = v
-                if "texts" not in data:
-                    data["texts"] = copy.deepcopy(DEFAULT_DATA["texts"])
-                if "coupons" not in data:
-                    data["coupons"] = []
-                if "mod_images" not in data:
-                    data["mod_images"] = {}
-                return data
+            data = _normalize_db(res.json().get("record", {}))
+            _CACHE["data"] = copy.deepcopy(data)
+            _CACHE["ts"] = time.time()
+            return copy.deepcopy(data)
+        # keep last good cache if remote fails
+        if _CACHE["data"] is not None:
+            print("load_data: remote fail, using cache", res.status_code)
+            return copy.deepcopy(_CACHE["data"])
         return copy.deepcopy(DEFAULT_DATA)
     except Exception as e:
         print("load_data error:", e)
+        if _CACHE["data"] is not None:
+            return copy.deepcopy(_CACHE["data"])
         return copy.deepcopy(DEFAULT_DATA)
 
 def save_data(data):
+    global _CACHE
     bin_id = os.environ.get("JSONBIN_ID")
     api_key = os.environ.get("JSONBIN_KEY")
     if not bin_id or not api_key:
         return False
     if not isinstance(data, dict) or "orders" not in data or "users" not in data:
         return False
+    # update cache immediately so next request is fast
+    _CACHE["data"] = copy.deepcopy(data)
+    _CACHE["ts"] = time.time()
     try:
         res = requests.put(
             f"https://api.jsonbin.io/v3/b/{bin_id}",
             json=data,
             headers={"Content-Type": "application/json", "X-Master-Key": api_key},
-            timeout=12
+            timeout=10
         )
-        return res.status_code == 200
+        if res.status_code == 200:
+            return True
+        # one quick retry
+        time.sleep(0.4)
+        res2 = requests.put(
+            f"https://api.jsonbin.io/v3/b/{bin_id}",
+            json=data,
+            headers={"Content-Type": "application/json", "X-Master-Key": api_key},
+            timeout=10
+        )
+        return res2.status_code == 200
     except Exception as e:
         print("save_data error:", e)
-        return False
+        try:
+            time.sleep(0.5)
+            res = requests.put(
+                f"https://api.jsonbin.io/v3/b/{bin_id}",
+                json=data,
+                headers={"Content-Type": "application/json", "X-Master-Key": api_key},
+                timeout=10
+            )
+            return res.status_code == 200
+        except Exception as e2:
+            print("save_data retry error:", e2)
+            return False
 
 def make_code(length=6):
     return "".join(random.choices(string.ascii_uppercase + string.digits, k=length))
@@ -147,12 +198,13 @@ def get_client_ip():
     return request.remote_addr or "unknown"
 
 def send_telegram_safe(coro):
+    """Schedule telegram coroutine WITHOUT blocking the Flask request thread.
+    Blocking future.result() was freezing login/payment after a while."""
     global main_loop, bot_app
     if not bot_app or not main_loop or main_loop.is_closed():
         return False
     try:
-        future = asyncio.run_coroutine_threadsafe(coro, main_loop)
-        future.result(timeout=12)
+        asyncio.run_coroutine_threadsafe(coro, main_loop)
         return True
     except Exception as e:
         print("send_telegram_safe:", e)
@@ -330,54 +382,57 @@ def login():
         code = str(data.get("code", "")).strip().upper()
         password = str(data.get("password", "")).strip()
         fingerprint = str(data.get("fingerprint", "")).strip()
+        if not password:
+            return jsonify({"success": False, "message": "اطلاعات ورود ناقص است"}), 400
 
-        with DATA_LOCK:
-            db = load_data()
-            users = db.get("users", {})
-            user = None
+        # Read outside long lock (cache makes this fast)
+        db = load_data()
+        users = db.get("users", {}) or {}
+        user = None
+        need_upgrade = False
 
-            if code and code in users:
-                u = users[code]
-                stored_pass = u.get("password", "")
-                if stored_pass.startswith("pbkdf2:") or stored_pass.startswith("scrypt:"):
-                    if check_password_hash(stored_pass, password):
-                        user = u
-                else:
-                    # Backward compatibility for plain text passwords
-                    if stored_pass == password:
-                        user = u
-                        # Upgrade to hashed password securely
-                        u["password"] = generate_password_hash(password)
-                        save_data(db)
-            elif password:
-                for c_key, u in users.items():
-                    stored_pass = u.get("password", "")
-                    if stored_pass.startswith("pbkdf2:") or stored_pass.startswith("scrypt:"):
-                        if check_password_hash(stored_pass, password):
-                            user = u
-                            code = c_key
-                            break
-                    else:
-                        if stored_pass == password:
-                            user = u
-                            code = c_key
-                            u["password"] = generate_password_hash(password)
-                            save_data(db)
-                            break
-                if not user:
-                    return jsonify({"success": False, "message": "رمز عبور اشتباه است"}), 403
-            else:
-                return jsonify({"success": False, "message": "اطلاعات ورود ناقص است"}), 400
+        def _match(u, pw):
+            nonlocal need_upgrade
+            stored = u.get("password", "")
+            if stored.startswith("pbkdf2:") or stored.startswith("scrypt:"):
+                return check_password_hash(stored, pw)
+            if stored == pw:
+                need_upgrade = True
+                return True
+            return False
 
+        if code and code in users:
+            u = users[code]
+            if _match(u, password):
+                user = u
+        else:
+            # password-only login: scan users (no lock held during hash)
+            for c_key, u in users.items():
+                if _match(u, password):
+                    user = u
+                    code = c_key
+                    break
             if not user:
-                return jsonify({"success": False, "message": "اطلاعات ورود نامعتبر است"}), 403
-            if user.get("suspended"):
-                return jsonify({"success": False, "message": "اکانت تعلیق شده است"}), 403
+                return jsonify({"success": False, "message": "رمز عبور اشتباه است"}), 403
 
-            if fingerprint:
-                user["fingerprint"] = fingerprint
-                db["users"][code] = user
-                save_data(db)
+        if not user:
+            return jsonify({"success": False, "message": "اطلاعات ورود نامعتبر است"}), 403
+        if user.get("suspended"):
+            return jsonify({"success": False, "message": "اکانت تعلیق شده است"}), 403
+
+        # Short lock only if we must write
+        if need_upgrade or fingerprint:
+            with DATA_LOCK:
+                db2 = load_data(force=False)
+                u2 = db2.get("users", {}).get(code)
+                if u2:
+                    if need_upgrade:
+                        u2["password"] = generate_password_hash(password)
+                    if fingerprint:
+                        u2["fingerprint"] = fingerprint
+                    db2["users"][code] = u2
+                    save_data(db2)
+                    user = u2
 
         return jsonify({
             "success": True,
@@ -388,8 +443,8 @@ def login():
             "avatar": user.get("avatar", "")
         })
     except Exception as e:
-        print(e)
-        return jsonify({"success": False}), 500
+        print("login error:", e)
+        return jsonify({"success": False, "message": "خطای سرور"}), 500
 
 @app_web.route("/api/track", methods=["POST"])
 def track_order():
@@ -455,29 +510,33 @@ def check_coupon():
 def payment_info():
     receipt_path = None
     try:
+        data = request.form
+        user_code = str(data.get("user_code", "")).strip().upper()
+        receipt = request.files.get("receipt")
+
+        def safe_int(v, default=0):
+            try:
+                return int(float(str(v or 0).replace(",", "")))
+            except:
+                return default
+
+        try:
+            balance_used = int(float(str(data.get("balance_used", 0) or 0).replace(",", "")))
+        except:
+            balance_used = 0
+
+        # Mutate under lock, network save can use cache (fast path)
         with DATA_LOCK:
             db = load_data()
-            data = request.form
-            user_code = str(data.get("user_code", "")).strip().upper()
             oid = db.get("next_order_id", 1)
             user = db.get("users", {}).get(user_code) if user_code else None
-            receipt = request.files.get("receipt")
             if receipt and receipt.filename:
                 ext = os.path.splitext(receipt.filename)[1].lower()
                 if ext in [".jpg", ".jpeg", ".png", ".webp"]:
                     receipt_path = os.path.join(BASE_DIR, f"temp_{oid}_{int(time.time())}{ext}")
                     receipt.save(receipt_path)
-            try:
-                balance_used = int(float(str(data.get("balance_used", 0) or 0).replace(",", "")))
-            except:
-                balance_used = 0
             if user and balance_used > 0:
                 user["balance"] = max(0, user.get("balance", 0) - min(balance_used, user.get("balance", 0)))
-            def safe_int(v, default=0):
-                try:
-                    return int(float(str(v or 0).replace(",", "")))
-                except:
-                    return default
             order = {
                 "id": oid, "code": make_order_code(),
                 "date": datetime.now().strftime("%Y-%m-%d %H:%M"),
@@ -501,34 +560,44 @@ def payment_info():
             }
             db["orders"].append(order)
             db["next_order_id"] = oid + 1
-            if user:
+            if user and user_code:
                 db["users"][user_code] = user
             saved = save_data(db)
-            if not saved:
-                print("WARNING: payment order save failed")
+
+        if not saved:
+            print("WARNING: payment order save failed — still returning success so user is not stuck")
         try:
             send_payment_msg(order, receipt_path)
         except Exception as se:
             print("send_payment_msg error:", se)
         if receipt_path and os.path.exists(receipt_path):
-            try: os.remove(receipt_path)
-            except: pass
+            try:
+                os.remove(receipt_path)
+            except Exception:
+                pass
         return jsonify({"success": True, "order_code": order["code"]})
     except Exception as e:
         print("payment_info error:", e)
-        import traceback; traceback.print_exc()
+        import traceback
+        traceback.print_exc()
         if receipt_path and os.path.exists(receipt_path):
-            try: os.remove(receipt_path)
-            except: pass
+            try:
+                os.remove(receipt_path)
+            except Exception:
+                pass
         return jsonify({"success": False, "message": "خطا در ثبت پرداخت"}), 500
+
 
 @app_web.route("/api/final_order", methods=["POST"])
 def final_order():
     try:
+        data = request.get_json(silent=True) or {}
+        code = str(data.get("order_code", "")).strip()
+        if not code:
+            return jsonify({"success": False, "message": "کد سفارش نیست"}), 400
+        found = False
         with DATA_LOCK:
             db = load_data()
-            data = request.get_json(silent=True) or {}
-            code = str(data.get("order_code", "")).strip()
             for o in db.get("orders", []):
                 if o.get("code") == code:
                     o["email"] = data.get("email", "")
@@ -537,12 +606,18 @@ def final_order():
                     o["desc"] = data.get("desc", "")
                     o["status"] = "pending"
                     save_data(db)
-                    send_account_msg(code)
-                    return jsonify({"success": True})
-            return jsonify({"success": False}), 404
+                    found = True
+                    break
+        if not found:
+            return jsonify({"success": False, "message": "سفارش یافت نشد"}), 404
+        try:
+            send_account_msg(code)
+        except Exception as se:
+            print("send_account_msg error:", se)
+        return jsonify({"success": True})
     except Exception as e:
-        print(e)
-        return jsonify({"success": False}), 500
+        print("final_order error:", e)
+        return jsonify({"success": False, "message": "خطای سرور"}), 500
 
 def send_payment_msg(order, receipt_path=None):
     if not GROUP_ID:
@@ -1258,7 +1333,8 @@ def mod_photo_proxy(key):
 
 def run_flask():
     port = int(os.environ.get("PORT", 5000))
-    app_web.run(host="0.0.0.0", port=port, debug=False, use_reloader=False)
+    # threaded=True so one slow JSONBin/Telegram call cannot freeze all logins
+    app_web.run(host="0.0.0.0", port=port, debug=False, use_reloader=False, threaded=True)
 
 def run_bot():
     global bot_app, main_loop
