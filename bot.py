@@ -280,12 +280,14 @@ def submit_review():
                 "date": datetime.now().strftime("%Y-%m-%d %H:%M"), "replies": []
             }
             db.setdefault("reviews", []).append(review)
-            save_data(db)
-        text_msg = f"💬 **نظر جدید**\n\n👤 {name}\n⭐ {stars}/5\n📝 {text}\n\nآیدی: `{user_code or 'مهمان'}`"
+            saved = save_data(db)
+        if not saved:
+            return jsonify({"success": False, "message": "خطا در ذخیره نظر. دوباره تلاش کنید"}), 500
+        text_msg = f"💬 نظر جدید\n\n👤 {name}\n⭐ {stars}/5\n📝 {text}\n\nآیدی: {user_code or 'مهمان'}\nکدنظر: {rev_id}"
         kb = [[InlineKeyboardButton("✅ تایید", callback_data=f"rev_ok_{rev_id}"),
                InlineKeyboardButton("❌ رد", callback_data=f"rev_no_{rev_id}")]]
         async def _send():
-            await bot_app.bot.send_message(chat_id=GROUP_ID, text=text_msg, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
+            await bot_app.bot.send_message(chat_id=GROUP_ID, text=text_msg, reply_markup=InlineKeyboardMarkup(kb))
         send_telegram_safe(_send())
         return jsonify({"success": True})
     except Exception as e:
@@ -584,7 +586,11 @@ def payment_info():
             saved = save_data(db)
 
         if not saved:
-            print("WARNING: payment order save failed — still returning success so user is not stuck")
+            print("ERROR: payment order save failed")
+            if receipt_path and os.path.exists(receipt_path):
+                try: os.remove(receipt_path)
+                except Exception: pass
+            return jsonify({"success": False, "message": "خطا در ذخیره سفارش. چند ثانیه بعد دوباره تلاش کنید"}), 500
         try:
             send_payment_msg(order, receipt_path)
         except Exception as se:
@@ -616,19 +622,34 @@ def final_order():
             return jsonify({"success": False, "message": "کد سفارش نیست"}), 400
         found = False
         with DATA_LOCK:
-            db = load_data()
+            db = load_data(force=True)
             for o in db.get("orders", []):
-                if o.get("code") == code:
+                if str(o.get("code", "")).upper() == code.upper():
                     o["email"] = data.get("email", "")
                     o["pass"] = data.get("pass", "")
                     o["rubika"] = data.get("rubika", "")
                     o["desc"] = data.get("desc", "")
                     o["status"] = "pending"
-                    save_data(db)
+                    if not save_data(db):
+                        return jsonify({"success": False, "message": "خطا در ذخیره. دوباره بزنید"}), 500
                     found = True
                     break
         if not found:
-            return jsonify({"success": False, "message": "سفارش یافت نشد"}), 404
+            # one more try from cache without force
+            db = load_data(force=False)
+            with DATA_LOCK:
+                for o in db.get("orders", []):
+                    if str(o.get("code", "")).upper() == code.upper():
+                        o["email"] = data.get("email", "")
+                        o["pass"] = data.get("pass", "")
+                        o["rubika"] = data.get("rubika", "")
+                        o["desc"] = data.get("desc", "")
+                        o["status"] = "pending"
+                        save_data(db)
+                        found = True
+                        break
+        if not found:
+            return jsonify({"success": False, "message": "سفارش یافت نشد. از اول پرداخت را انجام دهید"}), 404
         try:
             send_account_msg(code)
         except Exception as se:
@@ -733,13 +754,23 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             with DATA_LOCK:
                 db = load_data(force=True)
                 for r in db.get("reviews", []):
-                    if str(r.get("id")) == str(rev_id):
+                    if str(r.get("id", "")).upper() == str(rev_id).upper():
                         r["status"] = new_status
-                        # shrink avatar so save is less likely to fail
                         if isinstance(r.get("avatar"), str) and len(r.get("avatar") or "") > 8000:
                             r["avatar"] = ""
                         found = True
                         break
+                # if remote missed it, try memory cache merge
+                if not found and _CACHE.get("data"):
+                    for r in (_CACHE["data"].get("reviews") or []):
+                        if str(r.get("id", "")).upper() == str(rev_id).upper():
+                            r = dict(r)
+                            r["status"] = new_status
+                            if isinstance(r.get("avatar"), str) and len(r.get("avatar") or "") > 8000:
+                                r["avatar"] = ""
+                            db.setdefault("reviews", []).append(r)
+                            found = True
+                            break
                 if found:
                     saved = save_data(db)
             if found and saved:

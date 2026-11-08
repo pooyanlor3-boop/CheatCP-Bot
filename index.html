@@ -113,6 +113,15 @@ body{background:var(--black);background-image:radial-gradient(ellipse at top,rgb
 .float-back{position:fixed;top:14px;right:14px;z-index:80;background:rgba(20,20,20,0.92);border:1px solid rgba(255,107,0,0.5);color:#fff;border-radius:20px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;display:none;font-family:inherit;box-shadow:0 4px 16px rgba(0,0,0,0.4)}
 .float-back.show{display:block}
 .section-badge{display:inline-block;background:linear-gradient(90deg,#00a8ff,#0052d4);color:#fff;padding:5px 12px;border-radius:16px;font-size:11px;font-weight:800;margin-bottom:12px}
+
+.btn-main:active,.btn-outline:active,.btn-copy-big:active,.menu-btn:active,.login-btn:active,
+.product-card:active,.option-card:active,.nav-item:active,.global-links button:active,
+.review-reply-btn:active,.float-btn:active{
+  transform:scale(0.96)!important;filter:brightness(0.72)!important;opacity:0.9!important;
+}
+.btn-main.loading,.btn-outline.loading{pointer-events:none;opacity:0.65;filter:brightness(0.7)}
+.btn-main:disabled{opacity:0.55;pointer-events:none}
+
 </style>
 </head>
 <body>
@@ -224,7 +233,7 @@ body{background:var(--black);background-image:radial-gradient(ellipse at top,rgb
   <div class="header"><button onclick="go('page1')" style="background:none;border:none;color:var(--gray);font-size:22px;cursor:pointer">←</button><h3 style="font-size:18px;font-weight:800">ورود به حساب</h3><div style="width:28px"></div></div>
   <div class="card">
     <p style="font-size:13px;color:#bbb;line-height:1.9;margin-bottom:18px;text-align:center">فقط رمز عبور اکانت خود را وارد کنید.</p>
-    <div class="form-group"><label>رمز عبور</label><input type="password" id="loginPass" placeholder="رمز عبور" style="text-align:center;font-size:16px;letter-spacing:2px" dir="ltr"><div class="hint">رمزی که موقع ساخت اکانت ذخیره کردید</div><div class="error-text" id="loginError"></div></div>
+    <div class="form-group"><label>رمز عبور</label><input type="password" id="loginPass" placeholder="رمز عبور" style="text-align:center;font-size:16px;letter-spacing:2px" dir="ltr"><div class="hint">همان رمزی که موقع ساخت اکانت ذخیره کردید. اگر فراموش کردید به پشتیبانی پیام دهید.</div><div class="error-text" id="loginError"></div></div>
     <button class="btn-main" onclick="doLogin()">ورود</button>
     <button class="btn-outline" onclick="go('pageRegister')">ساخت اکانت جدید</button>
     <div style="text-align:center;margin-top:22px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08)"><p style="font-size:13px;color:var(--gray);margin-bottom:8px">رمز را فراموش کرده‌اید؟</p><a href="https://rubika.ir/My_HINATA" target="_blank" style="color:var(--fire-blue);font-size:15px;font-weight:700;text-decoration:none">پشتیبانی</a></div>
@@ -299,9 +308,9 @@ body{background:var(--black);background-image:radial-gradient(ellipse at top,rgb
   <button class="copy-btn" style="width:100%;margin-bottom:16px" onclick="copyCard()">📋 کپی شماره کارت</button>
   <div class="card">
     <div style="text-align:center;margin-bottom:16px;font-size:15px">مبلغ: <strong style="color:var(--green);font-size:20px" id="payAmountText">۰</strong> تومان</div>
-    <div class="form-group"><label>کارت مبدا (۱۶ رقم)</label><input type="text" id="senderCard" maxlength="16" dir="ltr" oninput="validatePayment()"><div class="hint">بدون فاصله</div><div class="error-text" id="senderCardError"></div></div>
-    <div class="form-group"><label>مبلغ واریزی</label><input type="text" id="sentAmount" inputmode="numeric" oninput="onSentAmountInput()"><div class="hint">دقیقاً برابر مبلغ نهایی</div><div class="error-text" id="sentAmountError"></div></div>
-    <div class="form-group"><label>ساعت واریز</label><input type="text" id="sentTime" placeholder="1240 یا 12:40" dir="ltr" oninput="formatTime(this);validatePayment()"><div class="hint">می‌توانید بدون دونقطه بنویسید</div><div class="error-text" id="sentTimeError"></div></div>
+    <div class="form-group"><label>کارت مبدا (۱۶ رقم)</label><input type="text" id="senderCard" maxlength="16" dir="ltr" oninput="validatePayment()"><div class="hint">بدون فاصله</div><div class="hint">۱۶ رقم کارت مبدأ (کارتی که با آن واریز کردید)، بدون خط تیره و فاصله.</div><div class="error-text" id="senderCardError"></div></div>
+    <div class="form-group"><label>مبلغ واریزی</label><input type="text" id="sentAmount" inputmode="numeric" oninput="onSentAmountInput()"><div class="hint">دقیقاً برابر مبلغ نهایی</div><div class="hint">مبلغ باید دقیقاً برابر مبلغ نهایی سفارش باشد.</div><div class="error-text" id="sentAmountError"></div></div>
+    <div class="form-group"><label>ساعت واریز</label><input type="text" id="sentTime" placeholder="1240 یا 12:40" dir="ltr" oninput="formatTime(this);validatePayment()"><div class="hint">می‌توانید بدون دونقطه بنویسید</div><div class="hint">ساعت واریز؛ می‌توانید 1430 بنویسید تا 14:30 شود.</div><div class="error-text" id="sentTimeError"></div></div>
     <div class="form-group"><label>عکس رسید (اختیاری)</label><input type="file" id="receiptImage" accept="image/*"><div class="hint">سرعت تایید را بالاتر می‌برد</div></div>
     <button class="btn-main" id="btnGoToInfo" onclick="submitPayment()" disabled style="opacity:0.7">صبر کنید ۳۰ ثانیه...</button>
   </div>
@@ -310,9 +319,9 @@ body{background:var(--black);background-image:radial-gradient(ellipse at top,rgb
 <div id="pageUserInfo" class="view">
   <div class="header"><button onclick="go('pagePayment')" style="background:none;border:none;color:var(--gray);font-size:22px;cursor:pointer">←</button><h3 style="font-size:18px;font-weight:800">اطلاعات اکانت</h3><div style="width:28px"></div></div>
   <div class="card">
-    <div class="form-group"><label>ایمیل</label><input type="email" id="accEmail" dir="ltr" oninput="validateAccount()"><div class="hint">ایمیل اکانت کالاف</div><div class="error-text" id="accEmailError"></div></div>
-    <div class="form-group"><label>رمز اکانت</label><input type="text" id="accPass" dir="ltr" oninput="validateAccount()"><div class="hint">حداقل ۶ کاراکتر</div><div class="error-text" id="accPassError"></div></div>
-    <div class="form-group"><label>آیدی روبیکا</label><input type="text" id="accRubika" placeholder="@username" dir="ltr" oninput="validateAccount()"><div class="error-text" id="accRubikaError"></div></div>
+    <div class="form-group"><label>ایمیل</label><input type="email" id="accEmail" dir="ltr" oninput="validateAccount()"><div class="hint">ایمیل اکانت کالاف</div><div class="hint">حتماً همان ایمیل اکانت کالاف دیوتی را وارد کنید (نه ایمیل دلخواه).</div><div class="error-text" id="accEmailError"></div></div>
+    <div class="form-group"><label>رمز اکانت</label><input type="text" id="accPass" dir="ltr" oninput="validateAccount()"><div class="hint">حداقل ۶ کاراکتر</div><div class="hint">رمز ورود اکانت کالاف — حداقل ۶ کاراکتر، فقط برای شارژ استفاده می‌شود و ذخیره امن می‌شود.</div><div class="error-text" id="accPassError"></div></div>
+    <div class="form-group"><label>آیدی روبیکا</label><input type="text" id="accRubika" placeholder="@username" dir="ltr" oninput="validateAccount()"><div class="hint">آیدی روبیکای خودتان با @ تا پشتیبانی بعد از انجام کار پیام دهد.</div><div class="error-text" id="accRubikaError"></div></div>
     <div class="form-group"><label>توضیحات</label><textarea id="accDesc" rows="3"></textarea></div>
     <button class="btn-main" id="finalSubmitBtn" onclick="finalSubmit()" disabled>ثبت نهایی</button>
   </div>
@@ -429,6 +438,7 @@ body{background:var(--black);background-image:radial-gradient(ellipse at top,rgb
 let SETTINGS={},TEXTS={},currentUser=null;
 let order={cp:10000,antiban:false,speed:'normal',discount:0,discountType:'',totalPrice:0,balanceUsed:0};
 let order_code='',paymentReady=false,selectedStars=0,replyToId=null;
+let paymentTimer=null;
 let navStack=['page1'];
 let MOD_IMAGES={};
 let modOrder={plan:'15',antiban:false,total:0,balanceUsed:0};
@@ -444,7 +454,7 @@ function parseNum(s){return parseInt(String(s).replace(/,/g,''))||0}
 document.addEventListener('click',e=>{const s=document.createElement('div');s.className='sparkle';s.style.left=e.clientX+'px';s.style.top=e.clientY+'px';s.style.color=['#ff4500','#00bfff','#ffaa00'][Math.floor(Math.random()*3)];document.body.appendChild(s);setTimeout(()=>s.remove(),750);});
 window.addEventListener('scroll',()=>{document.getElementById('backTop').classList.toggle('show',window.scrollY>400);});
 
-function go(id){try{if(typeof navStack!=='undefined'){if(navStack[navStack.length-1]!==id){navStack.push(id);history.pushState({page:id},'','#'+id);}}if(typeof updateFloatBack==='function')updateFloatBack();}catch(e){}
+function go(id){try{if(typeof paymentTimer!=='undefined'&&paymentTimer&&id!=='pagePayment'){clearInterval(paymentTimer);paymentTimer=null;}if(typeof navStack!=='undefined'){if(navStack[navStack.length-1]!==id){navStack.push(id);history.pushState({page:id},'','#'+id);}}if(typeof updateFloatBack==='function')updateFloatBack();}catch(e){}
   ['senderCard','sentAmount','sentTime','receiptImage','accEmail','accPass','accRubika','accDesc'].forEach(fid=>{
     const el=document.getElementById(fid);if(el)el.disabled=false;
   });
@@ -517,11 +527,23 @@ async function doRegister(){
   btn.disabled=false;btn.textContent='ساخت اکانت';checkRegisterForm();
 }
 async function doLogin(){
-  const pass=document.getElementById('loginPass').value.trim();if(!pass){document.getElementById('loginError').textContent='رمز را وارد کنید';return;}
+  const pass=document.getElementById('loginPass').value.trim();
+  if(!pass){document.getElementById('loginError').textContent='رمز را وارد کنید';return;}
   document.getElementById('loginError').textContent='';
-  try{const res=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pass,fingerprint})});const data=await res.json();
-  if(data.success){currentUser=data;localStorage.setItem('user_code',data.code);const av=localStorage.getItem('avatar_'+data.code);if(av)currentUser.avatar=av;updateUserUI();go('page1');}
-  else document.getElementById('loginError').textContent=data.message||'رمز اشتباه است';}catch(e){document.getElementById('loginError').textContent='خطای شبکه';}
+  const btns=[...document.querySelectorAll('#pageLogin .btn-main')];
+  btns.forEach(b=>{b.classList.add('loading');b.dataset._old=b.textContent;b.textContent='⏳ در حال ورود...';b.disabled=true;});
+  try{
+    const res=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pass,fingerprint})});
+    const data=await res.json();
+    if(data.success){
+      currentUser=data;localStorage.setItem('user_code',data.code);
+      const av=localStorage.getItem('avatar_'+data.code);if(av)currentUser.avatar=av;
+      updateUserUI();go('page1');
+    }else document.getElementById('loginError').textContent=data.message||'رمز اشتباه است';
+  }catch(e){document.getElementById('loginError').textContent='خطای شبکه';}
+  finally{
+    btns.forEach(b=>{b.classList.remove('loading');b.disabled=false;if(b.dataset._old)b.textContent=b.dataset._old;});
+  }
 }
 function logout(){currentUser=null;localStorage.removeItem('user_code');document.getElementById('headerLoginBtn').textContent='ورود / ثبت‌نام';document.getElementById('userBalanceBox').classList.add('hidden');go('page1');}
 function goProfile(){if(!currentUser){go('pageLogin');return;}go('pageProfile');}
@@ -581,10 +603,29 @@ function toggleAntiBan(){order.antiban=!order.antiban;document.getElementById('o
 function toggleSpeed(s){order.speed=s;document.getElementById('optNormal').classList.toggle('active',s==='normal');document.getElementById('optFast').classList.toggle('active',s==='fast');calculateTotal();}
 async function checkCoupon(){const code=document.getElementById('couponInput').value.trim().toUpperCase();if(!code)return;try{const res=await fetch('/api/check_coupon',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});const data=await res.json();if(data.success){order.discount=data.amount;order.discountType=data.type;document.getElementById('couponStatus').innerHTML='<span style="color:var(--green)">✓ اعمال شد</span>';calculateTotal();}else document.getElementById('couponStatus').innerHTML='<span style="color:var(--red)">نامعتبر</span>';}catch(e){}}
 
-function goToPayment(){document.getElementById('payAmountText').textContent=fmt(order.totalPrice);document.getElementById('sentAmount').value=fmt(order.totalPrice);paymentReady=false;const btn=document.getElementById('btnGoToInfo');btn.disabled=true;btn.style.opacity='0.7';let t=30;btn.textContent=`صبر کنید ${t} ثانیه...`;const timer=setInterval(()=>{t--;if(t>0)btn.textContent=`صبر کنید ${t} ثانیه...`;else{clearInterval(timer);paymentReady=true;btn.textContent='تایید و ادامه';btn.style.opacity='1';validatePayment();}},1000);go('pagePayment');}
+function goToPayment(){
+  document.getElementById('payAmountText').textContent=fmt(order.totalPrice);
+  document.getElementById('sentAmount').value=fmt(order.totalPrice);
+  paymentReady=false;
+  const btn=document.getElementById('btnGoToInfo');
+  btn.disabled=true;btn.style.opacity='0.7';
+  if(paymentTimer){clearInterval(paymentTimer);paymentTimer=null;}
+  let t=30;
+  btn.textContent='صبر کنید '+t+' ثانیه...';
+  paymentTimer=setInterval(()=>{
+    t--;
+    if(t>0) btn.textContent='صبر کنید '+t+' ثانیه...';
+    else{
+      clearInterval(paymentTimer);paymentTimer=null;
+      paymentReady=true;btn.textContent='تایید و ادامه';btn.style.opacity='1';
+      validatePayment();
+    }
+  },1000);
+  go('pagePayment');
+}
 function formatTime(el){let v=el.value.replace(/\D/g,'');if(v.length>=3&&v.length<=4&&!v.includes(':'))el.value=v.slice(0,2)+':'+v.slice(2);validatePayment();}
 function copyCard(){navigator.clipboard.writeText((SETTINGS.card_number||'').replace(/\s/g,'')).then(()=>alert('کپی شد'));}
-function validatePayment(){const card=document.getElementById('senderCard').value.trim();const amount=parseNum(document.getElementById('sentAmount').value);const time=document.getElementById('sentTime').value.trim();let ok=paymentReady;if(!/^\d{16}$/.test(card)){document.getElementById('senderCardError').textContent='۱۶ رقم';ok=false;}else document.getElementById('senderCardError').textContent='';if(amount!==order.totalPrice){document.getElementById('sentAmountError').textContent='مبلغ دقیق باشد';ok=false;}else document.getElementById('sentAmountError').textContent='';if(!/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(time)){document.getElementById('sentTimeError').textContent='فرمت ساعت';ok=false;}else document.getElementById('sentTimeError').textContent='';document.getElementById('btnGoToInfo').disabled=!ok;}
+function validatePayment(){const card=document.getElementById('senderCard').value.trim();const amount=parseNum(document.getElementById('sentAmount').value);const time=document.getElementById('sentTime').value.trim();let ok=paymentReady;if(!/^\d{16}$/.test(card)){document.getElementById('senderCardError').textContent='۱۶ رقم';ok=false;}else document.getElementById('senderCardError').textContent='';if(amount!==order.totalPrice){document.getElementById('sentAmountError').textContent='مبلغ دقیق باشد';ok=false;}else document.getElementById('sentAmountError').textContent='';if(!/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(time)){document.getElementById('sentTimeError').textContent='ساعت واریز مثل 14:30 — اگر 1430 بنویسید خودش 14:30 می‌شود.';ok=false;}else document.getElementById('sentTimeError').textContent='';document.getElementById('btnGoToInfo').disabled=!ok;}
 
 async function submitPayment(){
   const btn=document.getElementById('btnGoToInfo');
@@ -779,11 +820,12 @@ function goModPayment(){
   paymentReady=false;
   const btn=document.getElementById('btnGoToInfo');
   btn.disabled=true; btn.style.opacity='0.7';
+  if(paymentTimer){clearInterval(paymentTimer);paymentTimer=null;}
   let t=30; btn.textContent='صبر کنید '+t+' ثانیه...';
-  const timer=setInterval(()=>{
+  paymentTimer=setInterval(()=>{
     t--;
     if(t>0) btn.textContent='صبر کنید '+t+' ثانیه...';
-    else { clearInterval(timer); paymentReady=true; btn.textContent='تایید و ادامه'; btn.style.opacity='1'; validatePayment(); }
+    else { clearInterval(paymentTimer);paymentTimer=null; paymentReady=true; btn.textContent='تایید و ادامه'; btn.style.opacity='1'; validatePayment(); }
   },1000);
   window.__modCheckout = true;
   go('pagePayment');
