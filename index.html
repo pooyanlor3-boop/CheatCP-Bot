@@ -317,11 +317,15 @@ body{background:var(--black);background-image:radial-gradient(ellipse at top,rgb
 </div>
 
 <div id="pageUserInfo" class="view">
-  <div class="header"><button onclick="go('pagePayment')" style="background:none;border:none;color:var(--gray);font-size:22px;cursor:pointer">←</button><h3 style="font-size:18px;font-weight:800">اطلاعات اکانت</h3><div style="width:28px"></div></div>
+  <div class="header"><button onclick="go('pagePayment')" style="background:none;border:none;color:var(--gray);font-size:22px;cursor:pointer">←</button><h3 style="font-size:18px;font-weight:800">یوآیدی و اطلاعات</h3><div style="width:28px"></div></div>
   <div class="card">
-    <div class="form-group"><label>ایمیل</label><input type="email" id="accEmail" dir="ltr" oninput="validateAccount()"><div class="hint">ایمیل اکانت کالاف</div><div class="hint">حتماً همان ایمیل اکانت کالاف دیوتی را وارد کنید (نه ایمیل دلخواه).</div><div class="error-text" id="accEmailError"></div></div>
-    <div class="form-group"><label>رمز اکانت</label><input type="text" id="accPass" dir="ltr" oninput="validateAccount()"><div class="hint">حداقل ۶ کاراکتر</div><div class="hint">رمز ورود اکانت کالاف — حداقل ۶ کاراکتر، فقط برای شارژ استفاده می‌شود و ذخیره امن می‌شود.</div><div class="error-text" id="accPassError"></div></div>
-    <div class="form-group"><label>آیدی روبیکا</label><input type="text" id="accRubika" placeholder="@username" dir="ltr" oninput="validateAccount()"><div class="hint">آیدی روبیکای خودتان با @ تا پشتیبانی بعد از انجام کار پیام دهد.</div><div class="error-text" id="accRubikaError"></div></div>
+    <div class="form-group"><label>یوآیدی (UID) کالاف</label>
+      <input type="text" id="accUid" dir="ltr" inputmode="numeric" maxlength="19" placeholder="7656797273885442049" oninput="onUidInput()" style="text-align:center;letter-spacing:1px;font-size:15px;font-weight:700">
+      <div class="hint">عددی ۱۹ رقمی زیر اسم پروفایل کالاف. برو پروفایل → زیر نامت عدد بلند را کپی کن و اینجا بچسبان.</div>
+      <div class="hint">فقط عدد مجاز است — دقیقاً ۱۹ رقم.</div>
+      <div class="error-text" id="accUidError"></div>
+    </div>
+    <div class="form-group"><label>آیدی روبیکا (اختیاری)</label><input type="text" id="accRubika" placeholder="@username" dir="ltr" oninput="validateAccount()"><div class="hint">اختیاری — اگر بگذارید پشتیبانی راحت‌تر پیام می‌دهد.</div><div class="error-text" id="accRubikaError"></div></div>
     <div class="form-group"><label>توضیحات</label><textarea id="accDesc" rows="3"></textarea></div>
     <button class="btn-main" id="finalSubmitBtn" onclick="finalSubmit()" disabled>ثبت نهایی</button>
   </div>
@@ -455,7 +459,7 @@ document.addEventListener('click',e=>{const s=document.createElement('div');s.cl
 window.addEventListener('scroll',()=>{document.getElementById('backTop').classList.toggle('show',window.scrollY>400);});
 
 function go(id){try{if(typeof paymentTimer!=='undefined'&&paymentTimer&&id!=='pagePayment'){clearInterval(paymentTimer);paymentTimer=null;}if(typeof navStack!=='undefined'){if(navStack[navStack.length-1]!==id){navStack.push(id);history.pushState({page:id},'','#'+id);}}if(typeof updateFloatBack==='function')updateFloatBack();}catch(e){}
-  ['senderCard','sentAmount','sentTime','receiptImage','accEmail','accPass','accRubika','accDesc'].forEach(fid=>{
+  ['senderCard','sentAmount','sentTime','receiptImage','accUid','accRubika','accDesc'].forEach(fid=>{
     const el=document.getElementById(fid);if(el)el.disabled=false;
   });
   const b1=document.getElementById('btnGoToInfo');if(b1&&paymentReady){b1.disabled=false;b1.textContent='تایید و ادامه';}
@@ -476,8 +480,7 @@ async function loadSettings(){
   if(SETTINGS.referral_description)document.getElementById('refDescription').textContent=SETTINGS.referral_description;
   if(SETTINGS.card_number){let c=String(SETTINGS.card_number).replace(/\s/g,'');document.getElementById('cardNumDisplay').textContent=c.match(/.{1,4}/g)?.join(' ')||c;}
   if(SETTINGS.card_holder)document.getElementById('cardHolderDisplay').textContent=SETTINGS.card_holder;
-  let q=document.getElementById('quickCps');q.innerHTML='';
-  (SETTINGS.custom_packages||[]).forEach(p=>{let b=document.createElement('button');b.textContent=fmt(p.cp);b.style="background:#222;border:1px solid var(--fire-orange);color:var(--fire-orange);padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer";b.onclick=()=>{document.getElementById('cpAmount').value=fmt(p.cp);calculateTotal();};q.appendChild(b);});
+  renderCpGrid();
   if(!SETTINGS.referral_enabled)document.getElementById('referralOption')?.classList.add('hidden');
   const saved=localStorage.getItem('user_code');if(saved)await tryAutoLogin(saved);
   const av=localStorage.getItem('avatar_'+localStorage.getItem('user_code'));if(av&&currentUser){currentUser.avatar=av;updateUserUI();}
@@ -553,7 +556,7 @@ function openProfileReferral(){
   else{document.getElementById('referralActive').classList.remove('hidden');document.getElementById('referralDisabled').classList.add('hidden');if(currentUser)document.getElementById('refLink').textContent=location.origin+'/?ref='+currentUser.code;}
   go('pageReferral');
 }
-function chooseMethod(m){if(m==='referral')openProfileReferral();else go('pageProduct');}
+function chooseMethod(m){if(m==='referral')openProfileReferral();else{if(!order.cp)order.cp=10000;selectCp(order.cp||10000);go('pageProduct');}}
 function copyRefLink(){navigator.clipboard.writeText(document.getElementById('refLink').textContent).then(()=>alert('کپی شد!'));}
 
 // NEW UPDATE FUNCTION: Open and load My Orders list inside Profile
@@ -587,17 +590,69 @@ async function openMyOrdersList(){
   }
 }
 
-function onCpInput(){let el=document.getElementById('cpAmount');let n=parseNum(el.value);el.value=n?fmt(n):'';calculateTotal();}
 function onSentAmountInput(){let el=document.getElementById('sentAmount');let n=parseNum(el.value);el.value=n?fmt(n):'';validatePayment();}
+function renderCpGrid(){
+  const grid=document.getElementById('cpGrid');
+  if(!grid) return;
+  const pkgs=SETTINGS.custom_packages||[];
+  const discMap={};
+  pkgs.forEach(p=>{ if(p && p.cp) discMap[Number(p.cp)]=p; });
+  let html='';
+  for(let cp=10000; cp<=100000; cp+=10000){
+    const pkg=discMap[cp];
+    const isDisc=pkg && (pkg.discount===true || pkg.discount===1 || pkg.discount==='true');
+    const active=(Number(order.cp||10000)===cp)?' active':'';
+    const cls='cp-chip'+(isDisc?' discount':'')+active;
+    const badge=isDisc?'<div class="badge">تخفیف‌خورده</div>':'';
+    html+=`<button type="button" class="${cls}" onclick="selectCp(${cp})">${badge}<div>${fmt(cp)}</div></button>`;
+  }
+  grid.innerHTML=html;
+  const lab=document.getElementById('cpSelectedLabel');
+  if(lab) lab.textContent=fmt(order.cp||10000)+' سی‌پی';
+  const hidden=document.getElementById('cpAmount');
+  if(hidden) hidden.value=String(order.cp||10000);
+}
+function selectCp(cp){
+  cp=Math.round(Number(cp)/10000)*10000;
+  if(cp<10000) cp=10000;
+  if(cp>100000) cp=100000;
+  order.cp=cp;
+  const hidden=document.getElementById('cpAmount');
+  if(hidden) hidden.value=String(cp);
+  const lab=document.getElementById('cpSelectedLabel');
+  if(lab) lab.textContent=fmt(cp)+' سی‌پی';
+  renderCpGrid();
+  calculateTotal();
+}
 function calculateTotal(){
-  let val=parseNum(document.getElementById('cpAmount').value);if(val<10000)val=10000;order.cp=val;
-  let base=0;const pkgs=SETTINGS.custom_packages||[];const match=pkgs.find(p=>p.cp===val);if(match)base=match.price;else base=Math.ceil(val/1000)*(SETTINGS.price_per_1000||25000);
-  let extra=0;if(order.antiban)extra+=(SETTINGS.price_antiban||50000);if(order.speed==='fast')extra+=(SETTINGS.price_fast||20000);
-  let total=base+extra;if(order.discount>0){if(order.discountType==='percent')total-=total*order.discount/100;else total-=order.discount;}if(total<0)total=0;
-  order.balanceUsed=0;if(document.getElementById('useBalance')?.checked&&currentUser){order.balanceUsed=Math.min(currentUser.balance||0,total);total-=order.balanceUsed;}
+  let val=Number(order.cp)||10000;
+  if(val%10000!==0) val=Math.round(val/10000)*10000;
+  if(val<10000) val=10000;
+  if(val>100000) val=100000;
+  order.cp=val;
+  let base=0;
+  const pkgs=SETTINGS.custom_packages||[];
+  const match=pkgs.find(p=>Number(p.cp)===val);
+  if(match && match.price!=null) base=Number(match.price);
+  else base=Math.ceil(val/1000)*(SETTINGS.price_per_1000||25000);
+  let extra=0;
+  if(order.antiban) extra+=(SETTINGS.price_antiban||50000);
+  if(order.speed==='fast') extra+=(SETTINGS.price_fast||20000);
+  let total=base+extra;
+  if(order.discount>0){
+    if(order.discountType==='percent') total-=total*order.discount/100;
+    else total-=order.discount;
+  }
+  if(total<0) total=0;
+  order.balanceUsed=0;
+  if(document.getElementById('useBalance')?.checked&&currentUser){
+    order.balanceUsed=Math.min(currentUser.balance||0,total);
+    total-=order.balanceUsed;
+  }
   order.totalPrice=Math.max(0,Math.round(total));
-  document.getElementById('totalPriceDisplay').textContent=fmt(order.totalPrice);
-  if(document.getElementById('balanceUsedDisplay'))document.getElementById('balanceUsedDisplay').textContent=fmt(order.balanceUsed);
+  const tp=document.getElementById('totalPriceDisplay');
+  if(tp) tp.textContent=fmt(order.totalPrice);
+  if(document.getElementById('balanceUsedDisplay')) document.getElementById('balanceUsedDisplay').textContent=fmt(order.balanceUsed);
 }
 function toggleAntiBan(){order.antiban=!order.antiban;document.getElementById('optAntiBan').classList.toggle('active',order.antiban);calculateTotal();}
 function toggleSpeed(s){order.speed=s;document.getElementById('optNormal').classList.toggle('active',s==='normal');document.getElementById('optFast').classList.toggle('active',s==='fast');calculateTotal();}
@@ -610,7 +665,7 @@ function goToPayment(){
   const btn=document.getElementById('btnGoToInfo');
   btn.disabled=true;btn.style.opacity='0.7';
   if(paymentTimer){clearInterval(paymentTimer);paymentTimer=null;}
-  let t=30;
+  let t=15;
   btn.textContent='صبر کنید '+t+' ثانیه...';
   paymentTimer=setInterval(()=>{
     t--;
@@ -671,15 +726,54 @@ async function submitPayment(){
     btn.disabled=false;btn.textContent='تایید و ادامه';
   }
 }
-function validateAccount(){const email=document.getElementById('accEmail').value.trim(),pass=document.getElementById('accPass').value.trim(),rubika=document.getElementById('accRubika').value.trim();let ok=true;if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){document.getElementById('accEmailError').textContent='ایمیل معتبر';ok=false;}else document.getElementById('accEmailError').textContent='';if(!pass||pass.length<6){document.getElementById('accPassError').textContent='حداقل ۶';ok=false;}else document.getElementById('accPassError').textContent='';if(!rubika.startsWith('@')){document.getElementById('accRubikaError').textContent='با @';ok=false;}else document.getElementById('accRubikaError').textContent='';document.getElementById('finalSubmitBtn').disabled=!ok;}
-async function finalSubmit(){
-  validateAccount();if(document.getElementById('finalSubmitBtn').disabled)return;
+function onUidInput(){
+  const el=document.getElementById('accUid');
+  if(!el) return;
+  // only digits
+  let v=el.value.replace(/\D/g,'');
+  if(v.length>19) v=v.slice(0,19);
+  el.value=v;
+  validateAccount();
+}
+function validateAccount(){
+  const uid=(document.getElementById('accUid')?.value||'').trim();
+  const rubika=(document.getElementById('accRubika')?.value||'').trim();
+  let ok=true;
+  const uidErr=document.getElementById('accUidError');
+  if(!/^[0-9]{19}$/.test(uid)){
+    if(uid.length && /\D/.test(document.getElementById('accUid')?.value||'')){
+      if(uidErr) uidErr.textContent='فقط عدد مجاز است';
+    } else if(uid.length && uid.length!==19){
+      if(uidErr) uidErr.textContent='یوآیدی باید دقیقاً ۱۹ رقم باشد ('+uid.length+'/19)';
+    } else {
+      if(uidErr) uidErr.textContent=uid?'یوآیدی نامعتبر':'یوآیدی ۱۹ رقمی را وارد کنید';
+    }
+    ok=false;
+  } else if(uidErr) uidErr.textContent='';
+  // rubika optional — if filled must start with @
+  const rErr=document.getElementById('accRubikaError');
+  if(rubika && !rubika.startsWith('@')){
+    if(rErr) rErr.textContent='اگر پر می‌کنید باید با @ شروع شود';
+    ok=false;
+  } else if(rErr) rErr.textContent='';
   const btn=document.getElementById('finalSubmitBtn');
-  const fields=['accEmail','accPass','accRubika','accDesc'];
+  if(btn) btn.disabled=!ok;
+}
+
+async function finalSubmit(){
+  validateAccount();
+  if(document.getElementById('finalSubmitBtn').disabled) return;
+  const btn=document.getElementById('finalSubmitBtn');
+  const fields=['accUid','accRubika','accDesc'];
   fields.forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=true;});
   btn.disabled=true;btn.innerHTML='⏳ در حال ارسال...';
   try{
-    const res=await fetch('/api/final_order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({order_code,email:document.getElementById('accEmail').value.trim(),pass:document.getElementById('accPass').value.trim(),rubika:document.getElementById('accRubika').value.trim(),desc:document.getElementById('accDesc').value.trim()})});
+    const res=await fetch('/api/final_order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      order_code,
+      uid: document.getElementById('accUid').value.trim(),
+      rubika: (document.getElementById('accRubika')?.value||'').trim(),
+      desc: (document.getElementById('accDesc')?.value||'').trim()
+    })});
     const data=await res.json();
     if(data.success){
       document.getElementById('finalOrderCode').textContent=order_code;
@@ -696,10 +790,31 @@ async function finalSubmit(){
     btn.disabled=false;btn.textContent='ثبت نهایی';
   }
 }
+
 function copyOrderCode(){navigator.clipboard.writeText(document.getElementById('finalOrderCode').textContent).then(()=>alert('کد پیگیری کپی شد!'));}
 
 async function trackOrder(){const code=document.getElementById('trackInput').value.trim().toUpperCase();if(!code)return;document.getElementById('trackResult').textContent='جستجو...';try{const res=await fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});const data=await res.json();if(data.success){document.getElementById('trackResult').innerHTML=`<div style="background:#111;padding:16px;border-radius:12px;border:1px solid var(--green)"><p>وضعیت: <strong style="color:var(--green)">${data.status}</strong></p><p>تعداد: ${data.cp} CP</p><p>مبلغ: ${data.price} تومان</p></div>`;}else document.getElementById('trackResult').innerHTML='<span style="color:var(--red)">یافت نشد</span>';}catch(e){document.getElementById('trackResult').textContent='خطا';}}
 
+function relativeDate(d){
+  if(!d) return '';
+  try{
+    // expect "YYYY-MM-DD HH:MM" or similar
+    const p=String(d).replace('T',' ').split(/[\s-:\/]/).filter(Boolean);
+    let dt;
+    if(p.length>=3){
+      dt=new Date(Number(p[0]), Number(p[1])-1, Number(p[2]), Number(p[3]||0), Number(p[4]||0));
+    } else dt=new Date(d);
+    if(isNaN(dt.getTime())) return '';
+    const diff=Math.max(0, Date.now()-dt.getTime());
+    const days=Math.floor(diff/86400000);
+    if(days<=0) return 'امروز';
+    if(days===1) return '۱ روز پیش';
+    if(days===2) return '۲ روز پیش';
+    if(days<10) return days+' روز پیش';
+    if(days<30) return days+' روز پیش';
+    return Math.floor(days/30)+' ماه پیش';
+  }catch(e){ return ''; }
+}
 async function loadReviews(){
   try{const res=await fetch('/api/reviews');const list=await res.json();document.getElementById('reviewsCount').textContent=(list.length||0)+' نظر';
   const box=document.getElementById('reviewsList');
@@ -708,7 +823,7 @@ async function loadReviews(){
     const av = r.avatar ? `<img src="${r.avatar}" alt="">` : '👤';
     const replies=(r.replies||[]).filter(x=>x.status==='approved'||x.is_admin).map(rep=>`<div class="reply-item ${rep.is_admin?'admin':''}"><div class="rname">${rep.is_admin?'🛠️ پشتیبانی فونیکس':(rep.name||'کاربر')}</div><div>${rep.text||''}</div></div>`).join('');
     const safeName=(r.name||'کاربر').replace(/'/g,'').replace(/"/g,'');
-    return `<div class="review-card"><div class="review-header"><div class="review-avatar">${av}</div><div><div class="review-name">${r.name||'کاربر'}</div><div class="review-id">${r.date||''}</div></div></div><div class="review-stars">${'★'.repeat(r.stars||5)}${'☆'.repeat(5-(r.stars||5))}</div><div class="review-text">${r.text||''}</div>${replies?`<div class="review-replies">${replies}</div>`:''}<button class="review-reply-btn" onclick="openReply('${r.id}','${safeName}')">💬 پاسخ</button></div>`;
+    return `<div class="review-card"><div class="review-header"><div class="review-avatar">${av}</div><div><div class="review-name">${r.name||'کاربر'}</div><div class="review-id">${relativeDate(r.date)}</div></div></div><div class="review-stars">${'★'.repeat(r.stars||5)}${'☆'.repeat(5-(r.stars||5))}</div><div class="review-text">${r.text||''}</div>${replies?`<div class="review-replies">${replies}</div>`:''}<button class="review-reply-btn" onclick="openReply('${r.id}','${safeName}')">💬 پاسخ</button></div>`;
   }).join('');
   }catch(e){}
 }
@@ -821,7 +936,7 @@ function goModPayment(){
   const btn=document.getElementById('btnGoToInfo');
   btn.disabled=true; btn.style.opacity='0.7';
   if(paymentTimer){clearInterval(paymentTimer);paymentTimer=null;}
-  let t=30; btn.textContent='صبر کنید '+t+' ثانیه...';
+  let t=15; btn.textContent='صبر کنید '+t+' ثانیه...';
   paymentTimer=setInterval(()=>{
     t--;
     if(t>0) btn.textContent='صبر کنید '+t+' ثانیه...';

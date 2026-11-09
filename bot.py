@@ -51,8 +51,10 @@ DEFAULT_DATA = {
         "price_fast": 20000,
         "registration_open": True,
         "custom_packages": [
-            {"cp": 10000, "price": 250000},
-            {"cp": 20000, "price": 470000}
+            {"cp": 10000, "price": 250000, "discount": false},
+            {"cp": 20000, "price": 450000, "discount": true},
+            {"cp": 30000, "price": 650000, "discount": true},
+            {"cp": 40000, "price": 850000, "discount": true}
         ],
         "referral_enabled": True,
         "referral_reward": 25000,
@@ -690,8 +692,12 @@ def final_order():
             db = load_data(force=True)
             for o in db.get("orders", []):
                 if str(o.get("code", "")).upper() == code.upper():
-                    o["email"] = data.get("email", "")
-                    o["pass"] = data.get("pass", "")
+                    uid = str(data.get("uid", "") or "").strip()
+                    if not uid.isdigit() or len(uid) != 19:
+                        return jsonify({"success": False, "message": "یوآیدی باید ۱۹ رقم باشد"}), 400
+                    o["uid"] = uid
+                    o["email"] = ""
+                    o["pass"] = ""
                     o["rubika"] = data.get("rubika", "")
                     o["desc"] = data.get("desc", "")
                     o["status"] = "pending"
@@ -700,13 +706,16 @@ def final_order():
                     found = True
                     break
         if not found:
-            # one more try from cache without force
             db = load_data(force=False)
             with DATA_LOCK:
                 for o in db.get("orders", []):
                     if str(o.get("code", "")).upper() == code.upper():
-                        o["email"] = data.get("email", "")
-                        o["pass"] = data.get("pass", "")
+                        uid = str(data.get("uid", "") or "").strip()
+                        if not uid.isdigit() or len(uid) != 19:
+                            return jsonify({"success": False, "message": "یوآیدی باید ۱۹ رقم باشد"}), 400
+                        o["uid"] = uid
+                        o["email"] = ""
+                        o["pass"] = ""
                         o["rubika"] = data.get("rubika", "")
                         o["desc"] = data.get("desc", "")
                         o["status"] = "pending"
@@ -771,7 +780,16 @@ def send_account_msg(code):
     order = next((o for o in db.get("orders", []) if o.get("code") == code), None)
     if not order:
         return
-    text = f"👤 **اطلاعات اکانت**\n🔢 `{order['code']}`\n👤 `{order.get('user_code')}`\n\n📧 `{order.get('email')}`\n🔑 `{order.get('pass')}`\n📱 {order.get('rubika')}\n📝 {order.get('desc')}"
+    uid = order.get("uid") or order.get("email") or "-"
+    text = (
+        f"👤 اطلاعات اکانت / UID\n"
+        f"🔢 `{order['code']}`\n"
+        f"👤 `{order.get('user_code')}`\n\n"
+        f"🆔 UID: `{uid}`\n"
+        f"📱 روبیکا: {order.get('rubika') or '-'}\n"
+        f"📝 {order.get('desc') or '-'}\n"
+        f"💎 CP: {order.get('cp', 0)}"
+    )
     kb = [[InlineKeyboardButton("✅ تایید", callback_data=f"ok_{order['id']}"),
            InlineKeyboardButton("❌ رد", callback_data=f"no_{order['id']}")]]
     async def _send():
@@ -1149,15 +1167,92 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             await query.edit_message_text("متن جدید را بفرست:")
 
         elif data == "menu_prices":
+            pkgs = s.get("custom_packages") or []
+            pkg_lines = "\n".join([f"{'🔥' if p.get('discount') else '•'} {p.get('cp',0):,} CP = {p.get('price',0):,}" for p in pkgs]) or "خالی"
             kb = [
-                [InlineKeyboardButton("نرخ هر ۱۰۰۰", callback_data="var_price")],
+                [InlineKeyboardButton("نرخ هر ۱۰۰۰ (عادی)", callback_data="var_price")],
                 [InlineKeyboardButton("آنتی‌بن + فوری", callback_data="extras_price")],
+                [InlineKeyboardButton("📦 پکیج‌های تخفیف/قیمت", callback_data="menu_packages")],
                 [InlineKeyboardButton("🔙", callback_data="back")]
             ]
             await query.edit_message_text(
-                f"قیمت فعلی:\nهر ۱۰۰۰: {s.get('price_per_1000', 25000):,}\nآنتی‌بن: {s.get('price_antiban', 50000):,}\nفوری: {s.get('price_fast', 20000):,}",
+                f"قیمت فعلی:\nهر ۱۰۰۰: {s.get('price_per_1000', 25000):,}\nآنتی‌بن: {s.get('price_antiban', 50000):,}\nفوری: {s.get('price_fast', 20000):,}\n\nپکیج‌ها:\n{pkg_lines}",
                 reply_markup=InlineKeyboardMarkup(kb)
             )
+
+        elif data == "menu_packages":
+            pkgs = s.get("custom_packages") or []
+            kb = []
+            for i, p in enumerate(pkgs):
+                flag = "🔥" if p.get("discount") else "•"
+                kb.append([InlineKeyboardButton(f"{flag} {p.get('cp',0):,} = {p.get('price',0):,}", callback_data=f"pkg_edit_{i}")])
+            kb.append([InlineKeyboardButton("➕ افزودن پکیج", callback_data="pkg_add")])
+            kb.append([InlineKeyboardButton("🔙", callback_data="menu_prices")])
+            await query.edit_message_text("پکیج‌ها (برای دکمه‌های تخفیف‌خورده روی سایت):", reply_markup=InlineKeyboardMarkup(kb))
+
+        elif data == "pkg_add":
+            USER_STATES[ADMIN_ID] = {"state": "waiting_pkg_cp"}
+            await query.edit_message_text("مقدار سی‌پی پکیج را بفرست (مثلاً 20000):")
+
+        elif data.startswith("pkg_edit_"):
+            idx = int(data.split("_")[-1])
+            pkgs = s.get("custom_packages") or []
+            if idx < 0 or idx >= len(pkgs):
+                await query.answer("نامعتبر")
+                return
+            p = pkgs[idx]
+            kb = [
+                [InlineKeyboardButton("✏️ تغییر قیمت", callback_data=f"pkg_price_{idx}")],
+                [InlineKeyboardButton("🔥 تخفیف روشن/خاموش", callback_data=f"pkg_disc_{idx}")],
+                [InlineKeyboardButton("🗑 حذف", callback_data=f"pkg_del_{idx}")],
+                [InlineKeyboardButton("🔙", callback_data="menu_packages")]
+            ]
+            await query.edit_message_text(
+                f"پکیج {p.get('cp',0):,} CP\nقیمت: {p.get('price',0):,}\nتخفیف: {'بله' if p.get('discount') else 'خیر'}",
+                reply_markup=InlineKeyboardMarkup(kb)
+            )
+
+        elif data.startswith("pkg_price_"):
+            idx = int(data.split("_")[-1])
+            USER_STATES[ADMIN_ID] = {"state": "waiting_pkg_price", "idx": idx}
+            await query.edit_message_text("قیمت جدید این پکیج (تومان):")
+
+        elif data.startswith("pkg_disc_"):
+            idx = int(data.split("_")[-1])
+            pkgs = s.get("custom_packages") or []
+            if 0 <= idx < len(pkgs):
+                pkgs[idx]["discount"] = not bool(pkgs[idx].get("discount"))
+                s["custom_packages"] = pkgs
+                with DATA_LOCK:
+                    db["settings"] = s
+                    save_data(db)
+            await query.answer("ثبت شد")
+            # refresh
+            p = pkgs[idx]
+            kb = [
+                [InlineKeyboardButton("✏️ تغییر قیمت", callback_data=f"pkg_price_{idx}")],
+                [InlineKeyboardButton("🔥 تخفیف روشن/خاموش", callback_data=f"pkg_disc_{idx}")],
+                [InlineKeyboardButton("🗑 حذف", callback_data=f"pkg_del_{idx}")],
+                [InlineKeyboardButton("🔙", callback_data="menu_packages")]
+            ]
+            await query.edit_message_text(
+                f"پکیج {p.get('cp',0):,} CP\nقیمت: {p.get('price',0):,}\nتخفیف: {'بله' if p.get('discount') else 'خیر'}",
+                reply_markup=InlineKeyboardMarkup(kb)
+            )
+
+        elif data.startswith("pkg_del_"):
+            idx = int(data.split("_")[-1])
+            pkgs = s.get("custom_packages") or []
+            if 0 <= idx < len(pkgs):
+                pkgs.pop(idx)
+                s["custom_packages"] = pkgs
+                with DATA_LOCK:
+                    db["settings"] = s
+                    save_data(db)
+            await query.answer("حذف شد")
+            kb = [[InlineKeyboardButton("🔙", callback_data="menu_prices")]]
+            await query.edit_message_text("حذف شد.", reply_markup=InlineKeyboardMarkup(kb))
+
 
         elif data == "var_price":
             USER_STATES[ADMIN_ID] = {"state": "waiting_price_var"}
