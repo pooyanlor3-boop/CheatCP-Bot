@@ -51,10 +51,10 @@ DEFAULT_DATA = {
         "price_fast": 20000,
         "registration_open": True,
         "custom_packages": [
-            {"cp": 10000, "price": 250000, "discount": false},
-            {"cp": 20000, "price": 450000, "discount": true},
-            {"cp": 30000, "price": 650000, "discount": true},
-            {"cp": 40000, "price": 850000, "discount": true}
+            {"cp": 10000, "price": 250000, "discount": False},
+            {"cp": 20000, "price": 450000, "discount": True},
+            {"cp": 30000, "price": 650000, "discount": True},
+            {"cp": 40000, "price": 850000, "discount": True}
         ],
         "referral_enabled": True,
         "referral_reward": 25000,
