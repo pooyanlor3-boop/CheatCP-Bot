@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
+<link rel="manifest" href="data:application/json,{"name":"PhoenixCheat","short_name":"Phoenix","start_url":"/","display":"standalone","background_color":"#0a0a0a","theme_color":"#0a0a0a"}">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#0a0a0a">
@@ -122,6 +125,15 @@ body{background:var(--black);background-image:radial-gradient(ellipse at top,rgb
 .btn-main.loading,.btn-outline.loading{pointer-events:none;opacity:0.65;filter:brightness(0.7)}
 .btn-main:disabled{opacity:0.55;pointer-events:none}
 
+
+.skeleton{background:linear-gradient(90deg,#1a1a1a 25%,#2a2a2a 50%,#1a1a1a 75%);background-size:200% 100%;animation:sk 1.2s infinite;border-radius:10px;height:16px;margin:8px 0}
+@keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.site-banner{background:linear-gradient(90deg,rgba(255,69,0,.25),rgba(0,168,255,.2));border:1px solid rgba(255,170,0,.4);border-radius:14px;padding:12px 14px;margin-bottom:14px;font-size:13px;line-height:1.8;text-align:center}
+.pay-check{font-size:12.5px;line-height:1.9;background:rgba(0,168,255,.08);border:1px solid rgba(0,168,255,.3);border-radius:12px;padding:12px;margin-bottom:12px}
+.mod-compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.mod-compare .box{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:12px;font-size:12px;line-height:1.8}
+.mod-compare .box b{color:var(--fire-orange)}
+
 </style>
 </head>
 <body>
@@ -138,6 +150,7 @@ body{background:var(--black);background-image:radial-gradient(ellipse at top,rgb
 
 <div id="page1" class="view active">
   <div class="header"><div class="brand"><div class="logo">🔥</div><div class="brand-text"><h1 id="siteName">فونیکس چیت</h1><small>COD STORE</small></div></div><button class="login-btn" id="headerLoginBtn" onclick="go('pageLogin')">ورود / ثبت‌نام</button></div>
+  <div id="homeBanner" class="site-banner hidden"></div>
   <div id="userBalanceBox" class="balance-box hidden"><span>موجودی شما:</span><span class="val" id="headerBalance">۰ تومان</span></div>
   <div class="card">
     <div style="display:inline-block;background:linear-gradient(90deg,var(--fire-red),var(--fire-orange));color:#000;padding:6px 14px;border-radius:20px;font-size:11px;font-weight:900;margin-bottom:14px">🔥 PHOENIXCHEAT</div>
@@ -198,6 +211,11 @@ body{background:var(--black);background-image:radial-gradient(ellipse at top,rgb
 
 <!-- انتخاب پلن مود -->
 <div id="pageModPlan" class="view">
+  <div class="mod-compare">
+    <div class="box"><b>۱۵ روزه</b><br>چیت اسکین <b>نیست</b><br>مناسب تست و استفاده کوتاه</div>
+    <div class="box"><b>۳۰ روزه</b><br>چیت اسکین <b>هست</b><br>(گان و اسکین و ظاهر)<br>مناسب استفاده طولانی</div>
+  </div>
+
   <div class="header"><button onclick="go('pageModIntro')" style="background:none;border:none;color:var(--gray);font-size:22px;cursor:pointer">←</button><h3 style="font-size:18px;font-weight:800">انتخاب پلن</h3><div style="width:28px"></div></div>
   <div class="option-card" id="modPlan15" onclick="selectModPlan('15')"><div class="title">⏱ پلن ۱۵ روزه</div><div class="desc" id="modPlan15Price">۳۵۰,۰۰۰ تومان</div></div>
   <div class="option-card" id="modPlan30" onclick="selectModPlan('30')"><div class="title">📅 پلن ۳۰ روزه</div><div class="desc" id="modPlan30Price">۵۰۰,۰۰۰ تومان</div></div>
@@ -293,7 +311,17 @@ body{background:var(--black);background-image:radial-gradient(ellipse at top,rgb
       <div style="font-size:13px;color:#a5d6a7;margin-top:8px">استفاده شده: <strong id="balanceUsedDisplay">۰</strong> تومان</div>
     </div>
   </div>
-  <button class="btn-main" onclick="goToPayment()">ادامه و پرداخت</button>
+  <button class="btn-main" onclick="openOrderSummary()">ادامه و پرداخت</button>
+</div>
+
+
+<div id="pageOrderSummary" class="view">
+  <div class="header"><button onclick="go('pageProduct')" style="background:none;border:none;color:var(--gray);font-size:22px;cursor:pointer">←</button><h3 style="font-size:18px;font-weight:800">خلاصه سفارش</h3><div style="width:28px"></div></div>
+  <div class="card">
+    <div id="orderSummaryBox" style="font-size:14px;line-height:2.1"></div>
+    <button class="btn-main" onclick="goToPayment()">تایید و رفتن به پرداخت</button>
+    <button class="btn-outline" onclick="go('pageProduct')">بازگشت و ویرایش</button>
+  </div>
 </div>
 
 <div id="pagePayment" class="view">
@@ -306,6 +334,7 @@ body{background:var(--black);background-image:radial-gradient(ellipse at top,rgb
     <div style="display:flex;justify-content:flex-end"><div><div class="label" style="text-align:left">صاحب حساب</div><div class="holder" id="cardHolderDisplay">----</div></div></div>
   </div>
   <button class="copy-btn" style="width:100%;margin-bottom:16px" onclick="copyCard()">📋 کپی شماره کارت</button>
+  <div class="pay-check">✅ چک‌لیست پرداخت:<br>• مبلغ را <b>دقیقاً</b> برابر مبلغ سفارش واریز کنید<br>• ساعت واریز را درست بنویسید<br>• کارت مبدأ همان کارتی باشد که پول از آن رفته<br>• در صورت امکان عکس رسید را ضمیمه کنید<br>• بعد از ارسال تا تایید ادمین صبر کنید</div>
   <div class="card">
     <div style="text-align:center;margin-bottom:16px;font-size:15px">مبلغ: <strong style="color:var(--green);font-size:20px" id="payAmountText">۰</strong> تومان</div>
     <div class="form-group"><label>کارت مبدا (۱۶ رقم)</label><input type="text" id="senderCard" maxlength="16" dir="ltr" oninput="validatePayment()"><div class="hint">بدون فاصله</div><div class="hint">۱۶ رقم کارت مبدأ (کارتی که با آن واریز کردید)، بدون خط تیره و فاصله.</div><div class="error-text" id="senderCardError"></div></div>
@@ -358,6 +387,10 @@ body{background:var(--black);background-image:radial-gradient(ellipse at top,rgb
       </div>
     </div>
     <div class="balance-box" style="margin-top:14px"><span>موجودی:</span><span class="val" id="profileBalance">۰ تومان</span></div>
+    <div id="profileLastLogin" style="font-size:12px;color:#aaa;margin:8px 0"></div>
+    <div id="profileModExpires" style="font-size:12px;color:var(--fire-blue);margin:6px 0"></div>
+    <div id="refDash" style="font-size:13px;margin:8px 0;padding:10px;background:rgba(0,200,83,.08);border-radius:10px;border:1px solid rgba(0,200,83,.25)"></div>
+    <button class="btn-outline" onclick="logoutAllDevices()">🚪 خروج از همه دستگاه‌ها</button>
     <button class="btn-outline" onclick="go('pageEditProfile')">✏️ ویرایش اطلاعات</button>
     <button class="btn-outline" onclick="openProfileReferral()">🎁 بخش رفرال</button>
     <button class="btn-outline" onclick="openMyOrdersList()">📦 سفارش‌های من (آپدیت جدید)</button>
@@ -481,14 +514,34 @@ async function loadSettings(){
   if(SETTINGS.card_number){let c=String(SETTINGS.card_number).replace(/\s/g,'');document.getElementById('cardNumDisplay').textContent=c.match(/.{1,4}/g)?.join(' ')||c;}
   if(SETTINGS.card_holder)document.getElementById('cardHolderDisplay').textContent=SETTINGS.card_holder;
   renderCpGrid();
+  try{
+    const d=JSON.parse(localStorage.getItem('draft_order')||'null');
+    if(d && d.cp){ order.cp=d.cp; order.antiban=!!d.antiban; order.speed=d.speed||'normal'; selectCp(order.cp); }
+  }catch(e){}
   if(!SETTINGS.referral_enabled)document.getElementById('referralOption')?.classList.add('hidden');
   const saved=localStorage.getItem('user_code');if(saved)await tryAutoLogin(saved);
   const av=localStorage.getItem('avatar_'+localStorage.getItem('user_code'));if(av&&currentUser){currentUser.avatar=av;updateUserUI();}
   calculateTotal();loadReviews();
+  loadPublicExtra();
   }catch(e){console.log(e);}
 }
 
-async function tryAutoLogin(code){try{const res=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code,fingerprint})});const data=await res.json();if(data.success){currentUser=data;localStorage.setItem('user_code',data.code);const av=localStorage.getItem('avatar_'+data.code);if(av)currentUser.avatar=av;updateUserUI();}else localStorage.removeItem('user_code');}catch(e){}}
+async function tryAutoLogin(code){
+  try{
+    const token=localStorage.getItem('session_token')||'';
+    const res=await fetch('/api/session',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_code:code,session_token:token})});
+    const data=await res.json();
+    if(data.success){
+      currentUser=data;
+      localStorage.setItem('user_code',data.code);
+      const av=localStorage.getItem('avatar_'+data.code);if(av)currentUser.avatar=av;
+      updateUserUI();
+    } else {
+      localStorage.removeItem('user_code');
+      localStorage.removeItem('session_token');
+    }
+  }catch(e){}
+}
 function updateUserUI(){
   if(!currentUser)return;
   document.getElementById('headerLoginBtn').textContent=currentUser.name||currentUser.code;
@@ -506,6 +559,18 @@ function updateUserUI(){
   document.getElementById('editAvatarPreview').innerHTML=avHtml;
   document.getElementById('editNameShow').value=currentUser.name||'';
   document.getElementById('editIdShow').value=currentUser.code||'';
+  const ll=document.getElementById('profileLastLogin');
+  if(ll) ll.textContent=currentUser.last_login ? ('آخرین ورود: '+currentUser.last_login) : '';
+  const me=document.getElementById('profileModExpires');
+  if(me){
+    if(currentUser.mod_expires){
+      const end=new Date(currentUser.mod_expires.replace(' ','T'));
+      const days=Math.ceil((end-Date.now())/86400000);
+      me.textContent = days>0 ? ('اعتبار مود منو: '+days+' روز مانده') : 'اعتبار مود منو تمام شده';
+    } else me.textContent='';
+  }
+  const rb=document.getElementById('refDash');
+  if(rb) rb.innerHTML=`دعوت‌ها: <b>${currentUser.referral_count||0}</b> | موجودی: <b>${fmt(currentUser.balance||0)}</b> تومان`;
 }
 
 function checkRegisterForm(){
@@ -598,13 +663,14 @@ function renderCpGrid(){
   const discMap={};
   pkgs.forEach(p=>{ if(p && p.cp) discMap[Number(p.cp)]=p; });
   let html='';
-  for(let cp=10000; cp<=100000; cp+=10000){
+  for(let cp=10000; cp<=150000; cp+=10000){
     const pkg=discMap[cp];
     const isDisc=pkg && (pkg.discount===true || pkg.discount===1 || pkg.discount==='true');
     const active=(Number(order.cp||10000)===cp)?' active':'';
     const cls='cp-chip'+(isDisc?' discount':'')+active;
     const badge=isDisc?'<div class="badge">تخفیف‌خورده</div>':'';
-    html+=`<button type="button" class="${cls}" onclick="selectCp(${cp})">${badge}<div>${fmt(cp)}</div></button>`;
+    let price = pkg && pkg.price!=null ? Number(pkg.price) : Math.ceil(cp/1000)*(SETTINGS.price_per_1000||25000);
+    html+=`<button type="button" class="${cls}" onclick="selectCp(${cp})">${badge}<div>${fmt(cp)}</div><div style="font-size:10px;opacity:.85;margin-top:4px">${fmt(price)} ت</div></button>`;
   }
   grid.innerHTML=html;
   const lab=document.getElementById('cpSelectedLabel');
@@ -615,7 +681,7 @@ function renderCpGrid(){
 function selectCp(cp){
   cp=Math.round(Number(cp)/10000)*10000;
   if(cp<10000) cp=10000;
-  if(cp>100000) cp=100000;
+  if(cp>150000) cp=150000;
   order.cp=cp;
   const hidden=document.getElementById('cpAmount');
   if(hidden) hidden.value=String(cp);
@@ -628,7 +694,7 @@ function calculateTotal(){
   let val=Number(order.cp)||10000;
   if(val%10000!==0) val=Math.round(val/10000)*10000;
   if(val<10000) val=10000;
-  if(val>100000) val=100000;
+  if(val>150000) val=150000;
   order.cp=val;
   let base=0;
   const pkgs=SETTINGS.custom_packages||[];
@@ -658,6 +724,20 @@ function toggleAntiBan(){order.antiban=!order.antiban;document.getElementById('o
 function toggleSpeed(s){order.speed=s;document.getElementById('optNormal').classList.toggle('active',s==='normal');document.getElementById('optFast').classList.toggle('active',s==='fast');calculateTotal();}
 async function checkCoupon(){const code=document.getElementById('couponInput').value.trim().toUpperCase();if(!code)return;try{const res=await fetch('/api/check_coupon',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});const data=await res.json();if(data.success){order.discount=data.amount;order.discountType=data.type;document.getElementById('couponStatus').innerHTML='<span style="color:var(--green)">✓ اعمال شد</span>';calculateTotal();}else document.getElementById('couponStatus').innerHTML='<span style="color:var(--red)">نامعتبر</span>';}catch(e){}}
 
+function openOrderSummary(){
+  calculateTotal();
+  const box=document.getElementById('orderSummaryBox');
+  if(box){
+    box.innerHTML=`
+      <p>💎 سی‌پی: <b>${fmt(order.cp)}</b></p>
+      <p>🛡️ ضد بن: <b>${order.antiban?'بله':'خیر'}</b></p>
+      <p>⚡ سرعت: <b>${order.speed==='fast'?'فوری':'معمولی'}</b></p>
+      <p>💰 مبلغ نهایی: <b style="color:var(--green)">${fmt(order.totalPrice)} تومان</b></p>
+      <p style="font-size:12px;color:#aaa;margin-top:8px">بعد از تایید به صفحه کارت و رسید می‌روید.</p>`;
+  }
+  try{ localStorage.setItem('draft_order', JSON.stringify({cp:order.cp,antiban:order.antiban,speed:order.speed,totalPrice:order.totalPrice,balanceUsed:order.balanceUsed})); }catch(e){}
+  go('pageOrderSummary');
+}
 function goToPayment(){
   document.getElementById('payAmountText').textContent=fmt(order.totalPrice);
   document.getElementById('sentAmount').value=fmt(order.totalPrice);
@@ -713,7 +793,7 @@ async function submitPayment(){
         if(currentUser&&modOrder.balanceUsed>0){/* already handled via order.balanceUsed */}
         go('pageModSuccess');
       } else {
-        go('pageUserInfo');
+        try{localStorage.removeItem('draft_order');}catch(e){} go('pageUserInfo');
       }
     }else{
       alert(data.message||'خطا در ثبت');
@@ -815,6 +895,28 @@ function relativeDate(d){
     return Math.floor(days/30)+' ماه پیش';
   }catch(e){ return ''; }
 }
+async function loadPublicExtra(){
+  try{
+    const res=await fetch('/api/public_extra');
+    const d=await res.json();
+    window.PUBLIC_EXTRA=d||{};
+    const ban=document.getElementById('homeBanner');
+    if(ban){
+      if(d.banner_enabled && d.banner_text){ ban.textContent=d.banner_text; ban.classList.remove('hidden'); }
+      else ban.classList.add('hidden');
+    }
+  }catch(e){}
+}
+async function logoutAllDevices(){
+  if(!currentUser) return;
+  try{
+    await fetch('/api/logout_all',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_code:currentUser.code,session_token:localStorage.getItem('session_token')||''})});
+  }catch(e){}
+  currentUser=null;
+  localStorage.removeItem('user_code');
+  localStorage.removeItem('session_token');
+  location.reload();
+}
 async function loadReviews(){
   try{const res=await fetch('/api/reviews');const list=await res.json();document.getElementById('reviewsCount').textContent=(list.length||0)+' نظر';
   const box=document.getElementById('reviewsList');
@@ -842,8 +944,42 @@ function saveAvatar(){const src=document.getElementById('editAvatarPreview').dat
 function showModal(title,html){let old=document.getElementById('siteModal');if(old)old.remove();const m=document.createElement('div');m.id='siteModal';m.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.88);display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(8px)';m.innerHTML=`<div style="background:linear-gradient(145deg,#1a1a1a,#0d0d0d);border:1px solid rgba(255,107,0,0.45);border-radius:18px;padding:22px;max-width:480px;width:100%;max-height:82vh;overflow-y:auto"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h3 style="font-size:17px;font-weight:800;color:#ffaa00">${title}</h3><button onclick="document.getElementById('siteModal').remove()" style="background:none;border:none;color:#aaa;font-size:24px;cursor:pointer">×</button></div><div style="font-size:13.5px;line-height:2;color:#ddd">${html}</div></div>`;m.onclick=e=>{if(e.target===m)m.remove();};document.body.appendChild(m);}
 function openAbout(){showModal('درباره ما','<p>فونیکس چیت با تیمی از گیمرهای واقعی کالاف دیوتی شکل گرفته. ما با تجربه چندساله امن‌ترین سرویس سی‌پی را ارائه می‌دهیم.</p><p style="margin-top:12px">هدف ما فقط فروش نیست؛ می‌خواهیم با خیال راحت بازی کنید.</p>');}
 function openTrust(){showModal('اعتماد','<p>✓ بیش از ۵۰۰ مشتری راضی</p><p>✓ کانال اعتماد فعال</p><a href="https://rubika.ir/PhoenixCheatTrust" target="_blank" style="display:block;margin-top:16px;background:linear-gradient(90deg,#00c853,#009624);color:#000;text-align:center;padding:13px;border-radius:12px;font-weight:800;text-decoration:none">کانال اعتماد</a>');}
-function openFAQ(){showModal('سوالات متداول','<p><b>۱. رضایت مشتریان؟</b><br>کانال اعتماد: rubika.ir/PhoenixCheatTrust</p><p style="margin-top:10px"><b>۲. کانال اصلی؟</b><br>rubika.ir/PhoenixCheat</p><p style="margin-top:10px"><b>۳. پشتیبانی؟</b><br>rubika.ir/My_HINATA</p><p style="margin-top:10px"><b>۴. حداقل سفارش؟</b><br>۱۰ هزار سی‌پی</p><p style="margin-top:10px"><b>۵. رمز فراموش شد؟</b><br>به پشتیبانی پیام دهید</p><p style="margin-top:10px"><b>۶. رفرال چطور؟</b><br>لینک بسازید و پخش کنید</p><p style="margin-top:10px"><b>۷. فوری چیست؟</b><br>حدود ۱۰ دقیقه</p><p style="margin-top:10px"><b>۸. ضد بن؟</b><br>لایه امنیتی اضافی</p>');}
-function openRules(){showModal('قوانین','<ul style="padding-right:16px;line-height:2"><li>هر کاربر یک اکانت</li><li>سوءاستفاده از رفرال = تعلیق</li><li>پس از ثبت سفارش لغو ممکن نیست</li><li>مسئولیت اطلاعات با کاربر است</li><li>حداقل ۱۰ هزار سی‌پی</li><li>رمز را به کسی ندهید</li></ul>');}
+function openFAQ(){const extra=(window.PUBLIC_EXTRA&&PUBLIC_EXTRA.faq_items)||[];
+  let dyn='';
+  if(extra.length){ dyn=extra.map((x,i)=>`<p style="margin-top:10px"><b>${i+1}. ${x.q||''}</b><br>${x.a||''}</p>`).join(''); }
+  showModal('سوالات متداول', dyn + `
+<p><b>رضایت مشتریان؟</b><br>کانال اعتماد: rubika.ir/PhoenixCheatTrust</p>
+<p style="margin-top:10px"><b>کانال اصلی؟</b><br>rubika.ir/PhoenixCheat</p>
+<p style="margin-top:10px"><b>پشتیبانی؟</b><br>rubika.ir/My_HINATA</p>
+<p style="margin-top:10px"><b>حداقل سفارش سی‌پی؟</b><br>۱۰ هزار — حداکثر ۱۵۰ هزار (مضرب ۱۰ هزار)</p>
+<p style="margin-top:10px"><b>یوآیدی چیست؟</b><br>عدد ۱۹ رقمی زیر اسم پروفایل کالاف</p>
+<p style="margin-top:10px"><b>رمز ورود سایت فراموش شد؟</b><br>به پشتیبانی پیام دهید</p>
+<p style="margin-top:10px"><b>رفرال؟</b><br>لینک بسازید؛ با هر دعوت موفق موجودی می‌گیرید</p>
+<p style="margin-top:10px"><b>فوری چیست؟</b><br>حدود ۱۰ دقیقه</p>
+<p style="margin-top:10px"><b>ضد بن؟</b><br>لایه امنیتی اضافی روی سفارش</p>
+<p style="margin-top:10px"><b>مود منو ۱۵ و ۳۰؟</b><br>۱۵ روزه بدون چیت اسکین — ۳۰ روزه با چیت اسکین</p>
+<p style="margin-top:10px"><b>چرا رفرال ثبت نشد؟</b><br>باید از دستگاه/IP متفاوت باشد و سقف روزانه پر نشده باشد</p>
+<p style="margin-top:10px"><b>وضعیت سفارش؟</b><br>از بخش سفارشات در پایین سایت</p>
+`);}
+function openRules(){showModal('قوانین',`
+<ul style="padding-right:16px;line-height:2.05;font-size:13px">
+<li>هر نفر فقط یک اکانت مجاز است.</li>
+<li>سوءاستفاده از رفرال (چند اکانت روی یک دستگاه/IP) = تعلیق.</li>
+<li>بعد از ثبت نهایی سفارش، لغو ممکن نیست.</li>
+<li>مسئولیت صحت یوآیدی و اطلاعات پرداخت با خریدار است.</li>
+<li>سی‌پی فقط مضارب ۱۰ هزار از ۱۰ تا ۱۵۰ هزار.</li>
+<li>رمز ورود سایت را به کسی ندهید.</li>
+<li>پرداخت فقط به کارت اعلام‌شده در سایت.</li>
+<li>رسید جعلی یا مبلغ اشتباه باعث تأخیر/رد سفارش می‌شود.</li>
+<li>توهین به پشتیبانی یا اسپم نظرات ممنوع است.</li>
+<li>در زمان بسته بودن سایت سفارش جدید پذیرفته نمی‌شود.</li>
+</ul>
+<label style="display:flex;gap:8px;align-items:flex-start;margin-top:14px;font-size:13px">
+<input type="checkbox" id="rulesAck" onchange="localStorage.setItem('rules_ok',this.checked?'1':'')"> قوانین را خواندم و می‌پذیرم
+</label>
+`);
+setTimeout(()=>{const c=document.getElementById('rulesAck');if(c)c.checked=localStorage.getItem('rules_ok')==='1';},50);
+}
 function openSecurity(){showModal('امنیتی','<ul style="padding-right:16px;line-height:2"><li>رمز را به کسی ندهید</li><li>فقط از سایت رسمی خرید کنید</li><li>رسید را نگه دارید</li></ul>');}
 function openChannels(){showModal('کانال‌ها','<a href="https://rubika.ir/PhoenixCheat" target="_blank" style="display:block;background:linear-gradient(90deg,#ff4500,#ff6b00);color:#000;text-align:center;padding:14px;border-radius:12px;font-weight:800;text-decoration:none;margin-bottom:10px">کانال اصلی</a><a href="https://rubika.ir/PhoenixCheatTrust" target="_blank" style="display:block;background:linear-gradient(90deg,#00c853,#009624);color:#000;text-align:center;padding:14px;border-radius:12px;font-weight:800;text-decoration:none;margin-bottom:10px">کانال اعتماد</a><a href="https://rubika.ir/My_HINATA" target="_blank" style="display:block;background:linear-gradient(90deg,#00a8ff,#0052d4);color:#fff;text-align:center;padding:14px;border-radius:12px;font-weight:800;text-decoration:none">پشتیبانی</a>');}
 

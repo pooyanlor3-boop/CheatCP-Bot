@@ -37,6 +37,10 @@ bot_app = None
 main_loop = None
 USER_STATES = {}
 DATA_LOCK = threading.Lock()
+RATE_LIMITS = {}  # key -> last ts
+LOGIN_FAILS = {}  # ip/fingerprint -> {count, until}
+TELEGRAM_QUEUE = []
+
 
 DEFAULT_DATA = {
     "orders": [],
@@ -60,9 +64,11 @@ DEFAULT_DATA = {
         "referral_reward": 25000,
         "referral_title": "سیستم معرفی دوستان",
         "referral_description": "با معرفی دوستات موجودی رایگان بگیر و باهاش سی‌پی بخر!",
+        "referral_daily_limit": 10,
         "closed_message": "🔒 سایت در حال بروزرسانی است.\n\nلطفاً برای اطلاع از زمان بازگشایی در کانال عضو شوید:",
         "closed_channel": "https://rubika.ir/PhoenixCheat",
         "closed_channel_text": "عضویت در کانال فونیکس چیت",
+        "closed_until": "",
         "timed_coupon_code": "",
         "timed_coupon_percent": 0,
         "timed_coupon_expire": 0,
@@ -70,7 +76,15 @@ DEFAULT_DATA = {
         "mod_price_15": 350000,
         "mod_price_30": 500000,
         "mod_price_antiban": 50000,
-        "mod_enabled": True
+        "mod_enabled": True,
+        "support_user_code": "",
+        "blacklist_codes": [],
+        "blacklist_uids": [],
+        "banner_text": "🎁 افتتاحیه فونیکس چیت — خرید امن سی‌پی و مود منو",
+        "banner_enabled": True,
+        "faq_items": [],
+        "rules_text": "",
+        "rate_limit_review_seconds": 20
     },
     "mod_images": {},
     "coupons": [],
@@ -229,6 +243,14 @@ def save_data(data):
         return False
 
 
+def rate_limited(key, seconds=10):
+    now = time.time()
+    last = RATE_LIMITS.get(key, 0)
+    if now - last < seconds:
+        return True
+    RATE_LIMITS[key] = now
+    return False
+
 def make_code(length=6):
     return "".join(random.choices(string.ascii_uppercase + string.digits, k=length))
 
@@ -328,6 +350,10 @@ def submit_review():
         user_code = str(data.get("user_code", "")).strip().upper()
         if not name or not text:
             return jsonify({"success": False, "message": "نام و متن الزامی است"}), 400
+        ip = get_client_ip()
+        wait_s = int((load_data().get("settings") or {}).get("rate_limit_review_seconds", 20) or 20)
+        if rate_limited(f"review:{ip}", wait_s):
+            return jsonify({"success": False, "message": "لطفاً کمی صبر کنید و دوباره نظر بدهید"}), 429
         if stars < 1 or stars > 5:
             stars = 5
         with DATA_LOCK:
@@ -435,19 +461,46 @@ def register():
                 ref_code = None
             
             hashed_password = generate_password_hash(password)
+            bl = db.get("settings", {}).get("blacklist_codes") or []
+            if code in bl:
+                return jsonify({"success": False, "message": "این آیدی مسدود است"}), 403
             user = {
                 "code": code, "name": name, "rubika": rubika, "password": hashed_password,
                 "balance": 0, "referral_count": 0, "referred_by": None,
                 "ip": get_client_ip(), "fingerprint": fingerprint,
                 "created_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
-                "suspended": False, "avatar": ""
+                "suspended": False, "avatar": "",
+                "last_login": "", "is_new": True,
+                "mod_expires": "", "session_token": make_code(16),
+                "referral_today": 0, "referral_day": ""
             }
             if ref_code and ref_code in users and ref_code != code:
                 referrer = users[ref_code]
-                if referrer.get("ip") != user["ip"] and referrer.get("fingerprint") != fingerprint:
-                    users[ref_code]["balance"] = users[ref_code].get("balance", 0) + db["settings"].get("referral_reward", 25000)
-                    users[ref_code]["referral_count"] = users[ref_code].get("referral_count", 0) + 1
-                    user["referred_by"] = ref_code
+                same_device = (referrer.get("ip") == user["ip"]) or (fingerprint and referrer.get("fingerprint") == fingerprint)
+                if not same_device:
+                    today = datetime.now().strftime("%Y-%m-%d")
+                    if referrer.get("referral_day") != today:
+                        referrer["referral_day"] = today
+                        referrer["referral_today"] = 0
+                    limit = int(db.get("settings", {}).get("referral_daily_limit", 10) or 10)
+                    if referrer.get("referral_today", 0) < limit:
+                        users[ref_code]["balance"] = users[ref_code].get("balance", 0) + db["settings"].get("referral_reward", 25000)
+                        users[ref_code]["referral_count"] = users[ref_code].get("referral_count", 0) + 1
+                        users[ref_code]["referral_today"] = referrer.get("referral_today", 0) + 1
+                        users[ref_code]["referral_day"] = today
+                        user["referred_by"] = ref_code
+                        # notify referrer via group
+                        try:
+                            reward = db["settings"].get("referral_reward", 25000)
+                            async def _ref_msg():
+                                await bot_app.bot.send_message(
+                                    chat_id=GROUP_ID,
+                                    text=f"🎁 رفرال موفق\nمعرف: `{ref_code}`\nجدید: `{code}`\n+{reward:,} تومان",
+                                    parse_mode="Markdown"
+                                )
+                            send_telegram_safe(_ref_msg())
+                        except Exception:
+                            pass
             users[code] = user
             db["users"] = users
             save_data(db)
@@ -470,12 +523,19 @@ def login():
         code = str(data.get("code", "")).strip().upper()
         password = str(data.get("password", "")).strip()
         fingerprint = str(data.get("fingerprint", "")).strip()
+        ip = get_client_ip()
+        fail_key = f"{ip}|{fingerprint[:32]}"
+        # lockout
+        info = LOGIN_FAILS.get(fail_key) or {}
+        if info.get("until", 0) > time.time():
+            left = int(info["until"] - time.time())
+            return jsonify({"success": False, "message": f"تلاش زیاد. {left} ثانیه صبر کنید"}), 429
         if not password:
             return jsonify({"success": False, "message": "اطلاعات ورود ناقص است"}), 400
 
-        # Read outside long lock (cache makes this fast)
         db = load_data()
         users = db.get("users", {}) or {}
+        bl = db.get("settings", {}).get("blacklist_codes") or []
         user = None
         need_upgrade = False
 
@@ -490,37 +550,41 @@ def login():
             return False
 
         if code and code in users:
-            u = users[code]
-            if _match(u, password):
-                user = u
+            if _match(users[code], password):
+                user = users[code]
         else:
-            # password-only login: scan users (no lock held during hash)
             for c_key, u in users.items():
                 if _match(u, password):
                     user = u
                     code = c_key
                     break
-            if not user:
-                return jsonify({"success": False, "message": "رمز عبور اشتباه است"}), 403
 
         if not user:
-            return jsonify({"success": False, "message": "اطلاعات ورود نامعتبر است"}), 403
+            fails = int(info.get("count", 0)) + 1
+            until = time.time() + (60 if fails >= 5 else 0)
+            LOGIN_FAILS[fail_key] = {"count": fails, "until": until}
+            return jsonify({"success": False, "message": "رمز عبور اشتباه است"}), 403
+        if code in bl:
+            return jsonify({"success": False, "message": "این اکانت مسدود است"}), 403
         if user.get("suspended"):
             return jsonify({"success": False, "message": "اکانت تعلیق شده است"}), 403
 
-        # Short lock only if we must write
-        if need_upgrade or fingerprint:
-            with DATA_LOCK:
-                db2 = load_data(force=False)
-                u2 = db2.get("users", {}).get(code)
-                if u2:
-                    if need_upgrade:
-                        u2["password"] = generate_password_hash(password)
-                    if fingerprint:
-                        u2["fingerprint"] = fingerprint
-                    db2["users"][code] = u2
-                    save_data(db2)
-                    user = u2
+        LOGIN_FAILS.pop(fail_key, None)
+        token = make_code(16)
+        with DATA_LOCK:
+            db2 = load_data(force=False)
+            u2 = db2.get("users", {}).get(code)
+            if u2:
+                if need_upgrade:
+                    u2["password"] = generate_password_hash(password)
+                if fingerprint:
+                    u2["fingerprint"] = fingerprint
+                u2["last_login"] = datetime.now().strftime("%Y-%m-%d %H:%M")
+                u2["session_token"] = token
+                u2["ip"] = ip
+                db2["users"][code] = u2
+                save_data(db2)
+                user = u2
 
         return jsonify({
             "success": True,
@@ -528,11 +592,16 @@ def login():
             "name": user.get("name", code),
             "balance": user.get("balance", 0),
             "referral_count": user.get("referral_count", 0),
-            "avatar": user.get("avatar", "")
+            "avatar": user.get("avatar", ""),
+            "session_token": user.get("session_token", token),
+            "last_login": user.get("last_login", ""),
+            "mod_expires": user.get("mod_expires", ""),
+            "is_new": bool(user.get("is_new", False))
         })
     except Exception as e:
         print("login error:", e)
         return jsonify({"success": False, "message": "خطای سرور"}), 500
+
 
 @app_web.route("/api/track", methods=["POST"])
 def track_order():
@@ -593,6 +662,84 @@ def check_coupon():
         return jsonify({"success": False, "message": "کد نامعتبر"}), 400
     except:
         return jsonify({"success": False}), 500
+
+
+@app_web.route("/api/session", methods=["POST"])
+def session_check():
+    try:
+        data = request.get_json(silent=True) or {}
+        code = str(data.get("user_code","")).strip().upper()
+        token = str(data.get("session_token","")).strip()
+        db = load_data()
+        u = (db.get("users") or {}).get(code)
+        if not u or not token or u.get("session_token") != token:
+            return jsonify({"success": False}), 401
+        if u.get("suspended") or code in (db.get("settings",{}).get("blacklist_codes") or []):
+            return jsonify({"success": False, "message": "مسدود"}), 403
+        return jsonify({
+            "success": True,
+            "code": code,
+            "name": u.get("name", code),
+            "balance": u.get("balance", 0),
+            "referral_count": u.get("referral_count", 0),
+            "avatar": u.get("avatar", ""),
+            "last_login": u.get("last_login", ""),
+            "mod_expires": u.get("mod_expires", ""),
+            "is_new": bool(u.get("is_new", False))
+        })
+    except Exception as e:
+        return jsonify({"success": False}), 500
+
+@app_web.route("/api/logout_all", methods=["POST"])
+def logout_all():
+    try:
+        data = request.get_json(silent=True) or {}
+        code = str(data.get("user_code","")).strip().upper()
+        token = str(data.get("session_token","")).strip()
+        with DATA_LOCK:
+            db = load_data()
+            u = (db.get("users") or {}).get(code)
+            if not u or u.get("session_token") != token:
+                return jsonify({"success": False}), 401
+            u["session_token"] = make_code(16)
+            db["users"][code] = u
+            save_data(db)
+        return jsonify({"success": True})
+    except Exception:
+        return jsonify({"success": False}), 500
+
+@app_web.route("/api/public_extra", methods=["GET"])
+def public_extra():
+    try:
+        db = load_data()
+        s = db.get("settings", {})
+        texts = db.get("texts", {})
+        # recent deliveries anonymized
+        recent = []
+        for o in (db.get("orders") or [])[::-1]:
+            if o.get("status") == "accepted":
+                recent.append({
+                    "cp": o.get("cp", 0),
+                    "when": o.get("date", ""),
+                    "type": o.get("product_type") or "cp"
+                })
+            if len(recent) >= 8:
+                break
+        return jsonify({
+            "banner_text": s.get("banner_text", ""),
+            "banner_enabled": s.get("banner_enabled", True),
+            "faq_items": s.get("faq_items") or [],
+            "rules_text": s.get("rules_text") or "",
+            "closed_until": s.get("closed_until") or "",
+            "support_user_code": s.get("support_user_code") or "",
+            "recent_deliveries": recent,
+            "trust_link": texts.get("trust_link") or "https://rubika.ir/PhoenixCheatTrust",
+            "channel_link": texts.get("channel_link") or "https://rubika.ir/PhoenixCheat"
+        })
+    except Exception as e:
+        print(e)
+        return jsonify({}), 500
+
 
 @app_web.route("/api/payment_info", methods=["POST"])
 def payment_info():
@@ -695,7 +842,14 @@ def final_order():
                     uid = str(data.get("uid", "") or "").strip()
                     if not uid.isdigit() or len(uid) != 19:
                         return jsonify({"success": False, "message": "یوآیدی باید ۱۹ رقم باشد"}), 400
+                    bl_uids = db.get("settings", {}).get("blacklist_uids") or []
+                    if uid in bl_uids:
+                        return jsonify({"success": False, "message": "این یوآیدی مسدود است"}), 403
                     o["uid"] = uid
+                    # mark user not new after first completed info
+                    uc = o.get("user_code")
+                    if uc and uc in db.get("users", {}):
+                        db["users"][uc]["is_new"] = False
                     o["email"] = ""
                     o["pass"] = ""
                     o["rubika"] = data.get("rubika", "")
@@ -816,6 +970,10 @@ def get_main_menu(db=None):
         [InlineKeyboardButton("🎁 رفرال: روشن" if ref_enabled else "🎁 رفرال: خاموش", callback_data="menu_referral")],
         [InlineKeyboardButton("💳 کارت", callback_data="menu_card")],
         [InlineKeyboardButton("🟢 سایت باز است" if is_open else "🔴 سایت بسته است", callback_data="menu_toggle_reg")],
+        [InlineKeyboardButton("🛠 وضعیت سیستم", callback_data="menu_sys"),
+         InlineKeyboardButton("📦 JSONBin", callback_data="menu_jsonbin")],
+        [InlineKeyboardButton("🚫 بلک‌لیست", callback_data="menu_blacklist"),
+         InlineKeyboardButton("🛟 پشتیبانی سایت", callback_data="menu_support_acc")],
     ]
 
 async def start(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
@@ -929,6 +1087,7 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
                 [InlineKeyboardButton("🙈 خاموش کردن" if enabled else "🎁 روشن کردن", callback_data="ref_toggle")],
                 [InlineKeyboardButton("💰 تغییر پاداش", callback_data="ref_reward")],
                 [InlineKeyboardButton("📝 توضیحات", callback_data="ref_desc")],
+                [InlineKeyboardButton("📅 سقف رفرال روزانه", callback_data="ref_daily_limit")],
                 [InlineKeyboardButton("🔢 حداکثر نظر روزانه", callback_data="set_max_reviews")],
                 [InlineKeyboardButton("🔙 بازگشت", callback_data="back")]
             ]
@@ -955,6 +1114,9 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
                 reply_markup=InlineKeyboardMarkup(kb)
             )
 
+        elif data == "ref_daily_limit":
+            USER_STATES[ADMIN_ID] = {"state": "waiting_ref_daily"}
+            await query.edit_message_text(f"سقف فعلی: {s.get('referral_daily_limit', 10)}\nعدد جدید را بفرست:")
         elif data == "ref_reward":
             USER_STATES[ADMIN_ID] = {"state": "waiting_ref_reward"}
             await query.edit_message_text("مبلغ پاداش رفرال (تومان):")
@@ -1146,10 +1308,105 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             ]
             await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
 
+        
+        elif data == "menu_sys":
+            orders = db.get("orders", [])
+            users = db.get("users", {})
+            text = (
+                "🛠 وضعیت سیستم\n\n"
+                f"کاربران: {len(users)}\n"
+                f"سفارشات: {len(orders)}\n"
+                f"نظرات: {len(db.get('reviews', []))}\n"
+                f"سایت: {'باز' if s.get('registration_open', True) else 'بسته'}\n"
+                f"رفرال: {'روشن' if s.get('referral_enabled', True) else 'خاموش'}\n"
+                f"سقف رفرال روزانه: {s.get('referral_daily_limit', 10)}\n"
+                f"پشتیبانی سایت: `{s.get('support_user_code') or 'تنظیم نشده'}`"
+            )
+            kb = [
+                [InlineKeyboardButton("🧪 تست ذخیره", callback_data="sys_test_save")],
+                [InlineKeyboardButton("🔙", callback_data="back")]
+            ]
+            await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
+
+        elif data == "sys_test_save":
+            ok = save_data(load_data(force=True))
+            await query.answer("موفق ✅" if ok else "ناموفق ❌", show_alert=True)
+
+        elif data == "menu_jsonbin":
+            bin_id = os.environ.get("JSONBIN_ID") or ""
+            api_key = os.environ.get("JSONBIN_KEY") or ""
+            read_ok = write_ok = False
+            status = "?"
+            size_est = 0
+            try:
+                r = requests.get(
+                    f"https://api.jsonbin.io/v3/b/{bin_id}/latest",
+                    headers={"X-Master-Key": api_key},
+                    timeout=12
+                )
+                status = str(r.status_code)
+                read_ok = r.status_code == 200
+                if read_ok:
+                    rec = r.json().get("record") or {}
+                    size_est = len(json.dumps(rec, ensure_ascii=False).encode("utf-8"))
+                    write_ok = save_data(rec)
+            except Exception as e:
+                status = str(e)[:80]
+            text = (
+                "📦 JSONBin\n\n"
+                f"Bin ID: `{bin_id[:8]}...`\n"
+                f"Key: `{(api_key[:6]+'...') if api_key else '—'}`\n"
+                f"خواندن: {'✅' if read_ok else '❌'} ({status})\n"
+                f"نوشتن: {'✅' if write_ok else '❌'}\n"
+                f"حجم تقریبی دیتا: {size_est/1024:.1f} KB\n\n"
+                "⚠️ تغییر Bin/Key فقط از Environment رندر"
+            )
+            await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙", callback_data="back")]]), parse_mode="Markdown")
+
+        elif data == "menu_blacklist":
+            codes = s.get("blacklist_codes") or []
+            uids = s.get("blacklist_uids") or []
+            text = f"🚫 بلک‌لیست\nآیدی سایت: {len(codes)}\nUID: {len(uids)}"
+            kb = [
+                [InlineKeyboardButton("➕ بلاک آیدی سایت", callback_data="bl_add_code")],
+                [InlineKeyboardButton("➕ بلاک UID", callback_data="bl_add_uid")],
+                [InlineKeyboardButton("📋 نمایش", callback_data="bl_list")],
+                [InlineKeyboardButton("🔙", callback_data="back")]
+            ]
+            await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(kb))
+
+        elif data == "bl_add_code":
+            USER_STATES[ADMIN_ID] = {"state": "waiting_bl_code"}
+            await query.edit_message_text("آیدی سایت برای بلاک:")
+        elif data == "bl_add_uid":
+            USER_STATES[ADMIN_ID] = {"state": "waiting_bl_uid"}
+            await query.edit_message_text("UID ۱۹ رقمی برای بلاک:")
+        elif data == "bl_list":
+            codes = s.get("blacklist_codes") or []
+            uids = s.get("blacklist_uids") or []
+            text = "آیدی‌ها:\n" + ("\n".join(codes[-30:]) or "—") + "\n\nUIDها:\n" + ("\n".join(uids[-30:]) or "—")
+            await query.edit_message_text(text[:3500], reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙", callback_data="menu_blacklist")]]))
+
+        elif data == "menu_support_acc":
+            cur = s.get("support_user_code") or "تنظیم نشده"
+            USER_STATES[ADMIN_ID] = {"state": "waiting_support_code"}
+            await query.edit_message_text(f"آیدی سایت اکانت پشتیبانی فعلی: `{cur}`\n\nآیدی جدید را بفرست:", parse_mode="Markdown")
+
         elif data == "menu_stats":
             orders = db.get("orders", [])
-            text = f"📊 **آمار**\n\nکاربران: {len(db.get('users', {}))}\nسفارشات: {len(orders)}\nتایید شده: {len([o for o in orders if o.get('status') == 'accepted'])}\nدرآمد: {sum(o.get('final_price', 0) for o in orders if o.get('status') == 'accepted'):,}\nنظرات: {len(db.get('reviews', []))}"
-            await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙", callback_data="back")]]), parse_mode="Markdown")
+            today = datetime.now().strftime("%Y-%m-%d")
+            today_orders = [o for o in orders if str(o.get("date","")).startswith(today)]
+            text = (
+                f"📊 آمار\n\n"
+                f"کاربران: {len(db.get('users', {}))}\n"
+                f"سفارشات کل: {len(orders)}\n"
+                f"تایید شده: {len([o for o in orders if o.get('status') == 'accepted'])}\n"
+                f"درآمد کل: {sum(o.get('final_price', 0) for o in orders if o.get('status') == 'accepted'):,}\n"
+                f"نظرات: {len(db.get('reviews', []))}\n\n"
+                f"امروز: {len(today_orders)} سفارش\n"
+                f"درآمد امروز: {sum(o.get('final_price', 0) for o in today_orders if o.get('status')=='accepted'):,}"
+            )
+            await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙", callback_data="back")]]))
 
         elif data == "menu_texts":
             kb = [
@@ -1332,6 +1589,45 @@ async def handle_text(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text(f"✅ {amount:,} تومان کسر شد.", reply_markup=InlineKeyboardMarkup(get_main_menu(db)))
             return
 
+        elif state == "waiting_ref_daily":
+            s["referral_daily_limit"] = int(text)
+            db["settings"] = s
+            save_data(db)
+            USER_STATES.pop(ADMIN_ID, None)
+            await update.message.reply_text("✅ سقف رفرال روزانه ذخیره شد.", reply_markup=InlineKeyboardMarkup(get_main_menu(db)))
+            return
+        elif state == "waiting_bl_code":
+            code = text.strip().upper()
+            lst = s.get("blacklist_codes") or []
+            if code not in lst:
+                lst.append(code)
+            s["blacklist_codes"] = lst
+            db["settings"] = s
+            save_data(db)
+            USER_STATES.pop(ADMIN_ID, None)
+            await update.message.reply_text("✅ بلاک شد.", reply_markup=InlineKeyboardMarkup(get_main_menu(db)))
+            return
+        elif state == "waiting_bl_uid":
+            uid = text.strip()
+            if not uid.isdigit() or len(uid) != 19:
+                await update.message.reply_text("UID باید ۱۹ رقم باشد")
+                return
+            lst = s.get("blacklist_uids") or []
+            if uid not in lst:
+                lst.append(uid)
+            s["blacklist_uids"] = lst
+            db["settings"] = s
+            save_data(db)
+            USER_STATES.pop(ADMIN_ID, None)
+            await update.message.reply_text("✅ UID بلاک شد.", reply_markup=InlineKeyboardMarkup(get_main_menu(db)))
+            return
+        elif state == "waiting_support_code":
+            s["support_user_code"] = text.strip().upper()
+            db["settings"] = s
+            save_data(db)
+            USER_STATES.pop(ADMIN_ID, None)
+            await update.message.reply_text("✅ اکانت پشتیبانی تنظیم شد.", reply_markup=InlineKeyboardMarkup(get_main_menu(db)))
+            return
         elif state == "waiting_ref_reward":
             s["referral_reward"] = int(text)
             db["settings"] = s
