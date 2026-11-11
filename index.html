@@ -134,6 +134,20 @@ body{background:var(--black);background-image:radial-gradient(ellipse at top,rgb
 .mod-compare .box{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:12px;font-size:12px;line-height:1.8}
 .mod-compare .box b{color:var(--fire-orange)}
 
+
+.cp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0 14px}
+.cp-chip{background:rgba(255,107,0,0.12);border:1.5px solid rgba(255,107,0,0.55);color:#ffcc80;border-radius:12px;padding:12px 8px;font-size:13px;font-weight:800;cursor:pointer;text-align:center;font-family:inherit;position:relative}
+.cp-chip.active{background:rgba(255,107,0,0.28);border-color:var(--fire-orange);box-shadow:0 0 14px rgba(255,107,0,0.35)}
+.cp-chip.discount{background:rgba(0,200,83,0.12);border-color:rgba(0,200,83,0.65);color:#69f0ae}
+.cp-chip.discount.active{background:rgba(0,200,83,0.28);box-shadow:0 0 14px rgba(0,200,83,0.35)}
+.cp-chip .badge{display:inline-block;font-size:9px;background:linear-gradient(90deg,#00c853,#00e676);color:#000;padding:2px 6px;border-radius:6px;margin-bottom:4px;font-weight:900}
+.cp-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:#aaa;margin-bottom:10px}
+.cp-legend span{display:flex;align-items:center;gap:5px}
+.cp-dot{width:12px;height:12px;border-radius:3px;display:inline-block}
+.cp-dot.n{background:var(--fire-orange)}
+.cp-dot.d{background:#00c853}
+.cp-selected{text-align:center;font-size:22px;font-weight:900;color:var(--fire-orange);padding:10px;margin-bottom:8px}
+
 </style>
 </head>
 <body>
@@ -299,8 +313,17 @@ body{background:var(--black);background-image:radial-gradient(ellipse at top,rgb
   <div class="header"><button onclick="go('pageMethod')" style="background:none;border:none;color:var(--gray);font-size:22px;cursor:pointer">←</button><h3 style="font-size:18px;font-weight:800">خرید سی‌پی</h3><div style="width:28px"></div></div>
   <div id="productBalanceBox" class="balance-box hidden"><span>موجودی:</span><span class="val" id="productBalance">۰ تومان</span></div>
   <div class="card">
-    <div class="form-group"><label>مقدار سی‌پی</label><input type="text" id="cpAmount" value="10,000" inputmode="numeric" oninput="onCpInput()" style="text-align:center;font-size:20px;font-weight:700"><div class="hint">حداقل ۱۰,۰۰۰ سی‌پی</div></div>
-    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px" id="quickCps"></div>
+    <div class="form-group">
+      <label>مقدار سی‌پی</label>
+      <div class="cp-selected" id="cpSelectedLabel">۱۰,۰۰۰ سی‌پی</div>
+      <input type="hidden" id="cpAmount" value="10000">
+      <div class="cp-legend">
+        <span><i class="cp-dot n"></i> عادی</span>
+        <span><i class="cp-dot d"></i> تخفیف‌خورده</span>
+      </div>
+      <div class="cp-grid" id="cpGrid"></div>
+      <div class="hint">فقط از دکمه‌ها انتخاب کنید — از ۱۰٬۰۰۰ تا ۱۵۰٬۰۰۰ (مضرب ۱۰ هزار). تایپ غیرفعال است.</div>
+    </div>
     <div class="option-card" id="optAntiBan" onclick="toggleAntiBan()"><div class="title">🛡️ ضد بن</div><div class="desc">+ <span id="lblAntibanPrice">۵۰,۰۰۰</span> تومان</div></div>
     <div class="option-card active" id="optNormal" onclick="toggleSpeed('normal')"><div class="title">⏳ معمولی</div><div class="desc">حدود ۵ ساعت</div></div>
     <div class="option-card" id="optFast" onclick="toggleSpeed('fast')"><div class="title">⚡ فوری</div><div class="desc">حدود ۱۰ دقیقه • + <span id="lblFastPrice">۲۰,۰۰۰</span></div></div>
@@ -491,7 +514,7 @@ function parseNum(s){return parseInt(String(s).replace(/,/g,''))||0}
 document.addEventListener('click',e=>{const s=document.createElement('div');s.className='sparkle';s.style.left=e.clientX+'px';s.style.top=e.clientY+'px';s.style.color=['#ff4500','#00bfff','#ffaa00'][Math.floor(Math.random()*3)];document.body.appendChild(s);setTimeout(()=>s.remove(),750);});
 window.addEventListener('scroll',()=>{document.getElementById('backTop').classList.toggle('show',window.scrollY>400);});
 
-function go(id){try{if(typeof paymentTimer!=='undefined'&&paymentTimer&&id!=='pagePayment'){clearInterval(paymentTimer);paymentTimer=null;}if(typeof navStack!=='undefined'){if(navStack[navStack.length-1]!==id){navStack.push(id);history.pushState({page:id},'','#'+id);}}if(typeof updateFloatBack==='function')updateFloatBack();}catch(e){}
+function go(id){try{if(id==='pageProduct'){try{if(typeof renderCpGrid==='function'){if(!order.cp)order.cp=10000;renderCpGrid();calculateTotal();}}catch(e){}}if(typeof paymentTimer!=='undefined'&&paymentTimer&&id!=='pagePayment'){clearInterval(paymentTimer);paymentTimer=null;}if(typeof navStack!=='undefined'){if(navStack[navStack.length-1]!==id){navStack.push(id);history.pushState({page:id},'','#'+id);}}if(typeof updateFloatBack==='function')updateFloatBack();}catch(e){}
   ['senderCard','sentAmount','sentTime','receiptImage','accUid','accRubika','accDesc'].forEach(fid=>{
     const el=document.getElementById(fid);if(el)el.disabled=false;
   });
