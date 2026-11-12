@@ -3,6 +3,7 @@
 # New Update: Added /api/my_orders endpoint for users to view their order history in profile!
 
 import json
+import re
 import os
 import random
 import string
@@ -243,6 +244,55 @@ def save_data(data):
         return False
 
 
+WEAK_PASSWORDS = {
+    "12345678","123456789","password1","password123","qwerty123","abc12345",
+    "11111111","00000000","12qwaszx","admin123","phoenix1","cheat123"
+}
+
+def is_weak_password(pw: str) -> bool:
+    p = (pw or "").strip().lower()
+    if p in WEAK_PASSWORDS:
+        return True
+    if p.isdigit() and len(p) <= 10:
+        return True
+    if len(set(p)) <= 2:
+        return True
+    return False
+
+def security_log(db, event, detail=""):
+    logs = db.setdefault("security_logs", [])
+    logs.append({
+        "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "event": event,
+        "detail": str(detail)[:300],
+        "ip": get_client_ip()
+    })
+    db["security_logs"] = logs[-200:]
+
+def suspend_related(db, user, reason="مشترک بودن دستگاه/IP"):
+    users = db.get("users", {})
+    hit = []
+    ip = user.get("ip")
+    fp = user.get("fingerprint")
+    rubika = user.get("rubika")
+    for c, u in users.items():
+        if u.get("suspended"):
+            continue
+        same = False
+        if ip and u.get("ip") == ip:
+            same = True
+        if fp and u.get("fingerprint") and u.get("fingerprint") == fp:
+            same = True
+        if rubika and u.get("rubika") == rubika and c != user.get("code"):
+            same = True
+        if same:
+            u["suspended"] = True
+            u["suspend_reason"] = reason
+            users[c] = u
+            hit.append(c)
+    db["users"] = users
+    return hit
+
 def rate_limited(key, seconds=10):
     now = time.time()
     last = RATE_LIMITS.get(key, 0)
@@ -428,7 +478,8 @@ def submit_reply():
         return jsonify({"success": True})
     except Exception as e:
         print(e)
-        return jsonify({"success": False}), 500
+        return jsonify({"success": False, "message": "خطا"}), 500
+
 
 @app_web.route("/api/register", methods=["POST"])
 def register():
@@ -440,58 +491,119 @@ def register():
         password = str(data.get("password", "")).strip()
         fingerprint = str(data.get("fingerprint", "")).strip()
         ref_code = str(data.get("ref", "")).strip().upper() or None
+        captcha_ok = str(data.get("captcha_ok", "")).strip()
+        ip = get_client_ip()
 
+        if rate_limited(f"register:{ip}", 8):
+            return jsonify({"success": False, "message": "لطفاً کمی صبر کنید"}), 429
+
+        # captcha: client sends expected sum as captcha_ok matching captcha_a+captcha_b
+        try:
+            ca = int(data.get("captcha_a", -1))
+            cb = int(data.get("captcha_b", -1))
+            cans = int(data.get("captcha_answer", -999))
+            if ca < 0 or cb < 0 or cans != ca + cb:
+                return jsonify({"success": False, "message": "کد امنیتی اشتباه است"}), 400
+        except Exception:
+            return jsonify({"success": False, "message": "کد امنیتی نامعتبر است"}), 400
+
+        # sanitize name
         if not name or len(name) > 15:
             return jsonify({"success": False, "message": "نام باید بین ۱ تا ۱۵ کاراکتر باشد"}), 400
-        if not rubika.startswith("@") or len(rubika) < 6:
+        forbidden = set('<>{}[]\\/`\'";')
+        if any(ch in forbidden for ch in name):
+            return jsonify({"success": False, "message": "نام شامل کاراکتر غیرمجاز است"}), 400
+
+        if not rubika.startswith("@") or len(rubika) < 6 or not re.match(r'^@[a-zA-Z0-9_]{5,14}$', rubika):
             return jsonify({"success": False, "message": "آیدی روبیکا نامعتبر است"}), 400
         if len(code) < 5 or len(code) > 15 or not all(c.isalnum() or c == "_" for c in code):
             return jsonify({"success": False, "message": "آیدی سایت نامعتبر است"}), 400
-        if len(password) < 6 or len(password) > 20:
-            return jsonify({"success": False, "message": "رمز باید ۶ تا ۲۰ کاراکتر باشد"}), 400
+        if len(password) < 8 or len(password) > 20:
+            return jsonify({"success": False, "message": "رمز باید ۸ تا ۲۰ کاراکتر باشد"}), 400
         if not any(c.isalpha() for c in password) or not any(c.isdigit() for c in password):
             return jsonify({"success": False, "message": "رمز باید شامل حروف و عدد باشد"}), 400
+        if is_weak_password(password):
+            return jsonify({"success": False, "message": "رمز خیلی ساده است؛ رمز قوی‌تری انتخاب کنید"}), 400
 
         with DATA_LOCK:
             db = load_data()
-            users = db.get("users", {})
+            s = db.get("settings", {})
+            if not s.get("registration_open", True):
+                return jsonify({"success": False, "message": "ثبت‌نام فعلاً بسته است"}), 403
+
+            users = db.get("users", {}) or {}
             if code in users:
-                return jsonify({"success": False, "message": "این آیدی سایت قبلاً انتخاب شده"}), 400
-            if not db["settings"].get("referral_enabled", True):
-                ref_code = None
-            
-            hashed_password = generate_password_hash(password)
-            bl = db.get("settings", {}).get("blacklist_codes") or []
-            if code in bl:
+                return jsonify({"success": False, "message": "نمی‌توانید با این کد اکانت بسازید"}), 400
+
+            bl_codes = s.get("blacklist_codes") or []
+            bl_rubika = s.get("blacklist_rubika") or []
+            if code in bl_codes:
                 return jsonify({"success": False, "message": "این آیدی مسدود است"}), 403
+            if rubika.lower() in [x.lower() for x in bl_rubika]:
+                return jsonify({"success": False, "message": "این روبیکا مسدود است"}), 403
+
+            # unique rubika
+            for u in users.values():
+                if (u.get("rubika") or "").lower() == rubika.lower():
+                    return jsonify({"success": False, "message": "این آیدی روبیکا قبلاً ثبت شده است"}), 400
+
+            # one account per fingerprint
+            if fingerprint:
+                for u in users.values():
+                    if u.get("fingerprint") and u.get("fingerprint") == fingerprint:
+                        security_log(db, "register_blocked_fp", f"{code}/{fingerprint[:12]}")
+                        save_data(db)
+                        return jsonify({"success": False, "message": "از این دستگاه قبلاً اکانت ساخته شده است"}), 403
+
+            # max 1 register per IP / 24h
+            now = datetime.now()
+            for u in users.values():
+                if u.get("ip") == ip and u.get("created_at"):
+                    try:
+                        created = datetime.strptime(u["created_at"], "%Y-%m-%d %H:%M")
+                        if (now - created).total_seconds() < 86400:
+                            security_log(db, "register_blocked_ip", f"{ip}")
+                            save_data(db)
+                            return jsonify({"success": False, "message": "از این اینترنت امروز یک اکانت ساخته شده است"}), 403
+                    except Exception:
+                        pass
+
+            if not s.get("referral_enabled", True):
+                ref_code = None
+
+            hashed_password = generate_password_hash(password)
             user = {
                 "code": code, "name": name, "rubika": rubika, "password": hashed_password,
                 "balance": 0, "referral_count": 0, "referred_by": None,
-                "ip": get_client_ip(), "fingerprint": fingerprint,
-                "created_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
-                "suspended": False, "avatar": "",
+                "ip": ip, "fingerprint": fingerprint,
+                "created_at": now.strftime("%Y-%m-%d %H:%M"),
+                "suspended": False, "suspend_reason": "",
+                "avatar": "",
                 "last_login": "", "is_new": True,
+                "pending_approval": True,
                 "mod_expires": "", "session_token": make_code(16),
-                "referral_today": 0, "referral_day": ""
+                "referral_today": 0, "referral_day": "",
+                "last_activity": now.strftime("%Y-%m-%d %H:%M")
             }
+
+            # referral only different device
             if ref_code and ref_code in users and ref_code != code:
                 referrer = users[ref_code]
-                same_device = (referrer.get("ip") == user["ip"]) or (fingerprint and referrer.get("fingerprint") == fingerprint)
+                same_device = (referrer.get("ip") == ip) or (fingerprint and referrer.get("fingerprint") == fingerprint)
                 if not same_device:
-                    today = datetime.now().strftime("%Y-%m-%d")
+                    today = now.strftime("%Y-%m-%d")
                     if referrer.get("referral_day") != today:
                         referrer["referral_day"] = today
                         referrer["referral_today"] = 0
-                    limit = int(db.get("settings", {}).get("referral_daily_limit", 10) or 10)
+                    limit = int(s.get("referral_daily_limit", 10) or 10)
                     if referrer.get("referral_today", 0) < limit:
-                        users[ref_code]["balance"] = users[ref_code].get("balance", 0) + db["settings"].get("referral_reward", 25000)
+                        users[ref_code]["balance"] = users[ref_code].get("balance", 0) + s.get("referral_reward", 25000)
                         users[ref_code]["referral_count"] = users[ref_code].get("referral_count", 0) + 1
                         users[ref_code]["referral_today"] = referrer.get("referral_today", 0) + 1
                         users[ref_code]["referral_day"] = today
                         user["referred_by"] = ref_code
-                        # notify referrer via group
                         try:
-                            reward = db["settings"].get("referral_reward", 25000)
+                            reward = s.get("referral_reward", 25000)
                             async def _ref_msg():
                                 await bot_app.bot.send_message(
                                     chat_id=GROUP_ID,
@@ -501,20 +613,47 @@ def register():
                             send_telegram_safe(_ref_msg())
                         except Exception:
                             pass
+
             users[code] = user
             db["users"] = users
+            security_log(db, "register_ok", f"{code} {rubika}")
             save_data(db)
 
-        text = f"🆕 **اکانت جدید**\n\n👤 نام: {name}\n🆔 آیدی: `{code}`\n📱 روبیکا: {rubika}\n🌐 IP: `{user['ip']}`"
-        if user.get("referred_by"):
-            text += f"\n🎁 رفرال از: `{user['referred_by']}`"
-        async def _send():
-            await bot_app.bot.send_message(chat_id=GROUP_ID, text=text, parse_mode="Markdown")
-        send_telegram_safe(_send())
-        return jsonify({"success": True, "code": code, "balance": 0, "name": name})
+        # notify admin for approval
+        try:
+            async def _new_acc():
+                kb = [[
+                    InlineKeyboardButton("✅ تأیید اکانت", callback_data=f"approve_user_{code}"),
+                    InlineKeyboardButton("🚫 رد/تعلیق", callback_data=f"reject_user_{code}")
+                ]]
+                await bot_app.bot.send_message(
+                    chat_id=GROUP_ID,
+                    text=(
+                        f"🆕 درخواست اکانت جدید\n"
+                        f"نام: {name}\n"
+                        f"آیدی سایت: `{code}`\n"
+                        f"روبیکا: {rubika}\n"
+                        f"IP: `{ip}`\n"
+                        f"وضعیت: در انتظار تأیید ادمین"
+                    ),
+                    parse_mode="Markdown",
+                    reply_markup=InlineKeyboardMarkup(kb)
+                )
+            send_telegram_safe(_new_acc())
+        except Exception as e:
+            print("new account notify:", e)
+
+        return jsonify({
+            "success": True,
+            "message": "اکانت ساخته شد. پس از تأیید ادمین می‌توانید وارد شوید.",
+            "code": code,
+            "pending_approval": True
+        })
     except Exception as e:
-        print(e)
+        print("register error:", e)
         return jsonify({"success": False, "message": "خطای سرور"}), 500
+
+
 
 @app_web.route("/api/login", methods=["POST"])
 def login():
@@ -524,8 +663,11 @@ def login():
         password = str(data.get("password", "")).strip()
         fingerprint = str(data.get("fingerprint", "")).strip()
         ip = get_client_ip()
-        fail_key = f"{ip}|{fingerprint[:32]}"
-        # lockout
+        fail_key = f"{ip}|{(fingerprint or '')[:32]}"
+
+        if rate_limited(f"login:{ip}", 3):
+            return jsonify({"success": False, "message": "لطفاً کمی صبر کنید"}), 429
+
         info = LOGIN_FAILS.get(fail_key) or {}
         if info.get("until", 0) > time.time():
             left = int(info["until"] - time.time())
@@ -561,13 +703,50 @@ def login():
 
         if not user:
             fails = int(info.get("count", 0)) + 1
-            until = time.time() + (60 if fails >= 5 else 0)
+            until = time.time() + (300 if fails >= 5 else 0)
             LOGIN_FAILS[fail_key] = {"count": fails, "until": until}
+            # artificial delay against bots
+            time.sleep(min(1.5, 0.35 * fails))
+            try:
+                with DATA_LOCK:
+                    db2 = load_data()
+                    security_log(db2, "login_fail", f"code={code or '?'} ip={ip}")
+                    fails_log = db2.setdefault("login_fails", [])
+                    fails_log.append({"time": datetime.now().strftime("%Y-%m-%d %H:%M"), "ip": ip, "code": code or "?"})
+                    db2["login_fails"] = fails_log[-100:]
+                    save_data(db2)
+            except Exception:
+                pass
             return jsonify({"success": False, "message": "رمز عبور اشتباه است"}), 403
+
         if code in bl:
             return jsonify({"success": False, "message": "این اکانت مسدود است"}), 403
         if user.get("suspended"):
-            return jsonify({"success": False, "message": "اکانت تعلیق شده است"}), 403
+            reason = user.get("suspend_reason") or "تخلف امنیتی"
+            return jsonify({
+                "success": False,
+                "suspended": True,
+                "message": f"اکانت تعلیق شده است.\nدلیل: {reason}\nبرای پیگیری به پشتیبانی پیام دهید:\nhttps://rubika.ir/My_HINATA"
+            }), 403
+        if user.get("pending_approval"):
+            return jsonify({
+                "success": False,
+                "pending": True,
+                "message": "اکانت شما هنوز توسط ادمین تأیید نشده است. لطفاً صبر کنید."
+            }), 403
+
+        # 15 days inactivity expiry
+        try:
+            la = user.get("last_activity") or user.get("last_login") or user.get("created_at")
+            if la:
+                last = datetime.strptime(la[:16], "%Y-%m-%d %H:%M")
+                if (datetime.now() - last).days > 15:
+                    return jsonify({
+                        "success": False,
+                        "message": "نشست منقضی شده (بیش از ۱۵ روز بی‌فعالیتی). دوباره با رمز وارد شوید و در صورت مشکل به پشتیبانی پیام دهید."
+                    }), 403
+        except Exception:
+            pass
 
         LOGIN_FAILS.pop(fail_key, None)
         token = make_code(16)
@@ -578,11 +757,18 @@ def login():
                 if need_upgrade:
                     u2["password"] = generate_password_hash(password)
                 if fingerprint:
+                    # if fingerprint changed drastically, log
+                    old_fp = u2.get("fingerprint") or ""
+                    if old_fp and fingerprint and old_fp != fingerprint:
+                        security_log(db2, "fp_change", f"{code}")
                     u2["fingerprint"] = fingerprint
-                u2["last_login"] = datetime.now().strftime("%Y-%m-%d %H:%M")
+                now_s = datetime.now().strftime("%Y-%m-%d %H:%M")
+                u2["last_login"] = now_s
+                u2["last_activity"] = now_s
                 u2["session_token"] = token
                 u2["ip"] = ip
                 db2["users"][code] = u2
+                security_log(db2, "login_ok", code)
                 save_data(db2)
                 user = u2
 
@@ -675,7 +861,18 @@ def session_check():
         if not u or not token or u.get("session_token") != token:
             return jsonify({"success": False}), 401
         if u.get("suspended") or code in (db.get("settings",{}).get("blacklist_codes") or []):
-            return jsonify({"success": False, "message": "مسدود"}), 403
+            return jsonify({"success": False, "suspended": True, "message": u.get("suspend_reason") or "مسدود"}), 403
+        if u.get("pending_approval"):
+            return jsonify({"success": False, "pending": True, "message": "در انتظار تأیید ادمین"}), 403
+        try:
+            la = u.get("last_activity") or u.get("last_login") or u.get("created_at")
+            if la:
+                last = datetime.strptime(str(la)[:16], "%Y-%m-%d %H:%M")
+                if (datetime.now() - last).days > 15:
+                    return jsonify({"success": False, "message": "نشست منقضی (۱۵ روز بی‌فعالیتی)"}), 401
+        except Exception:
+            pass
+        # touch activity lightly without heavy save every time - skip for speed
         return jsonify({
             "success": True,
             "code": code,
