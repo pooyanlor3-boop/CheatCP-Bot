@@ -81,6 +81,8 @@ DEFAULT_DATA = {
         "support_user_code": "",
         "blacklist_codes": [],
         "blacklist_uids": [],
+        "blocked_fingerprints": [],
+        "blocked_ips": [],
         "banner_text": "🎁 افتتاحیه فونیکس چیت — خرید امن سی‌پی و مود منو",
         "banner_enabled": True,
         "faq_items": [],
@@ -547,10 +549,22 @@ def register():
                 if (u.get("rubika") or "").lower() == rubika.lower():
                     return jsonify({"success": False, "message": "این آیدی روبیکا قبلاً ثبت شده است"}), 400
 
+            # permanent device blocks
+            blocked_fp = s.get("blocked_fingerprints") or []
+            blocked_ips = s.get("blocked_ips") or []
+            if fingerprint and fingerprint in blocked_fp:
+                security_log(db, "register_blocked_fp_perm", fingerprint[:16])
+                save_data(db)
+                return jsonify({"success": False, "message": "این دستگاه برای همیشه مسدود است"}), 403
+            if ip and ip in blocked_ips:
+                security_log(db, "register_blocked_ip_perm", ip)
+                save_data(db)
+                return jsonify({"success": False, "message": "این اینترنت برای همیشه مسدود است"}), 403
+
             # one account per fingerprint
             if fingerprint:
                 for u in users.values():
-                    if u.get("fingerprint") and u.get("fingerprint") == fingerprint:
+                    if u.get("fingerprint") and u.get("fingerprint") == fingerprint and not u.get("_fp_reset"):
                         security_log(db, "register_blocked_fp", f"{code}/{fingerprint[:12]}")
                         save_data(db)
                         return jsonify({"success": False, "message": "از این دستگاه قبلاً اکانت ساخته شده است"}), 403
@@ -1157,7 +1171,8 @@ def get_main_menu(db=None):
     return [
         [InlineKeyboardButton("📦 سفارشات", callback_data="menu_orders"),
          InlineKeyboardButton("📊 آمار", callback_data="menu_stats")],
-        [InlineKeyboardButton("👥 کاربران", callback_data="menu_users")],
+        [InlineKeyboardButton("👥 کاربران", callback_data="menu_users"),
+         InlineKeyboardButton("📱 دستگاه‌ها", callback_data="menu_devices")],
         [InlineKeyboardButton("💬 نظرات", callback_data="menu_reviews"),
          InlineKeyboardButton("🛠️ کامنت ادمین", callback_data="menu_admin_comment")],
         [InlineKeyboardButton("📝 متن‌ها", callback_data="menu_texts")],
@@ -1506,6 +1521,212 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
 
         
+        
+        elif data == "menu_devices":
+            users = db.get("users", {}) or {}
+            # group by fingerprint (or ip if no fp)
+            devices = {}
+            for code, u in users.items():
+                fp = (u.get("fingerprint") or "").strip()
+                ip = (u.get("ip") or "").strip()
+                key = fp if fp else (f"ip:{ip}" if ip else f"user:{code}")
+                devices.setdefault(key, []).append(code)
+            blocked_fp = set(s.get("blocked_fingerprints") or [])
+            blocked_ips = set(s.get("blocked_ips") or [])
+            if not devices:
+                await query.edit_message_text("دستگاهی ثبت نشده.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙", callback_data="back")]]))
+                return
+            # sort newest-ish by listing all
+            text = "📱 دستگاه‌های ثبت‌شده\n(هر خط یک دستگاه)\n\n"
+            kb = []
+            items = list(devices.items())[-25:]
+            for idx, (key, codes) in enumerate(items):
+                u0 = users.get(codes[0], {})
+                short = (key[:14] + "…") if len(key) > 15 else key
+                flag = ""
+                if key in blocked_fp or (key.startswith("ip:") and key[3:] in blocked_ips):
+                    flag = " 🔒"
+                sus = any(users.get(c, {}).get("suspended") for c in codes)
+                if sus:
+                    flag += " 🚫"
+                text += f"{idx+1}. `{short}` | اکانت: {', '.join(codes)}{flag}\n"
+                # callback key must be short - use index into stored list in USER_STATES
+                kb.append([InlineKeyboardButton(f"{idx+1}) {codes[0]}{flag}", callback_data=f"dev_i_{idx}")])
+            USER_STATES[ADMIN_ID] = {"state": "device_list", "items": items}
+            kb.append([InlineKeyboardButton("🔙", callback_data="back")])
+            if len(text) > 3500:
+                text = text[:3500] + "\n…"
+            await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
+
+        elif data.startswith("dev_i_"):
+            try:
+                idx = int(data.replace("dev_i_", ""))
+            except Exception:
+                await query.answer("خطا")
+                return
+            st = USER_STATES.get(ADMIN_ID) or {}
+            items = st.get("items") or []
+            if idx < 0 or idx >= len(items):
+                await query.answer("لیست منقضی شده؛ دوباره دستگاه‌ها را باز کن", show_alert=True)
+                return
+            key, codes = items[idx]
+            users = db.get("users", {}) or {}
+            blocked_fp = s.get("blocked_fingerprints") or []
+            blocked_ips = s.get("blocked_ips") or []
+            lines = [f"📱 جزئیات دستگاه #{idx+1}", f"کلید: `{key[:40]}`", ""]
+            for c in codes:
+                u = users.get(c, {})
+                lines.append(
+                    f"• `{c}` | {u.get('name','-')}\n"
+                    f"  روبیکا: {u.get('rubika','-')}\n"
+                    f"  IP: `{u.get('ip','-')}`\n"
+                    f"  ساخته: {u.get('created_at','-')}\n"
+                    f"  ورود: {u.get('last_login','-')}\n"
+                    f"  وضعیت: {'🚫 تعلیق' if u.get('suspended') else '✅ فعال'}"
+                    + (" | ⏳ تأیید" if u.get('pending_approval') else "")
+                )
+            is_perm = key in blocked_fp or (key.startswith("ip:") and key[3:] in blocked_ips)
+            lines.append("")
+            lines.append("🔒 بلاک دائمی دستگاه: " + ("بله" if is_perm else "خیر"))
+            text = "\n".join(lines)
+            if len(text) > 3500:
+                text = text[:3500]
+            kb = [
+                [InlineKeyboardButton("♻️ ریست دستگاه (اجازه اکانت جدید)", callback_data=f"dev_reset_{idx}")],
+                [InlineKeyboardButton("🚫 تعلیق همه اکانت‌های این دستگاه", callback_data=f"dev_sus_{idx}")],
+                [InlineKeyboardButton("🔒 مسدود دائمی دستگاه", callback_data=f"dev_perm_{idx}")],
+                [InlineKeyboardButton("✅ رفع مسدود دائمی", callback_data=f"dev_unperm_{idx}")],
+                [InlineKeyboardButton("🔙 لیست دستگاه‌ها", callback_data="menu_devices")],
+            ]
+            await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
+
+        elif data.startswith("dev_reset_"):
+            idx = int(data.replace("dev_reset_", ""))
+            st = USER_STATES.get(ADMIN_ID) or {}
+            items = st.get("items") or []
+            if idx < 0 or idx >= len(items):
+                await query.answer("لیست منقضی", show_alert=True)
+                return
+            key, codes = items[idx]
+            users = db.get("users", {}) or {}
+            for c in codes:
+                u = users.get(c)
+                if not u:
+                    continue
+                # clear fingerprint so device can register a new account
+                u["fingerprint"] = ""
+                u["_fp_reset"] = True
+                # free IP 24h lock for one new signup
+                if u.get("ip") and not str(u.get("ip")).startswith("reset:"):
+                    u["ip"] = "reset:" + str(u.get("ip"))
+                users[c] = u
+            # also remove from permanent blocks if present
+            bf = s.get("blocked_fingerprints") or []
+            bi = s.get("blocked_ips") or []
+            if key in bf:
+                bf = [x for x in bf if x != key]
+                s["blocked_fingerprints"] = bf
+            if key.startswith("ip:"):
+                ip = key[3:]
+                bi = [x for x in bi if x != ip]
+                s["blocked_ips"] = bi
+            db["users"] = users
+            db["settings"] = s
+            with DATA_LOCK:
+                save_data(db)
+            # clear login fails soft
+            for k in list(LOGIN_FAILS.keys()):
+                if key[:12] in k:
+                    LOGIN_FAILS.pop(k, None)
+            await query.answer("ریست شد ✅", show_alert=True)
+            await query.edit_message_text(
+                f"♻️ دستگاه ریست شد.\nاکانت‌های قبلی: {', '.join(codes)}\nالان می‌تواند دوباره ثبت‌نام کند (با آیدی جدید).",
+                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 دستگاه‌ها", callback_data="menu_devices")]])
+            )
+
+        elif data.startswith("dev_sus_"):
+            idx = int(data.replace("dev_sus_", ""))
+            st = USER_STATES.get(ADMIN_ID) or {}
+            items = st.get("items") or []
+            if idx < 0 or idx >= len(items):
+                await query.answer("لیست منقضی", show_alert=True)
+                return
+            key, codes = items[idx]
+            users = db.get("users", {}) or {}
+            for c in codes:
+                if c in users:
+                    users[c]["suspended"] = True
+                    users[c]["suspend_reason"] = "تعلیق دستگاه توسط ادمین"
+            db["users"] = users
+            with DATA_LOCK:
+                save_data(db)
+            await query.answer("تعلیق شد", show_alert=True)
+            await query.edit_message_text(
+                f"🚫 همه اکانت‌های این دستگاه تعلیق شدند:\n{', '.join(codes)}",
+                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙", callback_data="menu_devices")]])
+            )
+
+        elif data.startswith("dev_perm_"):
+            idx = int(data.replace("dev_perm_", ""))
+            st = USER_STATES.get(ADMIN_ID) or {}
+            items = st.get("items") or []
+            if idx < 0 or idx >= len(items):
+                await query.answer("لیست منقضی", show_alert=True)
+                return
+            key, codes = items[idx]
+            users = db.get("users", {}) or {}
+            bf = list(s.get("blocked_fingerprints") or [])
+            bi = list(s.get("blocked_ips") or [])
+            if key.startswith("ip:"):
+                ip = key[3:]
+                if ip and ip not in bi:
+                    bi.append(ip)
+            else:
+                if key and key not in bf:
+                    bf.append(key)
+            for c in codes:
+                if c in users:
+                    users[c]["suspended"] = True
+                    users[c]["suspend_reason"] = "مسدود دائمی دستگاه"
+            s["blocked_fingerprints"] = bf
+            s["blocked_ips"] = bi
+            db["settings"] = s
+            db["users"] = users
+            with DATA_LOCK:
+                save_data(db)
+            await query.answer("مسدود دائمی شد", show_alert=True)
+            await query.edit_message_text(
+                f"🔒 دستگاه برای همیشه مسدود شد و اکانت‌ها تعلیق شدند.\n{', '.join(codes)}",
+                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙", callback_data="menu_devices")]])
+            )
+
+        elif data.startswith("dev_unperm_"):
+            idx = int(data.replace("dev_unperm_", ""))
+            st = USER_STATES.get(ADMIN_ID) or {}
+            items = st.get("items") or []
+            if idx < 0 or idx >= len(items):
+                await query.answer("لیست منقضی", show_alert=True)
+                return
+            key, codes = items[idx]
+            bf = list(s.get("blocked_fingerprints") or [])
+            bi = list(s.get("blocked_ips") or [])
+            if key.startswith("ip:"):
+                ip = key[3:]
+                bi = [x for x in bi if x != ip]
+            else:
+                bf = [x for x in bf if x != key]
+            s["blocked_fingerprints"] = bf
+            s["blocked_ips"] = bi
+            db["settings"] = s
+            with DATA_LOCK:
+                save_data(db)
+            await query.answer("رفع مسدود دائمی", show_alert=True)
+            await query.edit_message_text(
+                "✅ مسدود دائمی دستگاه برداشته شد.\n(برای اجازه ثبت‌نام جدید از ریست دستگاه هم استفاده کن)",
+                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙", callback_data="menu_devices")]])
+            )
+
+
         elif data == "menu_sys":
             orders = db.get("orders", [])
             users = db.get("users", {})
