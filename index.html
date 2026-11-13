@@ -264,10 +264,8 @@ body{background:var(--black);background-image:radial-gradient(ellipse at top,rgb
 <div id="pageLogin" class="view">
   <div class="header"><button onclick="go('page1')" style="background:none;border:none;color:var(--gray);font-size:22px;cursor:pointer">←</button><h3 style="font-size:18px;font-weight:800">ورود به حساب</h3><div style="width:28px"></div></div>
   <div class="card">
-    <p style="font-size:13px;color:#bbb;line-height:1.9;margin-bottom:18px;text-align:center">آیدی روبیکا، آیدی سایت و رمز عبور را وارد کنید.</p>
-    <div class="form-group"><label>آیدی روبیکا</label><input type="text" id="loginRubika" placeholder="@username" style="text-align:center;font-size:16px" dir="ltr"><div class="hint">همان آیدی روبیکا که موقع ثبت‌نام زدید</div></div>
-    <div class="form-group"><label>آیدی سایت</label><input type="text" id="loginCode" placeholder="آیدی سایت" style="text-align:center;font-size:16px;letter-spacing:1px" dir="ltr" maxlength="15"><div class="hint">آیدی دائمی اکانت</div></div>
-    <div class="form-group"><label>رمز عبور</label><input type="password" id="loginPass" placeholder="رمز عبور" style="text-align:center;font-size:16px;letter-spacing:2px" dir="ltr"><div class="hint">اگر فراموش کردید به پشتیبانی پیام دهید</div><div class="error-text" id="loginError"></div></div>
+    <p style="font-size:13px;color:#bbb;line-height:1.9;margin-bottom:18px;text-align:center">فقط رمز عبور اکانت خود را وارد کنید.</p>
+    <div class="form-group"><label>رمز عبور</label><input type="password" id="loginPass" placeholder="رمز عبور" style="text-align:center;font-size:16px;letter-spacing:2px" dir="ltr"><div class="hint">همان رمزی که موقع ساخت اکانت ذخیره کردید. اگر فراموش کردید به پشتیبانی پیام دهید.</div><div class="error-text" id="loginError"></div></div>
     <button class="btn-main" onclick="doLogin()">ورود</button>
     <button class="btn-outline" onclick="refreshCaptcha();go('pageRegister')">ساخت اکانت جدید</button>
     <div style="text-align:center;margin-top:22px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08)"><p style="font-size:13px;color:var(--gray);margin-bottom:8px">رمز را فراموش کرده‌اید؟</p><a href="https://rubika.ir/My_HINATA" target="_blank" style="color:var(--fire-blue);font-size:15px;font-weight:700;text-decoration:none">پشتیبانی</a></div>
@@ -640,22 +638,25 @@ async function doRegister(){
     alert((data.message||'اکانت ساخته شد')+'\nآیدی سایت: '+data.code+'\n⚠️ رمز را ذخیره کنید. ورود بعد از تأیید ادمین فعال می‌شود.');
     refreshCaptcha();
     try{const c=data.code;const el=document.getElementById('loginCode');if(el&&c)el.value=c;}catch(e){}go('pageLogin');
-  }else{alert(data.message||'خطا');refreshCaptcha();}}catch(e){alert('خطای شبکه');}
+  }else{
+    const msg=data.message||'خطا';
+    if(data.field==='rubika'){document.getElementById('rubikaError').textContent=msg;}
+    else if(data.field==='code'){document.getElementById('siteIdError').textContent=msg;}
+    else if(data.field==='name'){document.getElementById('nameError').textContent=msg;}
+    else alert(msg);
+    refreshCaptcha();
+  }}catch(e){alert('خطای شبکه');}
   btn.disabled=false;btn.textContent='ساخت اکانت';checkRegisterForm();
 }
 async function doLogin(){
-  let rubika=(document.getElementById('loginRubika')||{}).value.trim();
-  const code=(document.getElementById('loginCode')||{}).value.trim().toUpperCase();
   const pass=document.getElementById('loginPass').value.trim();
-  if(!rubika){document.getElementById('loginError').textContent='آیدی روبیکا را وارد کنید';return;}
-  if(!code){document.getElementById('loginError').textContent='آیدی سایت را وارد کنید';return;}
   if(!pass){document.getElementById('loginError').textContent='رمز را وارد کنید';return;}
-  if(!rubika.startsWith('@')) rubika='@'+rubika;
   document.getElementById('loginError').textContent='';
   const btns=[...document.querySelectorAll('#pageLogin .btn-main')];
   btns.forEach(b=>{b.classList.add('loading');b.dataset._old=b.textContent;b.textContent='⏳ در حال ورود...';b.disabled=true;});
   try{
-    const res=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:code,rubika:rubika,password:pass,fingerprint})});
+    const savedCode=(localStorage.getItem('user_code')||'').toUpperCase();
+    const res=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pass,fingerprint,code:savedCode})});
     const data=await res.json();
     if(data.suspended){alert(data.message||'اکانت تعلیق شده — به پشتیبانی پیام دهید');return;}
     if(data.success){

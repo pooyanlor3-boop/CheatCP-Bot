@@ -535,7 +535,7 @@ def register():
 
             users = db.get("users", {}) or {}
             if code in users:
-                return jsonify({"success": False, "message": "نمی‌توانید با این کد اکانت بسازید"}), 400
+                return jsonify({"success": False, "field": "code", "message": "این آیدی سایت تکراری است"}), 400
 
             bl_codes = s.get("blacklist_codes") or []
             bl_rubika = s.get("blacklist_rubika") or []
@@ -547,7 +547,7 @@ def register():
             # unique rubika
             for u in users.values():
                 if (u.get("rubika") or "").lower() == rubika.lower():
-                    return jsonify({"success": False, "message": "این آیدی روبیکا قبلاً ثبت شده است"}), 400
+                    return jsonify({"success": False, "field": "rubika", "message": "این آیدی روبیکا تکراری است"}), 400
 
             # permanent device blocks
             blocked_fp = s.get("blocked_fingerprints") or []
@@ -649,8 +649,8 @@ def register():
 def login():
     try:
         data = request.get_json(silent=True) or {}
-        code = str(data.get("code", "")).strip().upper()
-        rubika = str(data.get("rubika", "")).strip()
+        # optional code from localStorage speeds up lookup; not required
+        code_hint = str(data.get("code", "")).strip().upper()
         password = str(data.get("password", "")).strip()
         fingerprint = str(data.get("fingerprint", "")).strip()
         ip = get_client_ip()
@@ -663,47 +663,42 @@ def login():
         if info.get("until", 0) > time.time():
             left = int(info["until"] - time.time())
             return jsonify({"success": False, "message": f"تلاش زیاد. {left} ثانیه صبر کنید"}), 429
-
-        if not code:
-            return jsonify({"success": False, "message": "آیدی سایت را وارد کنید"}), 400
-        if not rubika:
-            return jsonify({"success": False, "message": "آیدی روبیکا را وارد کنید"}), 400
         if not password:
             return jsonify({"success": False, "message": "رمز را وارد کنید"}), 400
-
-        if not rubika.startswith("@"):
-            rubika = "@" + rubika
 
         db = load_data()
         users = db.get("users", {}) or {}
         bl = db.get("settings", {}).get("blacklist_codes") or []
-        user = users.get(code)
+        user = None
+        code = ""
         need_upgrade = False
+
+        def _match(u, pw):
+            nonlocal need_upgrade
+            stored = u.get("password", "")
+            if stored.startswith("pbkdf2:") or stored.startswith("scrypt:"):
+                return check_password_hash(stored, pw)
+            if stored == pw:
+                need_upgrade = True
+                return True
+            return False
+
+        # fast path: known site id from previous session
+        if code_hint and code_hint in users and _match(users[code_hint], password):
+            user = users[code_hint]
+            code = code_hint
+        else:
+            # password-only scan (keep light for small user base)
+            for c_key, u in users.items():
+                if _match(u, password):
+                    user = u
+                    code = c_key
+                    break
 
         if not user:
             fails = int(info.get("count", 0)) + 1
             LOGIN_FAILS[fail_key] = {"count": fails, "until": time.time() + (180 if fails >= 5 else 0)}
-            return jsonify({"success": False, "message": "اطلاعات ورود اشتباه است"}), 403
-
-        # all three must match
-        stored_rubika = (user.get("rubika") or "").strip()
-        if stored_rubika.lower() != rubika.lower():
-            fails = int(info.get("count", 0)) + 1
-            LOGIN_FAILS[fail_key] = {"count": fails, "until": time.time() + (180 if fails >= 5 else 0)}
-            return jsonify({"success": False, "message": "اطلاعات ورود اشتباه است"}), 403
-
-        stored = user.get("password", "")
-        ok = False
-        if stored.startswith("pbkdf2:") or stored.startswith("scrypt:"):
-            ok = check_password_hash(stored, password)
-        elif stored == password:
-            ok = True
-            need_upgrade = True
-
-        if not ok:
-            fails = int(info.get("count", 0)) + 1
-            LOGIN_FAILS[fail_key] = {"count": fails, "until": time.time() + (180 if fails >= 5 else 0)}
-            return jsonify({"success": False, "message": "اطلاعات ورود اشتباه است"}), 403
+            return jsonify({"success": False, "message": "رمز عبور اشتباه است"}), 403
 
         if code in bl or user.get("suspended"):
             reason = user.get("suspend_reason") or "مسدود / تعلیق"
@@ -716,7 +711,6 @@ def login():
         LOGIN_FAILS.pop(fail_key, None)
         token = make_code(16)
         now_s = datetime.now().strftime("%Y-%m-%d %H:%M")
-
         user["last_login"] = now_s
         user["last_activity"] = now_s
         user["session_token"] = token
@@ -735,10 +729,8 @@ def login():
                     save_data(snapshot)
             except Exception as e:
                 print("login bg save:", e)
-
         try:
-            snap = copy.deepcopy(db)
-            threading.Thread(target=_bg_save, args=(snap,), daemon=True).start()
+            threading.Thread(target=_bg_save, args=(copy.deepcopy(db),), daemon=True).start()
         except Exception:
             try:
                 save_data(db)
