@@ -1504,6 +1504,7 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
                     lines.append(f"{idx+1}) {codes[0]} | {short}{flag}")
                     lines.append(f"   accounts: {', '.join(codes)}")
                     kb.append([InlineKeyboardButton(f"{idx+1}) {codes[0]}{flag}", callback_data=f"dev_i_{idx}")])
+                kb.append([InlineKeyboardButton("♻️ ریست همه دستگاه‌ها", callback_data="dev_reset_all")])
                 kb.append([InlineKeyboardButton("بازگشت", callback_data="back")])
                 text = "\n".join(lines)
                 if len(text) > 3500:
@@ -1559,7 +1560,44 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
                 except Exception:
                     pass
 
+        elif data == "dev_reset_all":
+            try:
+                await query.answer()
+                users = db.get("users", {}) or {}
+                n = 0
+                for c, u in list(users.items()):
+                    if not u:
+                        continue
+                    u["fingerprint"] = ""
+                    u["_fp_reset"] = True
+                    if u.get("ip") and not str(u.get("ip")).startswith("reset:"):
+                        u["ip"] = "reset:" + str(u.get("ip"))
+                    users[c] = u
+                    n += 1
+                # clear permanent device blocks too (not account suspend)
+                s["blocked_fingerprints"] = []
+                s["blocked_ips"] = []
+                db["users"] = users
+                db["settings"] = s
+                with DATA_LOCK:
+                    save_data(db)
+                LOGIN_FAILS.clear()
+                await query.edit_message_text(
+                    f"ریست همه دستگاه‌ها انجام شد.\nتعداد اکانت‌ها: {n}\nالان همه می‌توانند دوباره ثبت‌نام کنند (با آیدی جدید).",
+                    reply_markup=InlineKeyboardMarkup([
+                        [InlineKeyboardButton("دستگاه‌ها", callback_data="menu_devices")],
+                        [InlineKeyboardButton("بازگشت", callback_data="back")]
+                    ])
+                )
+            except Exception as e:
+                print("dev_reset_all error:", e)
+                try:
+                    await query.answer(str(e)[:100], show_alert=True)
+                except Exception:
+                    pass
+
         elif data.startswith("dev_reset_"):
+
             try:
                 await query.answer()
                 idx = int(data.replace("dev_reset_", ""))
