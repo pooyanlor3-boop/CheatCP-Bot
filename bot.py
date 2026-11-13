@@ -1469,8 +1469,12 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
                 users = db.get("users", {}) or {}
                 devices = {}
                 for code, u in users.items():
+                    if u.get("_fp_reset") or u.get("device_cleared"):
+                        continue  # ریست‌شده‌ها در لیست نیایند
                     fp = (u.get("fingerprint") or "").strip()
                     ip = (u.get("ip") or "").strip()
+                    if not fp and (not ip or str(ip).startswith("reset:")):
+                        continue
                     key = fp if fp else (f"ip:{ip}" if ip else f"user:{code}")
                     devices.setdefault(key, []).append(code)
                 blocked_fp = set((s.get("blocked_fingerprints") or []))
@@ -1561,6 +1565,7 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
                         continue
                     u["fingerprint"] = ""
                     u["_fp_reset"] = True
+                    u["device_cleared"] = True
                     if u.get("ip") and not str(u.get("ip")).startswith("reset:"):
                         u["ip"] = "reset:" + str(u.get("ip"))
                     users[c] = u
@@ -1605,6 +1610,7 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
                         continue
                     u["fingerprint"] = ""
                     u["_fp_reset"] = True
+                    u["device_cleared"] = True
                     if u.get("ip") and not str(u.get("ip")).startswith("reset:"):
                         u["ip"] = "reset:" + str(u.get("ip"))
                     users[c] = u

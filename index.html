@@ -283,7 +283,7 @@ body{background:var(--black);background-image:radial-gradient(ellipse at top,rgb
     <div class="check-row"><div class="check-item" id="checkLetter"><div class="dot">✓</div> حروف</div><div class="check-item" id="checkNumber"><div class="dot">✓</div> عدد</div><div class="check-item" id="checkLen"><div class="dot">✓</div> طول</div></div>
     <div class="hint">۸ تا ۲۰ کاراکتر • حروف + عدد</div><div class="error-text" id="passError"></div></div>
     <div class="warn-box">⚠️ <strong>هشدار:</strong> نام کاربری و رمز ورود شماست. حتماً هر دو را کپی و ذخیره کنید.<button class="copy-btn" style="width:100%;margin-top:12px" onclick="copyPass()">📋 کپی رمز</button><button type="button" class="copy-btn" style="width:100%;margin-top:8px" onclick="copySiteId()">📋 کپی نام کاربری</button></div>
-    <div class="form-group" id="regCaptchaBox"><label>کد امنیتی</label><div style="display:flex;gap:8px;align-items:center;justify-content:center;margin-bottom:8px"><span id="captchaQ" style="font-weight:800;font-size:18px"></span></div><input type="number" id="regCaptcha" placeholder="حاصل جمع؟" style="text-align:center" oninput="checkRegisterForm()"><div class="error-text" id="captchaError"></div></div>
+    <div class="form-group" id="regCaptchaBox"><label>کد امنیتی</label><div style="display:flex;gap:8px;align-items:center;justify-content:center;margin-bottom:8px;direction:ltr"><span id="captchaQ" style="font-weight:800;font-size:20px;letter-spacing:2px;direction:ltr;unicode-bidi:isolate"></span></div><input type="number" id="regCaptcha" inputmode="numeric" placeholder="مثال: 10" style="text-align:center;direction:ltr" oninput="checkRegisterForm()"><div class="hint" style="text-align:center">عدد حاصل جمع را وارد کنید</div><div class="error-text" id="captchaError"></div></div>
     <button class="btn-main" id="btnRegister" onclick="doRegister()" disabled>ساخت اکانت</button>
   </div>
 </div>
@@ -499,6 +499,7 @@ body{background:var(--black);background-image:radial-gradient(ellipse at top,rgb
 <script>
 let SETTINGS={},TEXTS={},currentUser=null;
 let captchaA=0,captchaB=0;
+setTimeout(function(){try{refreshCaptcha();}catch(e){}},300);
 let order={cp:10000,antiban:false,speed:'normal',discount:0,discountType:'',totalPrice:0,balanceUsed:0};
 let order_code='',paymentReady=false,selectedStars=0,replyToId=null;
 let paymentTimer=null;
@@ -614,8 +615,12 @@ function checkRegisterForm(){
   if(!hasL||!hasN||!goodLen){document.getElementById('passError').textContent='حروف+عدد • ۸-۲۰';ok=false;}else document.getElementById('passError').textContent='';
   const capt=document.getElementById('regCaptcha');
   if(capt){
-    const ans=parseInt(capt.value,10);
-    if(ans!==captchaA+captchaB){document.getElementById('captchaError').textContent='کد امنیتی اشتباه';ok=false;}
+    if(!captchaA || !captchaB) refreshCaptcha();
+    const raw=String(capt.value||'').trim();
+    const ans=parseInt(raw,10);
+    const expected=captchaA+captchaB;
+    if(!raw){document.getElementById('captchaError').textContent='';ok=false;}
+    else if(isNaN(ans) || ans!==expected){document.getElementById('captchaError').textContent=(raw.length>=2||ans===expected)? 'کد امنیتی اشتباه':'';ok=false;}
     else document.getElementById('captchaError').textContent='';
   }
   document.getElementById('btnRegister').disabled=!ok;
@@ -624,9 +629,11 @@ function refreshCaptcha(){
   captchaA=Math.floor(Math.random()*8)+2;
   captchaB=Math.floor(Math.random()*8)+2;
   const q=document.getElementById('captchaQ');
-  if(q) q.textContent=captchaA+' + '+captchaB+' = ?';
+  if(q){ q.setAttribute('dir','ltr'); q.textContent=captchaA+' + '+captchaB+' = ?'; }
   const inp=document.getElementById('regCaptcha');
-  if(inp) inp.value='';
+  if(inp){ inp.value=''; inp.setAttribute('dir','ltr'); }
+  const err=document.getElementById('captchaError');
+  if(err) err.textContent='';
 }
 function generatePass(){const chars='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';let p='';for(let i=0;i<10;i++)p+=chars[Math.floor(Math.random()*chars.length)];document.getElementById('regPass').value=p;checkRegisterForm();}
 function copySiteId(){
