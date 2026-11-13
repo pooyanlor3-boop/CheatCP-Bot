@@ -264,8 +264,9 @@ body{background:var(--black);background-image:radial-gradient(ellipse at top,rgb
 <div id="pageLogin" class="view">
   <div class="header"><button onclick="go('page1')" style="background:none;border:none;color:var(--gray);font-size:22px;cursor:pointer">←</button><h3 style="font-size:18px;font-weight:800">ورود به حساب</h3><div style="width:28px"></div></div>
   <div class="card">
-    <p style="font-size:13px;color:#bbb;line-height:1.9;margin-bottom:18px;text-align:center">فقط رمز عبور اکانت خود را وارد کنید.</p>
-    <div class="form-group"><label>رمز عبور</label><input type="password" id="loginPass" placeholder="رمز عبور" style="text-align:center;font-size:16px;letter-spacing:2px" dir="ltr"><div class="hint">همان رمزی که موقع ساخت اکانت ذخیره کردید. اگر فراموش کردید به پشتیبانی پیام دهید.</div><div class="error-text" id="loginError"></div></div>
+    <p style="font-size:13px;color:#bbb;line-height:1.9;margin-bottom:18px;text-align:center">نام کاربری و رمز عبور خود را وارد کنید.</p>
+    <div class="form-group"><label>نام کاربری</label><input type="text" id="loginCode" placeholder="نام کاربری" style="text-align:center;font-size:16px;letter-spacing:1px" dir="ltr" maxlength="15"><div class="hint">همان نام کاربری که موقع ساخت اکانت ساختید</div></div>
+    <div class="form-group"><label>رمز عبور</label><input type="password" id="loginPass" placeholder="رمز عبور" style="text-align:center;font-size:16px;letter-spacing:2px" dir="ltr"><div class="hint">اگر فراموش کردید به پشتیبانی پیام دهید</div><div class="error-text" id="loginError"></div></div>
     <button class="btn-main" onclick="doLogin()">ورود</button>
     <button class="btn-outline" onclick="refreshCaptcha();go('pageRegister')">ساخت اکانت جدید</button>
     <div style="text-align:center;margin-top:22px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08)"><p style="font-size:13px;color:var(--gray);margin-bottom:8px">رمز را فراموش کرده‌اید؟</p><a href="https://rubika.ir/My_HINATA" target="_blank" style="color:var(--fire-blue);font-size:15px;font-weight:700;text-decoration:none">پشتیبانی</a></div>
@@ -277,11 +278,11 @@ body{background:var(--black);background-image:radial-gradient(ellipse at top,rgb
   <div class="card">
     <div class="form-group"><label>نام نمایشی</label><input type="text" id="regName" maxlength="15" oninput="checkRegisterForm()"><div class="hint">حداکثر ۱۵ کاراکتر</div><div class="error-text" id="nameError"></div></div>
     <div class="form-group"><label>آیدی روبیکا</label><input type="text" id="regRubika" placeholder="@username" dir="ltr" oninput="checkRegisterForm()"><div class="hint">با @ • حداقل ۵ • حروف لاتین، عدد و _</div><div class="error-text" id="rubikaError"></div></div>
-    <div class="form-group"><label>آیدی سایت (دائمی)</label><input type="text" id="regSiteId" placeholder="phoenix81" dir="ltr" maxlength="15" oninput="checkRegisterForm()"><div class="hint">دیگر قابل تغییر نیست</div><div class="error-text" id="siteIdError"></div></div>
+    <div class="form-group"><label>نام کاربری (دائمی)</label><input type="text" id="regSiteId" placeholder="phoenix81" dir="ltr" maxlength="15" oninput="checkRegisterForm()"><div class="hint">نام ورود شماست و دیگر قابل تغییر نیست</div><div class="error-text" id="siteIdError"></div></div>
     <div class="form-group"><label>رمز عبور</label><div style="display:flex;gap:8px"><input type="text" id="regPass" style="flex:1;text-align:center" dir="ltr" oninput="checkRegisterForm()"><button type="button" class="btn-blue" style="width:auto;padding:0 14px;margin:0;font-size:13px" onclick="generatePass()">خودکار</button></div>
     <div class="check-row"><div class="check-item" id="checkLetter"><div class="dot">✓</div> حروف</div><div class="check-item" id="checkNumber"><div class="dot">✓</div> عدد</div><div class="check-item" id="checkLen"><div class="dot">✓</div> طول</div></div>
     <div class="hint">۸ تا ۲۰ کاراکتر • حروف + عدد</div><div class="error-text" id="passError"></div></div>
-    <div class="warn-box">⚠️ <strong>هشدار:</strong> این رمز ورود شماست. حتماً کپی و ذخیره کنید.<button class="copy-btn" style="width:100%;margin-top:12px" onclick="copyPass()">📋 کپی رمز</button></div>
+    <div class="warn-box">⚠️ <strong>هشدار:</strong> نام کاربری و رمز ورود شماست. حتماً هر دو را کپی و ذخیره کنید.<button class="copy-btn" style="width:100%;margin-top:12px" onclick="copyPass()">📋 کپی رمز</button><button type="button" class="copy-btn" style="width:100%;margin-top:8px" onclick="copySiteId()">📋 کپی نام کاربری</button></div>
     <div class="form-group" id="regCaptchaBox"><label>کد امنیتی</label><div style="display:flex;gap:8px;align-items:center;justify-content:center;margin-bottom:8px"><span id="captchaQ" style="font-weight:800;font-size:18px"></span></div><input type="number" id="regCaptcha" placeholder="حاصل جمع؟" style="text-align:center" oninput="checkRegisterForm()"><div class="error-text" id="captchaError"></div></div>
     <button class="btn-main" id="btnRegister" onclick="doRegister()" disabled>ساخت اکانت</button>
   </div>
@@ -451,7 +452,7 @@ body{background:var(--black);background-image:radial-gradient(ellipse at top,rgb
     </div>
     <div class="notice-box">نام و آیدی سایت قابل تغییر نیستند. برای تغییر رمز با پشتیبانی تماس بگیرید.</div>
     <div class="form-group"><label>نام فعلی</label><input type="text" id="editNameShow" disabled style="opacity:0.7"></div>
-    <div class="form-group"><label>آیدی سایت</label><input type="text" id="editIdShow" disabled style="opacity:0.7" dir="ltr"></div>
+    <div class="form-group"><label>نام کاربری</label><input type="text" id="editIdShow" disabled style="opacity:0.7" dir="ltr"></div>
     <button class="btn-main" onclick="saveAvatar()">ذخیره عکس پروفایل</button>
     <button class="btn-outline" onclick="go('pageProfile')">بازگشت</button>
   </div>
@@ -628,6 +629,11 @@ function refreshCaptcha(){
   if(inp) inp.value='';
 }
 function generatePass(){const chars='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';let p='';for(let i=0;i<10;i++)p+=chars[Math.floor(Math.random()*chars.length)];document.getElementById('regPass').value=p;checkRegisterForm();}
+function copySiteId(){
+  const v=(document.getElementById('regSiteId')||{}).value.trim().toUpperCase();
+  if(!v){alert('نام کاربری خالی است');return;}
+  navigator.clipboard.writeText(v).then(()=>alert('نام کاربری کپی شد: '+v)).catch(()=>alert(v));
+}
 function copyPass(){const p=document.getElementById('regPass').value;if(!p)return alert('اول رمز را بسازید');navigator.clipboard.writeText(p).then(()=>alert('کپی شد!'));}
 
 async function doRegister(){
@@ -635,7 +641,7 @@ async function doRegister(){
   const btn=document.getElementById('btnRegister');btn.disabled=true;btn.textContent='در حال ساخت...';
   try{const res=await fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:document.getElementById('regName').value.trim(),rubika:document.getElementById('regRubika').value.trim(),code:document.getElementById('regSiteId').value.trim().toUpperCase(),password:document.getElementById('regPass').value.trim(),fingerprint,ref:getRef(),captcha_a:captchaA,captcha_b:captchaB,captcha_answer:parseInt((document.getElementById('regCaptcha')||{}).value||'-1',10)})});const data=await res.json();
   if(data.success){
-    alert((data.message||'اکانت ساخته شد')+'\nآیدی سایت: '+data.code+'\n⚠️ رمز را ذخیره کنید. ورود بعد از تأیید ادمین فعال می‌شود.');
+    alert('✅ اکانت ساخته شد\n\nنام کاربری: '+data.code+'\n⚠️ حتماً نام کاربری و رمز را ذخیره کنید');
     refreshCaptcha();
     try{const c=data.code;const el=document.getElementById('loginCode');if(el&&c)el.value=c;}catch(e){}go('pageLogin');
   }else{
@@ -649,14 +655,15 @@ async function doRegister(){
   btn.disabled=false;btn.textContent='ساخت اکانت';checkRegisterForm();
 }
 async function doLogin(){
+  const code=(document.getElementById('loginCode')||{}).value.trim().toUpperCase();
   const pass=document.getElementById('loginPass').value.trim();
+  if(!code){document.getElementById('loginError').textContent='نام کاربری را وارد کنید';return;}
   if(!pass){document.getElementById('loginError').textContent='رمز را وارد کنید';return;}
   document.getElementById('loginError').textContent='';
   const btns=[...document.querySelectorAll('#pageLogin .btn-main')];
   btns.forEach(b=>{b.classList.add('loading');b.dataset._old=b.textContent;b.textContent='⏳ در حال ورود...';b.disabled=true;});
   try{
-    const savedCode=(localStorage.getItem('user_code')||'').toUpperCase();
-    const res=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pass,fingerprint,code:savedCode})});
+    const res=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:code,password:pass,fingerprint})});
     const data=await res.json();
     if(data.suspended){alert(data.message||'اکانت تعلیق شده — به پشتیبانی پیام دهید');return;}
     if(data.success){
@@ -982,7 +989,7 @@ async function loadReviews(){
     const av = r.avatar ? `<img src="${r.avatar}" alt="">` : '👤';
     const replies=(r.replies||[]).filter(x=>x.status==='approved'||x.is_admin).map(rep=>`<div class="reply-item ${rep.is_admin?'admin':''}"><div class="rname">${rep.is_admin?'🛠️ پشتیبانی فونیکس':(rep.name||'کاربر')}</div><div>${rep.text||''}</div></div>`).join('');
     const safeName=(r.name||'کاربر').replace(/'/g,'').replace(/"/g,'');
-    return `<div class="review-card"><div class="review-header"><div class="review-avatar">${av}</div><div><div class="review-name">${r.name||'کاربر'}${r.user_code?(' · @'+r.user_code):''}</div><div class="review-id">${relativeDate(r.date)}</div></div></div><div class="review-stars">${'★'.repeat(r.stars||5)}${'☆'.repeat(5-(r.stars||5))}</div><div class="review-text">${r.text||''}</div>${replies?`<div class="review-replies">${replies}</div>`:''}<button class="review-reply-btn" onclick="openReply('${r.id}','${safeName}')">💬 پاسخ</button></div>`;
+    return `<div class="review-card"><div class="review-header"><div class="review-avatar">${av}</div><div><div class="review-name">${r.name||'کاربر'}</div><div class="review-id">@${r.user_code||'---'} · ${relativeDate(r.date)}</div></div></div><div class="review-stars">${'★'.repeat(r.stars||5)}${'☆'.repeat(5-(r.stars||5))}</div><div class="review-text">${r.text||''}</div>${replies?`<div class="review-replies">${replies}</div>`:''}<button class="review-reply-btn" onclick="openReply('${r.id}','${safeName}')">💬 پاسخ</button></div>`;
   }).join('');
   }catch(e){}
 }

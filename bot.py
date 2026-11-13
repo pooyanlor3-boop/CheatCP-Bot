@@ -535,7 +535,7 @@ def register():
 
             users = db.get("users", {}) or {}
             if code in users:
-                return jsonify({"success": False, "field": "code", "message": "این آیدی سایت تکراری است"}), 400
+                return jsonify({"success": False, "field": "code", "message": "این نام کاربری تکراری است"}), 400
 
             bl_codes = s.get("blacklist_codes") or []
             bl_rubika = s.get("blacklist_rubika") or []
@@ -649,8 +649,7 @@ def register():
 def login():
     try:
         data = request.get_json(silent=True) or {}
-        # optional code from localStorage speeds up lookup; not required
-        code_hint = str(data.get("code", "")).strip().upper()
+        code = str(data.get("code", "")).strip().upper()
         password = str(data.get("password", "")).strip()
         fingerprint = str(data.get("fingerprint", "")).strip()
         ip = get_client_ip()
@@ -663,42 +662,34 @@ def login():
         if info.get("until", 0) > time.time():
             left = int(info["until"] - time.time())
             return jsonify({"success": False, "message": f"تلاش زیاد. {left} ثانیه صبر کنید"}), 429
+        if not code:
+            return jsonify({"success": False, "message": "نام کاربری را وارد کنید"}), 400
         if not password:
             return jsonify({"success": False, "message": "رمز را وارد کنید"}), 400
 
         db = load_data()
         users = db.get("users", {}) or {}
         bl = db.get("settings", {}).get("blacklist_codes") or []
-        user = None
-        code = ""
+        user = users.get(code)
         need_upgrade = False
-
-        def _match(u, pw):
-            nonlocal need_upgrade
-            stored = u.get("password", "")
-            if stored.startswith("pbkdf2:") or stored.startswith("scrypt:"):
-                return check_password_hash(stored, pw)
-            if stored == pw:
-                need_upgrade = True
-                return True
-            return False
-
-        # fast path: known site id from previous session
-        if code_hint and code_hint in users and _match(users[code_hint], password):
-            user = users[code_hint]
-            code = code_hint
-        else:
-            # password-only scan (keep light for small user base)
-            for c_key, u in users.items():
-                if _match(u, password):
-                    user = u
-                    code = c_key
-                    break
 
         if not user:
             fails = int(info.get("count", 0)) + 1
             LOGIN_FAILS[fail_key] = {"count": fails, "until": time.time() + (180 if fails >= 5 else 0)}
-            return jsonify({"success": False, "message": "رمز عبور اشتباه است"}), 403
+            return jsonify({"success": False, "message": "نام کاربری یا رمز اشتباه است"}), 403
+
+        stored = user.get("password", "")
+        ok = False
+        if stored.startswith("pbkdf2:") or stored.startswith("scrypt:"):
+            ok = check_password_hash(stored, password)
+        elif stored == password:
+            ok = True
+            need_upgrade = True
+
+        if not ok:
+            fails = int(info.get("count", 0)) + 1
+            LOGIN_FAILS[fail_key] = {"count": fails, "until": time.time() + (180 if fails >= 5 else 0)}
+            return jsonify({"success": False, "message": "نام کاربری یا رمز اشتباه است"}), 403
 
         if code in bl or user.get("suspended"):
             reason = user.get("suspend_reason") or "مسدود / تعلیق"
