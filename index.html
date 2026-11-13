@@ -160,7 +160,7 @@ body{background:var(--black);background-image:radial-gradient(ellipse at top,rgb
 </div>
 <div class="app">
 
-<div id="pageClosed" class="view"><div class="closed-page"><div class="icon">🔒</div><h2>سایت موقتاً بسته است</h2><p id="closedMessageText">سایت در حال بروزرسانی است.</p><a id="closedChannelBtn" href="https://rubika.ir/PhoenixCheat" target="_blank" class="btn-main" style="text-decoration:none">عضویت در کانال</a></div></div>
+<div id="pageClosed" class="view"><div class="closed-page"><div class="icon">🔒</div><h2>سایت موقتاً بسته است</h2><p id="closedMessageText">سایت در حال بروزرسانی است.</p><a id="closedChannelBtn" href="https://rubika.ir/PhoenixCheat" target="_blank" class="btn-main" style="text-decoration:none;margin-bottom:12px">عضویت در کانال اطلاع‌رسانی</a><a href="https://rubika.ir/My_HINATA" target="_blank" class="btn-outline" style="text-decoration:none;display:block;text-align:center">پشتیبانی</a><p style="font-size:12px;color:#888;margin-top:18px;line-height:1.8">تا اطلاع ثانویه امکان ورود، ثبت‌نام و خرید وجود ندارد.</p></div></div>
 
 <div id="page1" class="view active">
   <div class="header"><div class="brand"><div class="logo">🔥</div><div class="brand-text"><h1 id="siteName">فونیکس چیت</h1><small>COD STORE</small></div></div><button class="login-btn" id="headerLoginBtn" onclick="go('pageLogin')">ورود / ثبت‌نام</button></div>
@@ -264,8 +264,10 @@ body{background:var(--black);background-image:radial-gradient(ellipse at top,rgb
 <div id="pageLogin" class="view">
   <div class="header"><button onclick="go('page1')" style="background:none;border:none;color:var(--gray);font-size:22px;cursor:pointer">←</button><h3 style="font-size:18px;font-weight:800">ورود به حساب</h3><div style="width:28px"></div></div>
   <div class="card">
-    <p style="font-size:13px;color:#bbb;line-height:1.9;margin-bottom:18px;text-align:center">فقط رمز عبور اکانت خود را وارد کنید.</p>
-    <div class="form-group"><label>رمز عبور</label><input type="password" id="loginPass" placeholder="رمز عبور" style="text-align:center;font-size:16px;letter-spacing:2px" dir="ltr"><div class="hint">همان رمزی که موقع ساخت اکانت ذخیره کردید. اگر فراموش کردید به پشتیبانی پیام دهید.</div><div class="error-text" id="loginError"></div></div>
+    <p style="font-size:13px;color:#bbb;line-height:1.9;margin-bottom:18px;text-align:center">آیدی روبیکا، آیدی سایت و رمز عبور را وارد کنید.</p>
+    <div class="form-group"><label>آیدی روبیکا</label><input type="text" id="loginRubika" placeholder="@username" style="text-align:center;font-size:16px" dir="ltr"><div class="hint">همان آیدی روبیکا که موقع ثبت‌نام زدید</div></div>
+    <div class="form-group"><label>آیدی سایت</label><input type="text" id="loginCode" placeholder="آیدی سایت" style="text-align:center;font-size:16px;letter-spacing:1px" dir="ltr" maxlength="15"><div class="hint">آیدی دائمی اکانت</div></div>
+    <div class="form-group"><label>رمز عبور</label><input type="password" id="loginPass" placeholder="رمز عبور" style="text-align:center;font-size:16px;letter-spacing:2px" dir="ltr"><div class="hint">اگر فراموش کردید به پشتیبانی پیام دهید</div><div class="error-text" id="loginError"></div></div>
     <button class="btn-main" onclick="doLogin()">ورود</button>
     <button class="btn-outline" onclick="refreshCaptcha();go('pageRegister')">ساخت اکانت جدید</button>
     <div style="text-align:center;margin-top:22px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08)"><p style="font-size:13px;color:var(--gray);margin-bottom:8px">رمز را فراموش کرده‌اید؟</p><a href="https://rubika.ir/My_HINATA" target="_blank" style="color:var(--fire-blue);font-size:15px;font-weight:700;text-decoration:none">پشتیبانی</a></div>
@@ -516,7 +518,11 @@ function parseNum(s){return parseInt(String(s).replace(/,/g,''))||0}
 document.addEventListener('click',e=>{const s=document.createElement('div');s.className='sparkle';s.style.left=e.clientX+'px';s.style.top=e.clientY+'px';s.style.color=['#ff4500','#00bfff','#ffaa00'][Math.floor(Math.random()*3)];document.body.appendChild(s);setTimeout(()=>s.remove(),750);});
 window.addEventListener('scroll',()=>{document.getElementById('backTop').classList.toggle('show',window.scrollY>400);});
 
-function go(id){try{if(id==='pageProduct'){try{if(typeof renderCpGrid==='function'){if(!order.cp)order.cp=10000;renderCpGrid();calculateTotal();}}catch(e){}}if(typeof paymentTimer!=='undefined'&&paymentTimer&&id!=='pagePayment'){clearInterval(paymentTimer);paymentTimer=null;}if(typeof navStack!=='undefined'){if(navStack[navStack.length-1]!==id){navStack.push(id);history.pushState({page:id},'','#'+id);}}if(typeof updateFloatBack==='function')updateFloatBack();}catch(e){}
+function go(id){try{
+  if(SETTINGS && SETTINGS.registration_open===false && id!=='pageClosed'){
+    id='pageClosed';
+  }
+  if(id==='pageProduct'){try{if(typeof renderCpGrid==='function'){if(!order.cp)order.cp=10000;renderCpGrid();calculateTotal();}}catch(e){}}if(typeof paymentTimer!=='undefined'&&paymentTimer&&id!=='pagePayment'){clearInterval(paymentTimer);paymentTimer=null;}if(typeof navStack!=='undefined'){if(navStack[navStack.length-1]!==id){navStack.push(id);history.pushState({page:id},'','#'+id);}}if(typeof updateFloatBack==='function')updateFloatBack();}catch(e){}
   ['senderCard','sentAmount','sentTime','receiptImage','accUid','accRubika','accDesc'].forEach(fid=>{
     const el=document.getElementById(fid);if(el)el.disabled=false;
   });
@@ -633,24 +639,31 @@ async function doRegister(){
   if(data.success){
     alert((data.message||'اکانت ساخته شد')+'\nآیدی سایت: '+data.code+'\n⚠️ رمز را ذخیره کنید. ورود بعد از تأیید ادمین فعال می‌شود.');
     refreshCaptcha();
-    go('pageLogin');
+    try{const c=data.code;const el=document.getElementById('loginCode');if(el&&c)el.value=c;}catch(e){}go('pageLogin');
   }else{alert(data.message||'خطا');refreshCaptcha();}}catch(e){alert('خطای شبکه');}
   btn.disabled=false;btn.textContent='ساخت اکانت';checkRegisterForm();
 }
 async function doLogin(){
+  let rubika=(document.getElementById('loginRubika')||{}).value.trim();
+  const code=(document.getElementById('loginCode')||{}).value.trim().toUpperCase();
   const pass=document.getElementById('loginPass').value.trim();
+  if(!rubika){document.getElementById('loginError').textContent='آیدی روبیکا را وارد کنید';return;}
+  if(!code){document.getElementById('loginError').textContent='آیدی سایت را وارد کنید';return;}
   if(!pass){document.getElementById('loginError').textContent='رمز را وارد کنید';return;}
+  if(!rubika.startsWith('@')) rubika='@'+rubika;
   document.getElementById('loginError').textContent='';
   const btns=[...document.querySelectorAll('#pageLogin .btn-main')];
   btns.forEach(b=>{b.classList.add('loading');b.dataset._old=b.textContent;b.textContent='⏳ در حال ورود...';b.disabled=true;});
   try{
-    const res=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pass,fingerprint})});
+    const res=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:code,rubika:rubika,password:pass,fingerprint})});
     const data=await res.json();
-    if(data.suspended){alert(data.message||"اکانت تعلیق شده — به پشتیبانی پیام دهید");return;}if(data.pending){alert(data.message||"در انتظار تأیید ادمین");return;}if(data.success){
+    if(data.suspended){alert(data.message||'اکانت تعلیق شده — به پشتیبانی پیام دهید');return;}
+    if(data.success){
       currentUser=data;localStorage.setItem('user_code',data.code);
+      if(data.session_token) localStorage.setItem('session_token', data.session_token);
       const av=localStorage.getItem('avatar_'+data.code);if(av)currentUser.avatar=av;
       updateUserUI();go('page1');
-    }else document.getElementById('loginError').textContent=data.message||'رمز اشتباه است';
+    }else document.getElementById('loginError').textContent=data.message||'آیدی یا رمز اشتباه است';
   }catch(e){document.getElementById('loginError').textContent='خطای شبکه';}
   finally{
     btns.forEach(b=>{b.classList.remove('loading');b.disabled=false;if(b.dataset._old)b.textContent=b.dataset._old;});

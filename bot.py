@@ -594,7 +594,7 @@ def register():
                 "suspended": False, "suspend_reason": "",
                 "avatar": "",
                 "last_login": "", "is_new": True,
-                "pending_approval": True,
+                "pending_approval": False,
                 "mod_expires": "", "session_token": make_code(16),
                 "referral_today": 0, "referral_day": "",
                 "last_activity": now.strftime("%Y-%m-%d %H:%M")
@@ -633,35 +633,11 @@ def register():
             security_log(db, "register_ok", f"{code} {rubika}")
             save_data(db)
 
-        # notify admin for approval
-        try:
-            async def _new_acc():
-                kb = [[
-                    InlineKeyboardButton("✅ تأیید اکانت", callback_data=f"approve_user_{code}"),
-                    InlineKeyboardButton("🚫 رد/تعلیق", callback_data=f"reject_user_{code}")
-                ]]
-                await bot_app.bot.send_message(
-                    chat_id=GROUP_ID,
-                    text=(
-                        f"🆕 درخواست اکانت جدید\n"
-                        f"نام: {name}\n"
-                        f"آیدی سایت: `{code}`\n"
-                        f"روبیکا: {rubika}\n"
-                        f"IP: `{ip}`\n"
-                        f"وضعیت: در انتظار تأیید ادمین"
-                    ),
-                    parse_mode="Markdown",
-                    reply_markup=InlineKeyboardMarkup(kb)
-                )
-            send_telegram_safe(_new_acc())
-        except Exception as e:
-            print("new account notify:", e)
-
         return jsonify({
             "success": True,
-            "message": "اکانت ساخته شد. پس از تأیید ادمین می‌توانید وارد شوید.",
+            "message": "اکانت با موفقیت ساخته شد. الان می‌توانید وارد شوید.",
             "code": code,
-            "pending_approval": True
+            "pending_approval": False
         })
     except Exception as e:
         print("register error:", e)
@@ -674,117 +650,100 @@ def login():
     try:
         data = request.get_json(silent=True) or {}
         code = str(data.get("code", "")).strip().upper()
+        rubika = str(data.get("rubika", "")).strip()
         password = str(data.get("password", "")).strip()
         fingerprint = str(data.get("fingerprint", "")).strip()
         ip = get_client_ip()
-        fail_key = f"{ip}|{(fingerprint or '')[:32]}"
+        fail_key = f"{ip}|{(fingerprint or '')[:24]}"
 
-        if rate_limited(f"login:{ip}", 3):
+        if rate_limited(f"login:{ip}", 2):
             return jsonify({"success": False, "message": "لطفاً کمی صبر کنید"}), 429
 
         info = LOGIN_FAILS.get(fail_key) or {}
         if info.get("until", 0) > time.time():
             left = int(info["until"] - time.time())
             return jsonify({"success": False, "message": f"تلاش زیاد. {left} ثانیه صبر کنید"}), 429
+
+        if not code:
+            return jsonify({"success": False, "message": "آیدی سایت را وارد کنید"}), 400
+        if not rubika:
+            return jsonify({"success": False, "message": "آیدی روبیکا را وارد کنید"}), 400
         if not password:
-            return jsonify({"success": False, "message": "اطلاعات ورود ناقص است"}), 400
+            return jsonify({"success": False, "message": "رمز را وارد کنید"}), 400
+
+        if not rubika.startswith("@"):
+            rubika = "@" + rubika
 
         db = load_data()
         users = db.get("users", {}) or {}
         bl = db.get("settings", {}).get("blacklist_codes") or []
-        user = None
+        user = users.get(code)
         need_upgrade = False
-
-        def _match(u, pw):
-            nonlocal need_upgrade
-            stored = u.get("password", "")
-            if stored.startswith("pbkdf2:") or stored.startswith("scrypt:"):
-                return check_password_hash(stored, pw)
-            if stored == pw:
-                need_upgrade = True
-                return True
-            return False
-
-        if code and code in users:
-            if _match(users[code], password):
-                user = users[code]
-        else:
-            for c_key, u in users.items():
-                if _match(u, password):
-                    user = u
-                    code = c_key
-                    break
 
         if not user:
             fails = int(info.get("count", 0)) + 1
-            until = time.time() + (300 if fails >= 5 else 0)
-            LOGIN_FAILS[fail_key] = {"count": fails, "until": until}
-            # artificial delay against bots
-            time.sleep(min(1.5, 0.35 * fails))
-            try:
-                with DATA_LOCK:
-                    db2 = load_data()
-                    security_log(db2, "login_fail", f"code={code or '?'} ip={ip}")
-                    fails_log = db2.setdefault("login_fails", [])
-                    fails_log.append({"time": datetime.now().strftime("%Y-%m-%d %H:%M"), "ip": ip, "code": code or "?"})
-                    db2["login_fails"] = fails_log[-100:]
-                    save_data(db2)
-            except Exception:
-                pass
-            return jsonify({"success": False, "message": "رمز عبور اشتباه است"}), 403
+            LOGIN_FAILS[fail_key] = {"count": fails, "until": time.time() + (180 if fails >= 5 else 0)}
+            return jsonify({"success": False, "message": "اطلاعات ورود اشتباه است"}), 403
 
-        if code in bl:
-            return jsonify({"success": False, "message": "این اکانت مسدود است"}), 403
-        if user.get("suspended"):
-            reason = user.get("suspend_reason") or "تخلف امنیتی"
+        # all three must match
+        stored_rubika = (user.get("rubika") or "").strip()
+        if stored_rubika.lower() != rubika.lower():
+            fails = int(info.get("count", 0)) + 1
+            LOGIN_FAILS[fail_key] = {"count": fails, "until": time.time() + (180 if fails >= 5 else 0)}
+            return jsonify({"success": False, "message": "اطلاعات ورود اشتباه است"}), 403
+
+        stored = user.get("password", "")
+        ok = False
+        if stored.startswith("pbkdf2:") or stored.startswith("scrypt:"):
+            ok = check_password_hash(stored, password)
+        elif stored == password:
+            ok = True
+            need_upgrade = True
+
+        if not ok:
+            fails = int(info.get("count", 0)) + 1
+            LOGIN_FAILS[fail_key] = {"count": fails, "until": time.time() + (180 if fails >= 5 else 0)}
+            return jsonify({"success": False, "message": "اطلاعات ورود اشتباه است"}), 403
+
+        if code in bl or user.get("suspended"):
+            reason = user.get("suspend_reason") or "مسدود / تعلیق"
             return jsonify({
                 "success": False,
                 "suspended": True,
-                "message": f"اکانت تعلیق شده است.\nدلیل: {reason}\nبرای پیگیری به پشتیبانی پیام دهید:\nhttps://rubika.ir/My_HINATA"
+                "message": f"اکانت تعلیق شده است.\nدلیل: {reason}\nپشتیبانی: https://rubika.ir/My_HINATA"
             }), 403
-        if user.get("pending_approval"):
-            return jsonify({
-                "success": False,
-                "pending": True,
-                "message": "اکانت شما هنوز توسط ادمین تأیید نشده است. لطفاً صبر کنید."
-            }), 403
-
-        # 15 days inactivity expiry
-        try:
-            la = user.get("last_activity") or user.get("last_login") or user.get("created_at")
-            if la:
-                last = datetime.strptime(la[:16], "%Y-%m-%d %H:%M")
-                if (datetime.now() - last).days > 15:
-                    return jsonify({
-                        "success": False,
-                        "message": "نشست منقضی شده (بیش از ۱۵ روز بی‌فعالیتی). دوباره با رمز وارد شوید و در صورت مشکل به پشتیبانی پیام دهید."
-                    }), 403
-        except Exception:
-            pass
 
         LOGIN_FAILS.pop(fail_key, None)
         token = make_code(16)
-        with DATA_LOCK:
-            db2 = load_data(force=False)
-            u2 = db2.get("users", {}).get(code)
-            if u2:
-                if need_upgrade:
-                    u2["password"] = generate_password_hash(password)
-                if fingerprint:
-                    # if fingerprint changed drastically, log
-                    old_fp = u2.get("fingerprint") or ""
-                    if old_fp and fingerprint and old_fp != fingerprint:
-                        security_log(db2, "fp_change", f"{code}")
-                    u2["fingerprint"] = fingerprint
-                now_s = datetime.now().strftime("%Y-%m-%d %H:%M")
-                u2["last_login"] = now_s
-                u2["last_activity"] = now_s
-                u2["session_token"] = token
-                u2["ip"] = ip
-                db2["users"][code] = u2
-                security_log(db2, "login_ok", code)
-                save_data(db2)
-                user = u2
+        now_s = datetime.now().strftime("%Y-%m-%d %H:%M")
+
+        user["last_login"] = now_s
+        user["last_activity"] = now_s
+        user["session_token"] = token
+        user["pending_approval"] = False
+        if need_upgrade:
+            user["password"] = generate_password_hash(password)
+        if fingerprint:
+            user["fingerprint"] = fingerprint
+        user["ip"] = ip
+        users[code] = user
+        db["users"] = users
+
+        def _bg_save(snapshot):
+            try:
+                with DATA_LOCK:
+                    save_data(snapshot)
+            except Exception as e:
+                print("login bg save:", e)
+
+        try:
+            snap = copy.deepcopy(db)
+            threading.Thread(target=_bg_save, args=(snap,), daemon=True).start()
+        except Exception:
+            try:
+                save_data(db)
+            except Exception:
+                pass
 
         return jsonify({
             "success": True,
@@ -793,8 +752,8 @@ def login():
             "balance": user.get("balance", 0),
             "referral_count": user.get("referral_count", 0),
             "avatar": user.get("avatar", ""),
-            "session_token": user.get("session_token", token),
-            "last_login": user.get("last_login", ""),
+            "session_token": token,
+            "last_login": now_s,
             "mod_expires": user.get("mod_expires", ""),
             "is_new": bool(user.get("is_new", False))
         })
@@ -876,8 +835,7 @@ def session_check():
             return jsonify({"success": False}), 401
         if u.get("suspended") or code in (db.get("settings",{}).get("blacklist_codes") or []):
             return jsonify({"success": False, "suspended": True, "message": u.get("suspend_reason") or "مسدود"}), 403
-        if u.get("pending_approval"):
-            return jsonify({"success": False, "pending": True, "message": "در انتظار تأیید ادمین"}), 403
+        # pending_approval disabled — legacy field ignored
         try:
             la = u.get("last_activity") or u.get("last_login") or u.get("created_at")
             if la:
@@ -1523,209 +1481,226 @@ async def button_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         
         
         elif data == "menu_devices":
-            users = db.get("users", {}) or {}
-            # group by fingerprint (or ip if no fp)
-            devices = {}
-            for code, u in users.items():
-                fp = (u.get("fingerprint") or "").strip()
-                ip = (u.get("ip") or "").strip()
-                key = fp if fp else (f"ip:{ip}" if ip else f"user:{code}")
-                devices.setdefault(key, []).append(code)
-            blocked_fp = set(s.get("blocked_fingerprints") or [])
-            blocked_ips = set(s.get("blocked_ips") or [])
-            if not devices:
-                await query.edit_message_text("دستگاهی ثبت نشده.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙", callback_data="back")]]))
-                return
-            # sort newest-ish by listing all
-            text = "📱 دستگاه‌های ثبت‌شده\n(هر خط یک دستگاه)\n\n"
-            kb = []
-            items = list(devices.items())[-25:]
-            for idx, (key, codes) in enumerate(items):
-                u0 = users.get(codes[0], {})
-                short = (key[:14] + "…") if len(key) > 15 else key
-                flag = ""
-                if key in blocked_fp or (key.startswith("ip:") and key[3:] in blocked_ips):
-                    flag = " 🔒"
-                sus = any(users.get(c, {}).get("suspended") for c in codes)
-                if sus:
-                    flag += " 🚫"
-                text += f"{idx+1}. `{short}` | اکانت: {', '.join(codes)}{flag}\n"
-                # callback key must be short - use index into stored list in USER_STATES
-                kb.append([InlineKeyboardButton(f"{idx+1}) {codes[0]}{flag}", callback_data=f"dev_i_{idx}")])
-            USER_STATES[ADMIN_ID] = {"state": "device_list", "items": items}
-            kb.append([InlineKeyboardButton("🔙", callback_data="back")])
-            if len(text) > 3500:
-                text = text[:3500] + "\n…"
-            await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
+            try:
+                await query.answer()
+                users = db.get("users", {}) or {}
+                devices = {}
+                for code, u in users.items():
+                    fp = (u.get("fingerprint") or "").strip()
+                    ip = (u.get("ip") or "").strip()
+                    key = fp if fp else (f"ip:{ip}" if ip else f"user:{code}")
+                    devices.setdefault(key, []).append(code)
+                blocked_fp = set((s.get("blocked_fingerprints") or []))
+                blocked_ips = set((s.get("blocked_ips") or []))
+                if not devices:
+                    await query.edit_message_text(
+                        "دستگاهی ثبت نشده.",
+                        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("بازگشت", callback_data="back")]])
+                    )
+                    return
+                items = list(devices.items())[-30:]
+                USER_STATES[ADMIN_ID] = {"state": "device_list", "items": items}
+                lines = ["دستگاه های ثبت شده", ""]
+                kb = []
+                for idx, (key, codes) in enumerate(items):
+                    short = (key[:18] + "...") if len(key) > 18 else key
+                    flag = ""
+                    if key in blocked_fp or (key.startswith("ip:") and key[3:] in blocked_ips):
+                        flag += " [BLOCK]"
+                    if any(users.get(c, {}).get("suspended") for c in codes):
+                        flag += " [SUS]"
+                    lines.append(f"{idx+1}) {codes[0]} | {short}{flag}")
+                    lines.append(f"   accounts: {', '.join(codes)}")
+                    kb.append([InlineKeyboardButton(f"{idx+1}) {codes[0]}{flag}", callback_data=f"dev_i_{idx}")])
+                kb.append([InlineKeyboardButton("بازگشت", callback_data="back")])
+                text = "\n".join(lines)
+                if len(text) > 3500:
+                    text = text[:3500] + "\n..."
+                await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(kb))
+            except Exception as e:
+                print("menu_devices error:", e)
+                try:
+                    await query.answer(f"خطا: {e}", show_alert=True)
+                except Exception:
+                    pass
 
         elif data.startswith("dev_i_"):
             try:
+                await query.answer()
                 idx = int(data.replace("dev_i_", ""))
-            except Exception:
-                await query.answer("خطا")
-                return
-            st = USER_STATES.get(ADMIN_ID) or {}
-            items = st.get("items") or []
-            if idx < 0 or idx >= len(items):
-                await query.answer("لیست منقضی شده؛ دوباره دستگاه‌ها را باز کن", show_alert=True)
-                return
-            key, codes = items[idx]
-            users = db.get("users", {}) or {}
-            blocked_fp = s.get("blocked_fingerprints") or []
-            blocked_ips = s.get("blocked_ips") or []
-            lines = [f"📱 جزئیات دستگاه #{idx+1}", f"کلید: `{key[:40]}`", ""]
-            for c in codes:
-                u = users.get(c, {})
-                lines.append(
-                    f"• `{c}` | {u.get('name','-')}\n"
-                    f"  روبیکا: {u.get('rubika','-')}\n"
-                    f"  IP: `{u.get('ip','-')}`\n"
-                    f"  ساخته: {u.get('created_at','-')}\n"
-                    f"  ورود: {u.get('last_login','-')}\n"
-                    f"  وضعیت: {'🚫 تعلیق' if u.get('suspended') else '✅ فعال'}"
-                    + (" | ⏳ تأیید" if u.get('pending_approval') else "")
-                )
-            is_perm = key in blocked_fp or (key.startswith("ip:") and key[3:] in blocked_ips)
-            lines.append("")
-            lines.append("🔒 بلاک دائمی دستگاه: " + ("بله" if is_perm else "خیر"))
-            text = "\n".join(lines)
-            if len(text) > 3500:
-                text = text[:3500]
-            kb = [
-                [InlineKeyboardButton("♻️ ریست دستگاه (اجازه اکانت جدید)", callback_data=f"dev_reset_{idx}")],
-                [InlineKeyboardButton("🚫 تعلیق همه اکانت‌های این دستگاه", callback_data=f"dev_sus_{idx}")],
-                [InlineKeyboardButton("🔒 مسدود دائمی دستگاه", callback_data=f"dev_perm_{idx}")],
-                [InlineKeyboardButton("✅ رفع مسدود دائمی", callback_data=f"dev_unperm_{idx}")],
-                [InlineKeyboardButton("🔙 لیست دستگاه‌ها", callback_data="menu_devices")],
-            ]
-            await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
+                st = USER_STATES.get(ADMIN_ID) or {}
+                items = st.get("items") or []
+                if idx < 0 or idx >= len(items):
+                    await query.answer("لیست منقضی - دوباره دستگاه ها را باز کن", show_alert=True)
+                    return
+                key, codes = items[idx]
+                users = db.get("users", {}) or {}
+                blocked_fp = s.get("blocked_fingerprints") or []
+                blocked_ips = s.get("blocked_ips") or []
+                lines = [f"دستگاه #{idx+1}", f"key: {key[:60]}", ""]
+                for c in codes:
+                    u = users.get(c, {})
+                    lines.append(f"- {c} | {u.get('name','-')}")
+                    lines.append(f"  rubika: {u.get('rubika','-')}")
+                    lines.append(f"  ip: {u.get('ip','-')}")
+                    lines.append(f"  created: {u.get('created_at','-')}")
+                    lines.append(f"  login: {u.get('last_login','-')}")
+                    lines.append(f"  status: {'SUSPENDED' if u.get('suspended') else 'OK'}")
+                    lines.append("")
+                is_perm = key in blocked_fp or (key.startswith("ip:") and key[3:] in blocked_ips)
+                lines.append(f"permanent block: {'YES' if is_perm else 'NO'}")
+                text = "\n".join(lines)
+                if len(text) > 3500:
+                    text = text[:3500]
+                kb = [
+                    [InlineKeyboardButton("ریست دستگاه (اکانت جدید)", callback_data=f"dev_reset_{idx}")],
+                    [InlineKeyboardButton("تعلیق همه اکانت ها", callback_data=f"dev_sus_{idx}")],
+                    [InlineKeyboardButton("مسدود دائمی", callback_data=f"dev_perm_{idx}")],
+                    [InlineKeyboardButton("رفع مسدود دائمی", callback_data=f"dev_unperm_{idx}")],
+                    [InlineKeyboardButton("لیست دستگاه ها", callback_data="menu_devices")],
+                ]
+                await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(kb))
+            except Exception as e:
+                print("dev_i error:", e)
+                try:
+                    await query.answer(str(e)[:100], show_alert=True)
+                except Exception:
+                    pass
 
         elif data.startswith("dev_reset_"):
-            idx = int(data.replace("dev_reset_", ""))
-            st = USER_STATES.get(ADMIN_ID) or {}
-            items = st.get("items") or []
-            if idx < 0 or idx >= len(items):
-                await query.answer("لیست منقضی", show_alert=True)
-                return
-            key, codes = items[idx]
-            users = db.get("users", {}) or {}
-            for c in codes:
-                u = users.get(c)
-                if not u:
-                    continue
-                # clear fingerprint so device can register a new account
-                u["fingerprint"] = ""
-                u["_fp_reset"] = True
-                # free IP 24h lock for one new signup
-                if u.get("ip") and not str(u.get("ip")).startswith("reset:"):
-                    u["ip"] = "reset:" + str(u.get("ip"))
-                users[c] = u
-            # also remove from permanent blocks if present
-            bf = s.get("blocked_fingerprints") or []
-            bi = s.get("blocked_ips") or []
-            if key in bf:
-                bf = [x for x in bf if x != key]
-                s["blocked_fingerprints"] = bf
-            if key.startswith("ip:"):
-                ip = key[3:]
-                bi = [x for x in bi if x != ip]
-                s["blocked_ips"] = bi
-            db["users"] = users
-            db["settings"] = s
-            with DATA_LOCK:
-                save_data(db)
-            # clear login fails soft
-            for k in list(LOGIN_FAILS.keys()):
-                if key[:12] in k:
-                    LOGIN_FAILS.pop(k, None)
-            await query.answer("ریست شد ✅", show_alert=True)
-            await query.edit_message_text(
-                f"♻️ دستگاه ریست شد.\nاکانت‌های قبلی: {', '.join(codes)}\nالان می‌تواند دوباره ثبت‌نام کند (با آیدی جدید).",
-                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 دستگاه‌ها", callback_data="menu_devices")]])
-            )
+            try:
+                await query.answer()
+                idx = int(data.replace("dev_reset_", ""))
+                st = USER_STATES.get(ADMIN_ID) or {}
+                items = st.get("items") or []
+                if idx < 0 or idx >= len(items):
+                    await query.answer("لیست منقضی", show_alert=True)
+                    return
+                key, codes = items[idx]
+                users = db.get("users", {}) or {}
+                for c in codes:
+                    u = users.get(c)
+                    if not u:
+                        continue
+                    u["fingerprint"] = ""
+                    u["_fp_reset"] = True
+                    if u.get("ip") and not str(u.get("ip")).startswith("reset:"):
+                        u["ip"] = "reset:" + str(u.get("ip"))
+                    users[c] = u
+                bf = list(s.get("blocked_fingerprints") or [])
+                bi = list(s.get("blocked_ips") or [])
+                if key in bf:
+                    bf = [x for x in bf if x != key]
+                    s["blocked_fingerprints"] = bf
+                if key.startswith("ip:"):
+                    ipx = key[3:]
+                    bi = [x for x in bi if x != ipx]
+                    s["blocked_ips"] = bi
+                db["users"] = users
+                db["settings"] = s
+                with DATA_LOCK:
+                    save_data(db)
+                await query.edit_message_text(
+                    f"ریست شد. اکانت ها: {', '.join(codes)}\nالان میتواند دوباره ثبت نام کند.",
+                    reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("دستگاه ها", callback_data="menu_devices")]])
+                )
+            except Exception as e:
+                print("dev_reset error:", e)
+                try:
+                    await query.answer(str(e)[:100], show_alert=True)
+                except Exception:
+                    pass
 
         elif data.startswith("dev_sus_"):
-            idx = int(data.replace("dev_sus_", ""))
-            st = USER_STATES.get(ADMIN_ID) or {}
-            items = st.get("items") or []
-            if idx < 0 or idx >= len(items):
-                await query.answer("لیست منقضی", show_alert=True)
-                return
-            key, codes = items[idx]
-            users = db.get("users", {}) or {}
-            for c in codes:
-                if c in users:
-                    users[c]["suspended"] = True
-                    users[c]["suspend_reason"] = "تعلیق دستگاه توسط ادمین"
-            db["users"] = users
-            with DATA_LOCK:
-                save_data(db)
-            await query.answer("تعلیق شد", show_alert=True)
-            await query.edit_message_text(
-                f"🚫 همه اکانت‌های این دستگاه تعلیق شدند:\n{', '.join(codes)}",
-                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙", callback_data="menu_devices")]])
-            )
+            try:
+                await query.answer()
+                idx = int(data.replace("dev_sus_", ""))
+                st = USER_STATES.get(ADMIN_ID) or {}
+                items = st.get("items") or []
+                if idx < 0 or idx >= len(items):
+                    await query.answer("لیست منقضی", show_alert=True)
+                    return
+                key, codes = items[idx]
+                users = db.get("users", {}) or {}
+                for c in codes:
+                    if c in users:
+                        users[c]["suspended"] = True
+                        users[c]["suspend_reason"] = "تعلیق دستگاه توسط ادمین"
+                db["users"] = users
+                with DATA_LOCK:
+                    save_data(db)
+                await query.edit_message_text(
+                    f"تعلیق شد: {', '.join(codes)}",
+                    reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("بازگشت", callback_data="menu_devices")]])
+                )
+            except Exception as e:
+                print("dev_sus error:", e)
 
         elif data.startswith("dev_perm_"):
-            idx = int(data.replace("dev_perm_", ""))
-            st = USER_STATES.get(ADMIN_ID) or {}
-            items = st.get("items") or []
-            if idx < 0 or idx >= len(items):
-                await query.answer("لیست منقضی", show_alert=True)
-                return
-            key, codes = items[idx]
-            users = db.get("users", {}) or {}
-            bf = list(s.get("blocked_fingerprints") or [])
-            bi = list(s.get("blocked_ips") or [])
-            if key.startswith("ip:"):
-                ip = key[3:]
-                if ip and ip not in bi:
-                    bi.append(ip)
-            else:
-                if key and key not in bf:
-                    bf.append(key)
-            for c in codes:
-                if c in users:
-                    users[c]["suspended"] = True
-                    users[c]["suspend_reason"] = "مسدود دائمی دستگاه"
-            s["blocked_fingerprints"] = bf
-            s["blocked_ips"] = bi
-            db["settings"] = s
-            db["users"] = users
-            with DATA_LOCK:
-                save_data(db)
-            await query.answer("مسدود دائمی شد", show_alert=True)
-            await query.edit_message_text(
-                f"🔒 دستگاه برای همیشه مسدود شد و اکانت‌ها تعلیق شدند.\n{', '.join(codes)}",
-                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙", callback_data="menu_devices")]])
-            )
+            try:
+                await query.answer()
+                idx = int(data.replace("dev_perm_", ""))
+                st = USER_STATES.get(ADMIN_ID) or {}
+                items = st.get("items") or []
+                if idx < 0 or idx >= len(items):
+                    await query.answer("لیست منقضی", show_alert=True)
+                    return
+                key, codes = items[idx]
+                users = db.get("users", {}) or {}
+                bf = list(s.get("blocked_fingerprints") or [])
+                bi = list(s.get("blocked_ips") or [])
+                if key.startswith("ip:"):
+                    ipx = key[3:]
+                    if ipx and ipx not in bi:
+                        bi.append(ipx)
+                else:
+                    if key and key not in bf:
+                        bf.append(key)
+                for c in codes:
+                    if c in users:
+                        users[c]["suspended"] = True
+                        users[c]["suspend_reason"] = "مسدود دائمی دستگاه"
+                s["blocked_fingerprints"] = bf
+                s["blocked_ips"] = bi
+                db["settings"] = s
+                db["users"] = users
+                with DATA_LOCK:
+                    save_data(db)
+                await query.edit_message_text(
+                    f"مسدود دائمی شد: {', '.join(codes)}",
+                    reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("بازگشت", callback_data="menu_devices")]])
+                )
+            except Exception as e:
+                print("dev_perm error:", e)
 
         elif data.startswith("dev_unperm_"):
-            idx = int(data.replace("dev_unperm_", ""))
-            st = USER_STATES.get(ADMIN_ID) or {}
-            items = st.get("items") or []
-            if idx < 0 or idx >= len(items):
-                await query.answer("لیست منقضی", show_alert=True)
-                return
-            key, codes = items[idx]
-            bf = list(s.get("blocked_fingerprints") or [])
-            bi = list(s.get("blocked_ips") or [])
-            if key.startswith("ip:"):
-                ip = key[3:]
-                bi = [x for x in bi if x != ip]
-            else:
-                bf = [x for x in bf if x != key]
-            s["blocked_fingerprints"] = bf
-            s["blocked_ips"] = bi
-            db["settings"] = s
-            with DATA_LOCK:
-                save_data(db)
-            await query.answer("رفع مسدود دائمی", show_alert=True)
-            await query.edit_message_text(
-                "✅ مسدود دائمی دستگاه برداشته شد.\n(برای اجازه ثبت‌نام جدید از ریست دستگاه هم استفاده کن)",
-                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙", callback_data="menu_devices")]])
-            )
-
+            try:
+                await query.answer()
+                idx = int(data.replace("dev_unperm_", ""))
+                st = USER_STATES.get(ADMIN_ID) or {}
+                items = st.get("items") or []
+                if idx < 0 or idx >= len(items):
+                    await query.answer("لیست منقضی", show_alert=True)
+                    return
+                key, codes = items[idx]
+                bf = list(s.get("blocked_fingerprints") or [])
+                bi = list(s.get("blocked_ips") or [])
+                if key.startswith("ip:"):
+                    ipx = key[3:]
+                    bi = [x for x in bi if x != ipx]
+                else:
+                    bf = [x for x in bf if x != key]
+                s["blocked_fingerprints"] = bf
+                s["blocked_ips"] = bi
+                db["settings"] = s
+                with DATA_LOCK:
+                    save_data(db)
+                await query.edit_message_text(
+                    "مسدود دائمی برداشته شد. برای ثبت نام جدید ریست دستگاه را هم بزن.",
+                    reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("بازگشت", callback_data="menu_devices")]])
+                )
+            except Exception as e:
+                print("dev_unperm error:", e)
 
         elif data == "menu_sys":
             orders = db.get("orders", [])
